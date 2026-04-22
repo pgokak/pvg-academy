@@ -115,6 +115,7 @@ echo "npx lint-staged" > .husky/pre-commit
 ```
 
 **Add lint-staged config to `package.json`:**
+#Open package.json and add this block at the end, before the closing }:
 
 ```json
 "lint-staged": {
@@ -137,6 +138,22 @@ git commit -m "test: verify husky runs"
 
 ---
 
+/\* Step 3 complete.
+
+Here's what we've done so far:
+
+✅ Step 1 Next.js app scaffolded and running
+✅ Step 2 CLAUDE.md + ARCHITECTURE.md + SETUP.md created
+✅ Step 3 Prettier installed and configured
+✅ Step 4 Husky + lint-staged — bad code can't be committed
+⬜ Step 5 Create folder structure
+⬜ Step 6 Vitest (unit testing)
+⬜ Step 7 Playwright (E2E testing)
+⬜ Step 8 Push to GitHub
+⬜ Step 9 Connect Vercel
+⬜ Step 10 GitHub Actions CI/CD
+\*/
+
 ## Step 4: Create Folder Structure
 
 ```bash
@@ -150,6 +167,9 @@ mkdir -p e2e
 
 **Create placeholder files so git tracks the folders:**
 
+#Why this is needed:
+Git does not track empty folders — only files. .gitkeep is a convention (empty file with no content) just to make git aware the folder exists. The lib/ files are placeholders we'll fill in later.
+
 ```bash
 touch lib/types.ts
 touch lib/progress.ts
@@ -160,6 +180,9 @@ touch lib/services/.gitkeep
 ```
 
 ---
+
+#Verify the structure looks right:
+#find . -not -path "_/node_modules/_" -not -path "_/.git/_" -not -path "_/.next/_" | sort
 
 ## Step 5: Install and Configure Vitest
 
