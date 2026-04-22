@@ -239,9 +239,18 @@ npm run test
 ## Step 6: Install and Configure Playwright
 
 Playwright runs end-to-end tests — it opens a real browser and interacts with your app like a user.
+itest tests functions and components in isolation — no browser.
+Playwright opens a real browser and clicks through your app like a real user.
+
+Vitest → "does progress.complete() work?"
+Playwright → "can a user open a lesson, write code, submit quiz, and see progress saved?"
+Both are needed. Vitest is fast (milliseconds). Playwright is slower but catches things unit tests miss — broken layouts, navigation issues, real browser behavior.
 
 ```bash
 npm install --save-dev @playwright/test
+
+#This downloads Chromium, Firefox and WebKit (Safari engine) onto your machine. Playwright uses these to run your tests in real browsers.
+#This may take 1-2 minutes — it's downloading browser binaries. Run it and come back.
 npx playwright install
 ```
 
