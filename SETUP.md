@@ -186,6 +186,12 @@ touch lib/services/.gitkeep
 
 ## Step 5: Install and Configure Vitest
 
+#Testing a plain function → Vitest only
+Testing a React component → Vitest + RTL together
+#Vitest is the test runner — it finds your test files, runs them, and tells you pass/fail. Think of it as the engine.
+
+#React Testing Library (RTL) is a set of helper functions specifically for testing React components — it lets you render a component and interact with it like a user would.
+
 Vitest is the unit testing framework. Faster than Jest, built for modern Next.js.
 
 ```bash
@@ -217,8 +223,8 @@ import "@testing-library/jest-dom";
 **Add test script to `package.json`:**
 
 ```json
-"test": "vitest",
-"test:coverage": "vitest run --coverage"
+"test": "vitest", ** — runs Vitest in watch mode (re-runs on file save) **
+"test:coverage": "vitest run --coverage" **— runs once and shows how much of your code is covered by tests **
 ```
 
 **Verify it works:**
