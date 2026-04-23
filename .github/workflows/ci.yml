@@ -12,6 +12,8 @@ on:
 jobs:
   check: # job name — you can have multiple jobs running in parallel
     runs-on: ubuntu-latest # spin up a fresh Ubuntu machine on GitHub's servers
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # opt into Node.js 24 for actions runner
 
     steps:
       # Step 1: Download your code onto the GitHub runner machine
