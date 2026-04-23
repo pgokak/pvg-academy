@@ -44,10 +44,11 @@ npm run dev
 ## Step 2: Install and Configure Prettier
 
 Prettier enforces consistent code formatting across the whole team.
-Without it, every developer formats code differently — git shows noise changes.
+Without it, every developer formats code differently — git shows noisy diffs.
 
 ```bash
 # Install Prettier as a dev dependency
+# --save-dev means it's a dev tool only, not shipped to production
 npm install --save-dev prettier
 ```
 
@@ -58,7 +59,7 @@ echo '{}' > .prettierrc
 ```
 
 ```bash
-# Tell Prettier which folders to skip
+# Tell Prettier which folders to skip (generated/third-party code)
 echo "node_modules
 .next
 public" > .prettierignore
@@ -84,17 +85,16 @@ public" > .prettierignore
 
 ```bash
 npm run format
-# Should list every file it touched
+# Lists every file it touched
 ```
 
 ---
 
 ## Step 3: Install and Configure Husky + lint-staged
 
-Husky runs scripts automatically before git commits.
-lint-staged runs those scripts only on files you changed (not the whole project).
-
-Together they ensure nobody can commit badly formatted or broken code.
+**Why:** Husky runs a script automatically before every git commit.
+lint-staged runs that script only on files you changed, not the whole project.
+Together they make it impossible to commit badly formatted or broken code.
 
 ```bash
 # Install both packages
@@ -102,62 +102,46 @@ npm install --save-dev husky lint-staged
 ```
 
 ```bash
-# Set up Husky — creates .husky/ folder
-#This creates a .husky/ folder in your project with a default pre-commit file. The pre-commit file is a shell script that runs automatically every time you type git commit.
+# Set up Husky — creates .husky/ folder with a pre-commit hook file
+# The pre-commit file runs automatically every time you type git commit
 npx husky init
 ```
 
 ```bash
-# Replace the default pre-commit hook with our own
-#This replaces the default content in .husky/pre-commit with npx lint-staged — so every commit automatically runs lint-staged.
-
+# Replace default hook content with lint-staged
 echo "npx lint-staged" > .husky/pre-commit
 ```
 
-**Add lint-staged config to `package.json`:**
-#Open package.json and add this block at the end, before the closing }:
+**Add lint-staged config to `package.json`** (before the closing `}`):
 
 ```json
 "lint-staged": {
-  "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
+  "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
   "*.{json,md,css}": ["prettier --write"]
 }
 ```
 
-- On `.ts` and `.tsx` files: fix ESLint issues, then format with Prettier
-- On `.json`, `.md`, `.css` files: just format with Prettier
+- On `.ts/.tsx/.js/.jsx` files: ESLint fixes issues first, then Prettier formats
+- On `.json`, `.md`, `.css` files: Prettier formats only
+- Files you didn't change: skipped entirely
 
 **Verify it works:**
 
 ```bash
-# Make a small change to any file, then commit
 git add .
-git commit -m "test: verify husky runs"
-# Should see lint-staged running before the commit completes
+git commit -m "chore: add Prettier and Husky"
+# Should see lint-staged output before the commit completes
 ```
 
 ---
 
-/\* Step 3 complete.
-
-Here's what we've done so far:
-
-✅ Step 1 Next.js app scaffolded and running
-✅ Step 2 CLAUDE.md + ARCHITECTURE.md + SETUP.md created
-✅ Step 3 Prettier installed and configured
-✅ Step 4 Husky + lint-staged — bad code can't be committed
-⬜ Step 5 Create folder structure
-⬜ Step 6 Vitest (unit testing)
-⬜ Step 7 Playwright (E2E testing)
-⬜ Step 8 Push to GitHub
-⬜ Step 9 Connect Vercel
-⬜ Step 10 GitHub Actions CI/CD
-\*/
-
 ## Step 4: Create Folder Structure
 
+**Why:** Git does not track empty folders — only files. We create placeholder
+files so git knows these folders exist. The `lib/` files will be filled in later.
+
 ```bash
-# Create all project folders at once
+# Create all project folders
 mkdir -p content/typescript/01-basic-types
 mkdir -p components/editor components/quiz components/layout
 mkdir -p lib/services
@@ -165,34 +149,27 @@ mkdir -p __tests__
 mkdir -p e2e
 ```
 
-**Create placeholder files so git tracks the folders:**
-
-#Why this is needed:
-Git does not track empty folders — only files. .gitkeep is a convention (empty file with no content) just to make git aware the folder exists. The lib/ files are placeholders we'll fill in later.
+```bash
+# Create placeholder files so git tracks the empty folders
+# .gitkeep is a convention — an empty file just to mark the folder
+touch lib/types.ts lib/progress.ts lib/content.ts lib/api.ts lib/tracks.ts lib/services/.gitkeep
+```
 
 ```bash
-touch lib/types.ts
-touch lib/progress.ts
-touch lib/content.ts
-touch lib/api.ts
-touch lib/tracks.ts
-touch lib/services/.gitkeep
+git add .
+git commit -m "chore: create project folder structure"
 ```
 
 ---
 
-#Verify the structure looks right:
-#find . -not -path "_/node_modules/_" -not -path "_/.git/_" -not -path "_/.next/_" | sort
-
 ## Step 5: Install and Configure Vitest
 
-#Testing a plain function → Vitest only
-Testing a React component → Vitest + RTL together
-#Vitest is the test runner — it finds your test files, runs them, and tells you pass/fail. Think of it as the engine.
+**Why two packages — Vitest vs React Testing Library (RTL)?**
 
-#React Testing Library (RTL) is a set of helper functions specifically for testing React components — it lets you render a component and interact with it like a user would.
-
-Vitest is the unit testing framework. Faster than Jest, built for modern Next.js.
+- **Vitest** is the test runner — finds test files, runs them, reports pass/fail
+- **RTL** adds helpers for testing React components (render, click, check DOM)
+- Testing a plain function → Vitest only
+- Testing a React component → Vitest + RTL together
 
 ```bash
 npm install --save-dev vitest @vitejs/plugin-react jsdom @testing-library/react @testing-library/jest-dom
@@ -205,10 +182,10 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react()], // tells Vitest how to handle JSX/TSX
   test: {
-    environment: "jsdom",
-    globals: true,
+    environment: "jsdom", // simulates browser DOM so React can render
+    globals: true, // use test()/expect() without importing them
     setupFiles: "./__tests__/setup.ts",
   },
 });
@@ -218,39 +195,44 @@ export default defineConfig({
 
 ```ts
 import "@testing-library/jest-dom";
+// Adds matchers like toBeInTheDocument(), toHaveText(), toBeVisible()
+// Without this, those matchers throw "is not a function"
 ```
 
-**Add test script to `package.json`:**
+**Add to `package.json` scripts:**
 
 ```json
-"test": "vitest", ** — runs Vitest in watch mode (re-runs on file save) **
-"test:coverage": "vitest run --coverage" **— runs once and shows how much of your code is covered by tests **
+"test": "vitest",
+"test:coverage": "vitest run --coverage"
 ```
 
 **Verify it works:**
 
 ```bash
 npm run test
-# Should start Vitest in watch mode
+# No test files yet — shows "No test files found, re-running on changes..."
+# Press q to quit
+```
+
+```bash
+git add .
+git commit -m "chore: add Vitest and React Testing Library"
 ```
 
 ---
 
 ## Step 6: Install and Configure Playwright
 
-Playwright runs end-to-end tests — it opens a real browser and interacts with your app like a user.
-itest tests functions and components in isolation — no browser.
-Playwright opens a real browser and clicks through your app like a real user.
+**Vitest vs Playwright:**
 
-Vitest → "does progress.complete() work?"
-Playwright → "can a user open a lesson, write code, submit quiz, and see progress saved?"
-Both are needed. Vitest is fast (milliseconds). Playwright is slower but catches things unit tests miss — broken layouts, navigation issues, real browser behavior.
+- Vitest tests functions and components in isolation — no browser, milliseconds
+- Playwright opens a real browser and clicks through the app like a real user
+- Both needed: Vitest is fast, Playwright catches what unit tests miss
 
 ```bash
 npm install --save-dev @playwright/test
 
-#This downloads Chromium, Firefox and WebKit (Safari engine) onto your machine. Playwright uses these to run your tests in real browsers.
-#This may take 1-2 minutes — it's downloading browser binaries. Run it and come back.
+# Downloads Chromium, Firefox, WebKit (Safari engine) — takes 1-2 minutes
 npx playwright install
 ```
 
@@ -260,33 +242,55 @@ npx playwright install
 import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
-  testDir: "./e2e",
+  testDir: "./e2e", // look for tests in /e2e folder
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:3000", // write page.goto("/tracks") not full URL
   },
   webServer: {
     command: "npm run dev",
     url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: !process.env.CI, // reuse local server, fresh in CI
   },
 });
 ```
 
-**Add e2e script to `package.json`:**
+**Add to `package.json` scripts:**
 
 ```json
 "test:e2e": "playwright test"
+```
+
+**Verify it works:**
+
+```bash
+npm run test:e2e
+# No tests yet — shows "No tests found"
+```
+
+```bash
+git add .
+git commit -m "chore: add Playwright for E2E testing"
 ```
 
 ---
 
 ## Step 7: Push to GitHub
 
+1. Go to github.com → New repository
+2. Name it `pvg-academy`, set to Public
+3. Do NOT add README or .gitignore (we already have them)
+4. Click Create repository
+
 ```bash
-# Create a new repo on github.com first (name: pvg-academy), then:
+cd /Users/prashantgokak/Documents/Projects/pvg-academy
+
+# Link local project to GitHub repo
 git remote add origin https://github.com/YOUR_USERNAME/pvg-academy.git
-git add .
-git commit -m "feat: initial project setup with Next.js, Tailwind, Prettier, Husky"
+
+# Rename branch to main (GitHub default)
+git branch -M main
+
+# Push all commits — -u sets upstream so future git push needs no flags
 git push -u origin main
 ```
 
@@ -294,14 +298,14 @@ git push -u origin main
 
 ## Step 8: Connect to Vercel
 
-1. Go to [vercel.com](https://vercel.com) and sign in with GitHub
+1. Go to vercel.com and sign in with GitHub
 2. Click **Add New Project**
 3. Select the `pvg-academy` repository
 4. Leave all settings as default — Vercel auto-detects Next.js
 5. Click **Deploy**
 
-Every future push to `main` will auto-deploy.
-Every pull request will get a unique preview URL.
+Every future push to `main` auto-deploys.
+Every pull request gets a unique preview URL.
 
 ---
 
@@ -343,29 +347,29 @@ jobs:
         run: npm run test:e2e
 ```
 
-**What this does:**
-On every push and pull request:
+**What this does — on every push and pull request:**
 
-1. Installs dependencies
-2. Runs TypeScript typecheck
-3. Runs ESLint
-4. Runs Vitest unit tests
-5. Runs Playwright E2E tests
+1. Install dependencies (`npm ci` is stricter than `npm install` — uses exact lockfile)
+2. TypeScript typecheck
+3. ESLint
+4. Vitest unit tests
+5. Playwright E2E tests
 
-If any step fails — the PR is blocked from merging.
+If any step fails → deploy is blocked, you get an email.
 
 ---
 
 ## Quick Reference — All Commands
 
 ```bash
-npm run dev          # start dev server
-npm run build        # production build
-npm run typecheck    # TypeScript check (no output files)
-npm run lint         # ESLint check
-npm run format       # Prettier format all files
-npm run test         # Vitest unit tests (watch mode)
-npm run test:e2e     # Playwright E2E tests
+npm run dev            # start dev server (http://localhost:3000)
+npm run build          # production build
+npm run typecheck      # TypeScript check, no output files
+npm run lint           # ESLint check
+npm run format         # Prettier — format all files
+npm run test           # Vitest unit tests (watch mode)
+npm run test:coverage  # Vitest with coverage report
+npm run test:e2e       # Playwright E2E tests
 ```
 
 ---
