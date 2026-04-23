@@ -1,0 +1,42 @@
+[
+  {
+    "question": "What type annotation would you give a variable holding the value 42?",
+    "options": ["string", "number", "boolean", "any"],
+    "answer": 1
+  },
+  {
+    "question": "Which of these correctly annotates a function that takes a name and returns a greeting string?",
+    "options": [
+      "function greet(name) { return 'Hi ' + name; }",
+      "function greet(name: string): string { return 'Hi ' + name; }",
+      "function greet(name: string) { return 'Hi ' + name; }",
+      "function greet(): string { return 'Hi'; }"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "TypeScript can infer the type of a variable when you give it an initial value. This means:",
+    "options": [
+      "You must always write the type annotation anyway",
+      "TypeScript figures out the type from the value — no annotation needed",
+      "The variable becomes type any",
+      "TypeScript only infers types for numbers"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is the correct type for an array of strings?",
+    "options": ["Array", "string", "string[]", "strings[]"],
+    "answer": 2
+  },
+  {
+    "question": "Why should you avoid the 'any' type?",
+    "options": [
+      "It makes the code slower",
+      "It turns off TypeScript's type checking for that variable",
+      "It is not valid TypeScript",
+      "It only works with primitive types"
+    ],
+    "answer": 1
+  }
+]
