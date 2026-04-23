@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
-    "typescheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "prepare": "husky",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
