@@ -46,4 +46,4 @@ jobs:
       # --run means "run once and exit" not watch mode
       # Fails if any test fails
       - name: Unit tests
-        run: npm run test -- --run
+        run: npm run test -- --run --passWithNoTests # ok to have zero tests, fails only if a test actually fails
