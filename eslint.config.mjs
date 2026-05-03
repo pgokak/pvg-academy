@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Exercise files — not production code, linting rules don't apply
+    "content/**",
   ]),
 ]);
 

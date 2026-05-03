@@ -1,0 +1,47 @@
+[
+  {
+    "question": "Where does the return type annotation go in a function declaration?",
+    "options": [
+      "Before the function keyword",
+      "After the opening curly brace",
+      "After the closing parenthesis of the parameters",
+      "After the return statement"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What return type should you use for a function that only calls console.log and returns nothing?",
+    "options": ["null", "undefined", "void", "never"],
+    "answer": 2
+  },
+  {
+    "question": "Which function signature correctly makes 'suffix' an optional parameter?",
+    "options": [
+      "function tag(text: string, suffix: optional string): string",
+      "function tag(text: string, suffix?: string): string",
+      "function tag(text: string, suffix: string?): string",
+      "function tag(text?: string, suffix: string): string"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is the type of an optional parameter inside the function body?",
+    "options": [
+      "The declared type only",
+      "undefined only",
+      "The declared type or undefined",
+      "null"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "Which correctly types a callback parameter 'transform' that takes a string and returns a number?",
+    "options": [
+      "transform: string => number",
+      "transform: Function",
+      "transform: (s: string) => number",
+      "transform: (string): number"
+    ],
+    "answer": 2
+  }
+]

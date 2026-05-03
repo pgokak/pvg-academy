@@ -6,7 +6,7 @@ export const TRACKS: Track[] = [
     title: "TypeScript",
     description: "Types, interfaces, generics, and utility types.",
     icon: "🟦",
-    lessonCount: 12,
+    lessonCount: 5,
     status: "available",
   },
   {
@@ -16,15 +16,15 @@ export const TRACKS: Track[] = [
       "File-based routing, Server Components, App Router, and deployment.",
     icon: "▲",
     lessonCount: 1,
-    status: "coming-soon",
+    status: "available",
   },
   {
     id: "react",
     title: "React",
     description: "Components, hooks, state, and performance patterns.",
     icon: "⚛️",
-    lessonCount: 0,
-    status: "coming-soon",
+    lessonCount: 2,
+    status: "available",
   },
   {
     id: "nodejs",

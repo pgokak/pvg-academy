@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Which two annotations mean the same thing for an array of numbers?",
+    "options": [
+      "number[] and Number[]",
+      "number[] and Array<number>",
+      "number[] and [number]",
+      "Array<number> and number{}"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You have const tags: string[] = []. What happens when you call tags.push(42)?",
+    "options": [
+      "It works — arrays accept any type",
+      "42 is silently converted to the string '42'",
+      "TypeScript gives a compile-time error",
+      "It throws a runtime error"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What does readonly string[] prevent?",
+    "options": [
+      "Reading elements from the array",
+      "Passing the array to functions",
+      "Mutating the array with push, pop, splice etc.",
+      "Using the array in a for loop"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is the correct type for a tuple storing a city name and its population?",
+    "options": [
+      "string | number",
+      "[string, number]",
+      "{ city: string, population: number }",
+      "Array<string | number>"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "When is a tuple a better choice than returning an object from a function?",
+    "options": [
+      "When there are more than 3 values to return",
+      "When the values are positional and obvious — like [min, max] or [x, y]",
+      "Tuples are never better — always use objects",
+      "When you need optional fields"
+    ],
+    "answer": 1
+  }
+]

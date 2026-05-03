@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TRACKS } from "@/lib/tracks";
 import { getLessons } from "@/lib/content";
-import { LessonMeta } from "@/lib/types";
+import LessonList from "@/components/layout/LessonList";
 
 // Next.js 15: params is a Promise — must be awaited
 export default async function TrackPage({
@@ -49,43 +49,11 @@ export default async function TrackPage({
           </p>
         </div>
 
-        {/* Lesson list */}
-        <div className="mt-8 flex flex-col gap-2">
-          {lessons.length === 0 ? (
-            <p className="text-gray-400">No lessons yet.</p>
-          ) : (
-            lessons.map((lesson) => (
-              <LessonRow key={lesson.id} lesson={lesson} trackId={trackId} />
-            ))
-          )}
+        {/* Lesson list with progress indicators */}
+        <div className="mt-8">
+          <LessonList lessons={lessons} trackId={trackId} />
         </div>
       </main>
     </div>
-  );
-}
-
-function LessonRow({
-  lesson,
-  trackId,
-}: {
-  lesson: LessonMeta;
-  trackId: string;
-}) {
-  return (
-    <Link
-      href={`/tracks/${trackId}/${lesson.id}`}
-      className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-5 py-4 hover:shadow-sm transition-shadow"
-    >
-      <div className="flex items-center gap-4">
-        <span className="text-sm font-mono text-gray-400">
-          {String(lesson.order).padStart(2, "0")}
-        </span>
-        <span className="font-medium text-gray-900">{lesson.title}</span>
-      </div>
-      <div className="flex items-center gap-3">
-        <span className="text-xs text-gray-400">{lesson.version}</span>
-        <span className="text-gray-400">→</span>
-      </div>
-    </Link>
   );
 }

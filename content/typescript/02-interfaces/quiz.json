@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What does an interface describe in TypeScript?",
+    "options": [
+      "A function's return type only",
+      "The shape of an object — which fields it has and what types they are",
+      "A class hierarchy",
+      "A module's exports"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "How do you make a field optional in an interface?",
+    "options": [
+      "Add ! after the field name",
+      "Add optional: true",
+      "Add ? after the field name",
+      "Use the Optional<T> wrapper"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What does readonly do on an interface field?",
+    "options": [
+      "Makes the field invisible outside the module",
+      "Prevents the field from being assigned after the object is created",
+      "Makes the field optional",
+      "Allows any type to be assigned"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You define interface Dog { name: string } and interface Cat { name: string }. Can a function typed as (animal: Dog) accept a Cat object?",
+    "options": [
+      "No — the types have different names",
+      "Only if you use a type cast",
+      "Yes — TypeScript uses structural typing, so matching shape is enough",
+      "Only if Cat extends Dog"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "For typing plain objects, which should you prefer — interface or type alias?",
+    "options": [
+      "type alias — it is always more powerful",
+      "interface — it gives better error messages and supports extends",
+      "They are completely identical, it does not matter",
+      "interface only works with classes"
+    ],
+    "answer": 1
+  }
+]

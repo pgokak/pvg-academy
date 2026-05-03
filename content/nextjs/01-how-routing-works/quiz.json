@@ -1,0 +1,47 @@
+[
+  {
+    "question": "In Next.js App Router, what file name creates a page that is visible in the browser?",
+    "options": ["index.tsx", "page.tsx", "route.tsx", "view.tsx"],
+    "answer": 1
+  },
+  {
+    "question": "What URL does the file app/tracks/[track]/page.tsx handle?",
+    "options": [
+      "Only /tracks/typescript — dynamic routes need explicit files",
+      "Any URL matching /tracks/<anything>",
+      "/tracks only",
+      "It handles all URLs in the app"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "In Next.js 15, how do you read dynamic route params in a page component?",
+    "options": [
+      "const { track } = params — params is a plain object",
+      "const { track } = useParams() — it is a React hook",
+      "const { track } = await params — params is a Promise in Next.js 15",
+      "import params from 'next/params'"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is the purpose of layout.tsx?",
+    "options": [
+      "It defines the URL for a route",
+      "It wraps all pages in its folder with a shared UI shell (header, sidebar etc.)",
+      "It handles API requests for a route",
+      "It is the same as page.tsx but for static content"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Which component type should you use by default in the App Router, and when do you add 'use client'?",
+    "options": [
+      "Client Components by default — add 'use server' for server logic",
+      "Server Components by default — add 'use client' only when the component needs interactivity or browser APIs",
+      "Always use Client Components for correctness",
+      "It depends on the Next.js version"
+    ],
+    "answer": 1
+  }
+]

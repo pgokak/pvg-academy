@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What does useState return?",
+    "options": [
+      "Just the current state value",
+      "An object with value and update properties",
+      "A tuple: [currentValue, setterFunction]",
+      "A Promise that resolves to the state value"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "You write useState(0). What type does TypeScript infer for the state?",
+    "options": [
+      "any",
+      "number",
+      "number | undefined",
+      "You must always provide the generic explicitly"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You want state that starts as null but later holds a User object. Which is correct?",
+    "options": [
+      "useState(null)",
+      "useState<User>(null)",
+      "useState<User | null>(null)",
+      "useState<User>() — no initial value needed"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "When should you use the function form setCount(prev => prev + 1) instead of setCount(count + 1)?",
+    "options": [
+      "Always — the function form is always required",
+      "Never — both are identical",
+      "When the new value depends on the previous state, especially inside async code or loops",
+      "Only when count is greater than 100"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "You have state: { name: string, email: string }. What is wrong with setUser({ name: 'Alice' })?",
+    "options": [
+      "Nothing — React merges object state automatically",
+      "It replaces the entire object, losing the email field",
+      "You must use setName and setEmail separately",
+      "Objects cannot be stored in useState"
+    ],
+    "answer": 1
+  }
+]

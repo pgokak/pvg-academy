@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What does string | number mean?",
+    "options": [
+      "A value that is both a string and a number at the same time",
+      "A value that is either a string or a number",
+      "A string that can be converted to a number",
+      "An error — you cannot mix types"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You have value: string | number. Why can't you call value.toUpperCase() directly?",
+    "options": [
+      "toUpperCase does not exist in TypeScript",
+      "value might be a number, and numbers don't have toUpperCase",
+      "You need to import toUpperCase first",
+      "TypeScript only allows toLowerCase, not toUpperCase"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is a type guard?",
+    "options": [
+      "A TypeScript keyword that locks a variable's type",
+      "A check (like typeof) that narrows a union type inside a branch",
+      "A special function that prevents runtime errors",
+      "A way to convert one type to another"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "type Status = 'active' | 'inactive' | 'pending'. What happens if you pass 'deleted' where Status is expected?",
+    "options": [
+      "TypeScript silently accepts it",
+      "It works at runtime but logs a warning",
+      "TypeScript gives a compile-time error — 'deleted' is not in the union",
+      "The value is converted to 'inactive'"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "In a discriminated union, what is the 'kind' field used for?",
+    "options": [
+      "Storing metadata about the object",
+      "A literal type field that TypeScript uses to narrow which interface you have",
+      "Marking the object as readonly",
+      "It is just a naming convention with no TypeScript significance"
+    ],
+    "answer": 1
+  }
+]

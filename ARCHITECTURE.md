@@ -91,6 +91,35 @@ App Router is the modern approach (Next.js 13+). Uses React Server Components by
 - Version controlled in git — lesson changes are tracked like code
 - Simple to parse and render
 
+**Known tradeoff — content goes stale:**
+
+File-based content has no automatic update mechanism. When TypeScript 6.0 ships, nobody updates the lessons unless someone does it manually.
+
+**Mitigation built in from day one:** Every `lesson.md` has version frontmatter:
+
+```md
+---
+version: "TypeScript 5.x"
+since: 2012
+stable: true
+---
+```
+
+**Phase 2 plan — MCP-assisted content maintenance:**
+
+```
+MCP server reads official changelogs (TypeScript, React, Next.js etc.)
+       ↓
+Compares each lesson's "version" field against the latest official release
+       ↓
+New major version detected → flags affected lessons as potentially outdated
+       ↓
+Claude reviews the changelog diff and updates the lesson automatically
+```
+
+This is also a learning exercise — building an MCP server that connects
+AI to live documentation is a real production use case for the team to learn.
+
 **Structure per lesson:**
 
 ```

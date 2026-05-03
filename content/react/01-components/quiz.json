@@ -1,0 +1,47 @@
+[
+  {
+    "question": "What is the rule for React component names?",
+    "options": [
+      "They must be all lowercase",
+      "They must start with a capital letter",
+      "They must end with 'Component'",
+      "There is no rule — any valid JavaScript name works"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What are props in React?",
+    "options": [
+      "Internal variables managed by the component",
+      "Data passed into a component from its parent, like function arguments",
+      "CSS class names applied to the component",
+      "Event listeners attached to DOM elements"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is the correct TypeScript type for the children prop?",
+    "options": ["string", "JSX", "React.ReactNode", "HTMLElement"],
+    "answer": 2
+  },
+  {
+    "question": "You have interface ButtonProps { label: string; disabled?: boolean }. What happens if you forget to pass label?",
+    "options": [
+      "label defaults to an empty string",
+      "TypeScript gives a compile-time error — label is required",
+      "The button renders with no text",
+      "React throws a runtime error"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Why should you define component props with an interface instead of inline types?",
+    "options": [
+      "Inline types are not valid TypeScript",
+      "Interfaces are required by React",
+      "An interface gives the props a name, making errors clearer and the type reusable",
+      "There is no difference — it is purely a style choice with no practical impact"
+    ],
+    "answer": 2
+  }
+]

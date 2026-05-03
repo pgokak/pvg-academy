@@ -8,6 +8,18 @@ export interface LessonMeta {
   stable: boolean; // from frontmatter
 }
 
+export interface QuizQuestion {
+  question: string;
+  options: string[];
+  answer: number; // index into options — 0 = first option, 1 = second, etc.
+}
+
+export interface LessonContent extends LessonMeta {
+  body: string; // markdown text without frontmatter
+  starter: string; // contents of starter.ts shown in the editor
+  quiz: QuizQuestion[]; // parsed quiz.json
+}
+
 export interface Track {
   id: string;
   title: string;
