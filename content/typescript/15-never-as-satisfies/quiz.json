@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What happens when `const _: never = x` is in a switch's default branch and all union cases are handled?",
+    "options": [
+      "TypeScript throws a runtime error",
+      "The default branch is unreachable, so x is never — no compile error",
+      "TypeScript ignores the never annotation",
+      "The switch statement becomes invalid"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You add a new member to a union type but forget to handle it in a switch with a never check. What happens?",
+    "options": [
+      "The code runs fine — never is just a hint",
+      "A runtime error is thrown",
+      "A TypeScript compile error: the new type is not assignable to never",
+      "The default branch handles it automatically"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What does `as` do in TypeScript?",
+    "options": [
+      "Converts the value to a different type at runtime",
+      "Tells TypeScript to treat the value as a specific type at compile time — no runtime effect",
+      "Validates that the value is the specified type",
+      "Creates a copy of the value with a different type"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is the key difference between a type annotation (`: Config`) and `satisfies Config`?",
+    "options": [
+      "satisfies only works with interfaces, not type aliases",
+      "satisfies validates the type but keeps the narrower inferred types; annotation widens to the declared type",
+      "Type annotation is stricter than satisfies",
+      "They are identical — just different syntax"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "When should you use `as` vs `satisfies`?",
+    "options": [
+      "as for config objects; satisfies for DOM elements",
+      "Use satisfies when you want validation without losing literal types; use as when TypeScript genuinely can't infer the type (e.g. DOM elements, external APIs)",
+      "They are interchangeable — pick either",
+      "satisfies is only for objects; as works for all types"
+    ],
+    "answer": 1
+  }
+]

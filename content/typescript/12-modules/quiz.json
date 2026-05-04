@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How do you import a named export called `add` from `./math`?",
+    "options": [
+      "import add from './math'",
+      "import { add } from './math'",
+      "import * add from './math'",
+      "require('./math').add"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "How many default exports can a single file have?",
+    "options": [
+      "Unlimited",
+      "Two",
+      "One",
+      "Zero — default exports are not recommended"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What does `import type { User } from './types'` do differently from `import { User } from './types'`?",
+    "options": [
+      "It imports User as a value you can use at runtime",
+      "It imports only the type — TypeScript erases it at compile time, leaving no runtime code",
+      "It imports User from a .d.ts file only",
+      "It prevents circular dependencies by delaying the import"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is a barrel file?",
+    "options": [
+      "A file that contains only type declarations",
+      "An index.ts that re-exports from multiple modules so callers import from one place",
+      "A file that bundles all modules into one for production",
+      "A configuration file for module resolution"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What do `.d.ts` declaration files contain?",
+    "options": [
+      "Compiled JavaScript code",
+      "Type declarations only — no runtime code",
+      "TypeScript source code that is also valid JavaScript",
+      "Test files for TypeScript types"
+    ],
+    "answer": 1
+  }
+]

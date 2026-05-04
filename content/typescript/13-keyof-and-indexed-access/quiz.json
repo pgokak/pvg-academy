@@ -1,0 +1,42 @@
+[
+  {
+    "question": "What does `keyof User` produce if User is `{ name: string; age: number }`?",
+    "options": [
+      "string[]",
+      "{ name: string; age: number }",
+      "\"name\" | \"age\"",
+      "string | number"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is the type of `User[\"name\"]` if User is `{ name: string; age: number }`?",
+    "options": ["\"name\"", "string", "number", "keyof User"],
+    "answer": 1
+  },
+  {
+    "question": "What does `K extends keyof T` in a function signature mean?",
+    "options": [
+      "K is a subtype of T",
+      "K must be one of the property names of T",
+      "K extends the T interface",
+      "K is the same type as T"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is the return type of `function get<T, K extends keyof T>(obj: T, key: K): T[K]` when called as `get(user, \"name\")` where user.name is a string?",
+    "options": ["any", "keyof T", "string", "T"],
+    "answer": 2
+  },
+  {
+    "question": "How do you extract the keys of a variable (not a type) using keyof?",
+    "options": [
+      "keyof variable",
+      "keyof typeof variable",
+      "typeof keyof variable",
+      "Object.keys(variable)"
+    ],
+    "answer": 1
+  }
+]

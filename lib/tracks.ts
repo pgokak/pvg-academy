@@ -6,7 +6,7 @@ export const TRACKS: Track[] = [
     title: "TypeScript",
     description: "Types, interfaces, generics, and utility types.",
     icon: "🟦",
-    lessonCount: 5,
+    lessonCount: 19,
     status: "available",
   },
   {

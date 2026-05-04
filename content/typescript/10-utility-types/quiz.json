@@ -1,0 +1,47 @@
+[
+  {
+    "question": "What does `Partial<User>` produce?",
+    "options": [
+      "A User with all required fields",
+      "A User where all fields are optional",
+      "A User with only some fields",
+      "A User with readonly fields"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Which utility type creates a new type with only selected keys?",
+    "options": ["Partial", "Omit", "Pick", "Extract"],
+    "answer": 2
+  },
+  {
+    "question": "What does `Omit<User, 'id'>` produce?",
+    "options": [
+      "A type where id is optional",
+      "A type with every field except id",
+      "A type with only the id field",
+      "A type that makes id readonly"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What does `Record<'admin' | 'viewer', User[]>` create?",
+    "options": [
+      "An array of users with roles",
+      "A union of admin and viewer user types",
+      "An object type with keys 'admin' and 'viewer', each holding User[]",
+      "A map from User to role string"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What does `ReturnType<typeof fetchUser>` extract?",
+    "options": [
+      "The parameter types of fetchUser",
+      "The return type of the fetchUser function",
+      "The type of the fetchUser function itself",
+      "The async result if fetchUser is async"
+    ],
+    "answer": 1
+  }
+]

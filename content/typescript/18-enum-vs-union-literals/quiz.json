@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What does a TypeScript enum compile to in JavaScript?",
+    "options": [
+      "Nothing — it's erased like interfaces",
+      "A runtime object that maps names to values",
+      "A frozen array of strings",
+      "A Set of valid values"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "With an enum `enum Dir { Up = 'UP' }`, how must you pass the value to a function expecting `Dir`?",
+    "options": [
+      "Pass the string 'UP' directly",
+      "Use Dir.Up — you can't pass the raw string",
+      "Either Dir.Up or 'UP' work equally",
+      "Use new Dir('UP')"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Why are numeric enums dangerous for values stored in a database?",
+    "options": [
+      "Numbers can't be serialized to JSON",
+      "Reordering enum members changes the numeric values — breaking all stored data",
+      "TypeScript doesn't support numeric enums anymore",
+      "Databases don't store numbers accurately"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "When is a string union literal (`type S = 'a' | 'b'`) better than a string enum?",
+    "options": [
+      "When you need to iterate all values at runtime",
+      "When callers should pass raw strings without importing anything, and you want zero bundle size",
+      "When you need declaration merging",
+      "When the values are numeric"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You're building a public SDK. Should status codes be enums or union literals?",
+    "options": [
+      "Enum — more professional looking",
+      "Union literals — callers don't need to import your enum, just pass strings",
+      "Either — it makes no difference for library consumers",
+      "Enum — because Object.values() is useful for consumers"
+    ],
+    "answer": 1
+  }
+]

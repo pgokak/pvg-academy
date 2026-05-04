@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What does `[K in keyof T]` mean in a mapped type?",
+    "options": [
+      "K is constrained to be a key of T",
+      "Loop: for every property name K in T, create a property K",
+      "K must extend T's keys at runtime",
+      "Filter T to only include key K"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "How do you make all properties optional in a mapped type?",
+    "options": [
+      "`[K in keyof T]: T[K] | undefined`",
+      "`[K in keyof T]?: T[K]`",
+      "`optional [K in keyof T]: T[K]`",
+      "`[K in keyof T]: Partial<T[K]>`"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What does the `-?` modifier do in `[K in keyof T]-?: T[K]`?",
+    "options": [
+      "Makes every property optional",
+      "Removes the optional modifier — makes every property required",
+      "Removes the key K from the type",
+      "Makes the property value nullable"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Which built-in utility type is equivalent to `{ [K in keyof T]: T[K] | null }`?",
+    "options": [
+      "Partial<T>",
+      "Nullable<T>",
+      "There is no built-in — you'd write this custom mapped type",
+      "Record<T, null>"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "How do you add extra properties that aren't in `keyof T` to a mapped type result?",
+    "options": [
+      "Add them inside the mapped type `{ [K in keyof T]: T[K]; extra: string }`",
+      "Use `extends` inside the mapped type",
+      "Use an intersection: `{ [K in keyof T]: T[K] } & { extra: string }`",
+      "It's not possible — mapped types are always exactly the keys of T"
+    ],
+    "answer": 2
+  }
+]

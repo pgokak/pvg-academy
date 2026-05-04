@@ -2,127 +2,137 @@
 title: "Interfaces"
 track: "typescript"
 version: "TypeScript 5.x"
+introduced: "TypeScript 1.0"
 since: 2012
 stable: true
 ---
 
-## What Is an Interface?
+# Interfaces
 
-In the previous lesson you learned how to type primitive values: `string`, `number`, `boolean`.
+## The Problem
 
-But real programs work with **objects** — users, products, orders. An `interface` lets you describe the exact shape of an object.
+Without a shared shape, you repeat yourself — and one typo creates a silent bug:
 
 ```ts
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
+// Repeated everywhere — and one has a typo
+function greetUser(user: { name: string; age: number }) { ... }
+function saveUser(user: { name: string; age: numer }) { ... }  // typo — no error!
 ```
 
-Now TypeScript knows that every `User` must have those three fields. If you try to create a user without one, you get an error immediately — not at runtime, not in production.
+Every time the shape changes, you update it in every function. Miss one, and TypeScript can't catch it — there's no single source of truth.
 
 ---
 
-## Using an Interface
+## Mental Model
 
-Once defined, use it just like any other type:
+An interface is a **contract**.
 
-```ts
-const user: User = {
-  id: 1,
-  name: "Prashant",
-  email: "prashant@example.com",
-};
-```
-
-TypeScript checks:
-
-- All required fields are present
-- Every field has the correct type
-- No extra fields with typos sneak in
-
----
-
-## Optional Properties
-
-Add `?` to make a field optional:
+It says: "any value claiming to be a `User` must have these exact properties with these exact types." Like a job description — you don't care who fills the role, as long as they meet the requirements.
 
 ```ts
 interface User {
-  id: number;
   name: string;
-  email: string;
-  bio?: string; // optional — may or may not exist
+  age: number;
 }
 ```
 
-TypeScript knows `bio` might be `undefined`, so it forces you to check before using it:
+Define the contract once. Use it everywhere. Change it in one place and TypeScript flags every violation instantly.
+
+---
+
+## Defining and Using an Interface
 
 ```ts
-if (user.bio) {
-  console.log(user.bio.toUpperCase()); // safe — TypeScript knows bio is a string here
+interface User {
+  name: string;
+  age: number;
+  email?: string; // ? means optional — may be absent
 }
+
+function greet(user: User): string {
+  return `Hello, ${user.name}`;
+}
+
+greet({ name: "Prashant", age: 32 }); // ✅
+greet({ name: "Prashant", age: 32, email: "p@g" }); // ✅ optional present
+greet({ name: "Prashant" }); // ❌ missing required age
+greet({ name: "Prashant", age: 32, city: "Mumbai" }); // ❌ excess property
 ```
+
+---
+
+## Extending Interfaces
+
+Interfaces can build on each other with `extends`:
+
+```ts
+interface Animal {
+  name: string;
+}
+
+interface Dog extends Animal {
+  breed: string;
+}
+
+// Dog needs BOTH fields
+const dog: Dog = { name: "Bruno", breed: "Labrador" }; // ✅
+const dog2: Dog = { name: "Bruno" }; // ❌ missing breed
+```
+
+This is the main reason to prefer `interface` over `type` when you expect the shape to grow — other interfaces can `extend` it cleanly.
 
 ---
 
 ## Readonly Properties
 
-Use `readonly` to prevent a field from being changed after creation:
+Mark a property `readonly` to prevent changes after assignment:
 
 ```ts
-interface User {
-  readonly id: number; // set once, never changed
-  name: string;
+interface Config {
+  readonly apiUrl: string;
+  timeout: number;
 }
 
-const user: User = { id: 1, name: "Prashant" };
-user.id = 2; // ❌ Error: cannot assign to 'id' because it is a read-only property
-user.name = "Gokak"; // ✅ fine
+const config: Config = { apiUrl: "https://api.example.com", timeout: 5000 };
+config.timeout = 3000; // ✅ mutable
+config.apiUrl = "other"; // ❌ cannot assign to readonly property
 ```
 
 ---
 
-## Interfaces as Function Parameters
+## Common Mistake
 
-The most common use: describe what a function expects.
+Expecting interfaces to exist at runtime — they don't. TypeScript erases them completely when it compiles to JavaScript:
 
 ```ts
-interface Product {
-  name: string;
-  price: number;
-  inStock: boolean;
-}
+interface User { name: string }
 
-function printProduct(product: Product): void {
-  console.log(`${product.name} — ₹${product.price}`);
+// ❌ This fails at runtime — User is not a class, it doesn't exist in JS
+if (value instanceof User) { ... }
+
+// ✅ Use a type guard instead
+function isUser(value: unknown): value is User {
+  return typeof value === "object" && value !== null && "name" in value;
 }
 ```
 
-Any object that matches the shape works — TypeScript uses **structural typing** (the shape matters, not the name).
+Interfaces are **compile-time only**. They produce zero JavaScript output.
 
 ---
 
-## Interface vs Type Alias
+## When to Reach For This
 
-You will see both in TypeScript codebases:
-
-```ts
-interface User {
-  name: string;
-} // interface
-type User = { name: string }; // type alias
-```
-
-For objects, prefer `interface` — it gives better error messages and supports `extends` (covered in a later lesson). Use `type` for unions, primitives, and complex combinations.
+Use `interface` when describing the **shape of an object** — especially if that shape will be `extended` by other interfaces or `implemented` by a class. For unions, primitives, or function types, use `type` instead (covered in the Type Aliases lesson).
 
 ---
 
-## Summary
+## Key Takeaways
 
-- `interface` describes the shape of an object
-- All fields are required unless marked `?`
-- `readonly` prevents reassignment
-- TypeScript checks every object against its interface at compile time
-- Interfaces are the primary way to document and enforce data contracts in your code
+| Concept                 | Example                                                         |
+| ----------------------- | --------------------------------------------------------------- |
+| Define interface        | `interface User { name: string }`                               |
+| Optional property       | `email?: string`                                                |
+| Readonly property       | `readonly id: number`                                           |
+| Extend interface        | `interface Admin extends User { role: string }`                 |
+| Runtime existence       | ❌ — interfaces are erased at compile time                      |
+| Prefer `interface` when | Describing object shapes, especially ones that will be extended |

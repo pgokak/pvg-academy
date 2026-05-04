@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is the key difference between `any` and `unknown`?",
+    "options": [
+      "any is for objects, unknown is for primitives",
+      "Both accept any value, but unknown requires narrowing before use; any disables all checks",
+      "unknown is faster at runtime than any",
+      "any is deprecated in TypeScript 5.x"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Which type should you use for a JSON.parse result or an unknown API response?",
+    "options": [
+      "any — it's the most flexible",
+      "object — all JSON values are objects",
+      "unknown — safe, forces you to validate before using",
+      "Record<string, any>"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is `never` used for in the context of a switch statement's default branch?",
+    "options": [
+      "It makes the default branch unreachable at runtime",
+      "It provides an exhaustive check — if a union member is unhandled, assigning to never gives a compile error",
+      "It prevents the switch from matching any case",
+      "It replaces the need for a default branch entirely"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is wrong with `catch (e: any) { console.log(e.message) }`?",
+    "options": [
+      "catch blocks don't support type annotations",
+      "e.message is always undefined in catch blocks",
+      "e could be anything thrown — a string, number, or object — not necessarily an Error with .message",
+      "The syntax is invalid — should be catch(e)"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "Which of these is assignable to `never`?",
+    "options": [
+      "null",
+      "undefined",
+      "any",
+      "Nothing — no value is assignable to never"
+    ],
+    "answer": 3
+  }
+]

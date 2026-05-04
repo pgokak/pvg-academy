@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is the main reason to use a class instead of an interface or type?",
+    "options": [
+      "Classes are faster at runtime",
+      "You need to create instances with `new`, encapsulate private state, or share methods via the prototype",
+      "TypeScript prefers classes over interfaces for modern code",
+      "Classes work in JavaScript files, interfaces don't"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "A class `Car` uses `implements Vehicle`. What does this mean?",
+    "options": [
+      "Car inherits all of Vehicle's implementation",
+      "Car promises to provide everything Vehicle's interface requires; TypeScript errors if anything is missing",
+      "Vehicle is an abstract class that Car extends",
+      "Car and Vehicle share the same prototype chain"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You have a plain data object `{ id: number; name: string }` that's passed between functions but never instantiated. Which should you use?",
+    "options": [
+      "class — for consistency with the rest of OOP code",
+      "interface or type — it's just a shape, no behavior needed; classes add unnecessary overhead",
+      "type only — interface is for contracts",
+      "class — because then you can add methods later"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Why can't JavaScript classes use multiple inheritance (`class C extends A, B`)?",
+    "options": [
+      "TypeScript doesn't allow it",
+      "JavaScript only allows single class inheritance — a class can extend only one class",
+      "Multiple inheritance requires abstract classes",
+      "It's possible with interfaces but not classes"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Which statement is true about interface vs class at runtime?",
+    "options": [
+      "Both exist as runtime objects",
+      "Only class exists at runtime; interface is erased by the TypeScript compiler",
+      "Both are erased — TypeScript is compile-time only",
+      "Interface exists at runtime as an empty object"
+    ],
+    "answer": 1
+  }
+]

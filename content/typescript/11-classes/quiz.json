@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What does `private` mean on a class property?",
+    "options": [
+      "The property is hidden from TypeScript but accessible at runtime",
+      "The property is only accessible inside the class body",
+      "The property cannot be changed after construction",
+      "The property is not included in the compiled JavaScript"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What does `class Dog implements Animal` declare?",
+    "options": [
+      "Dog inherits all methods from Animal",
+      "Dog must provide every property and method defined in the Animal interface",
+      "Dog is a subtype that extends Animal's constructor",
+      "Animal becomes an abstract base class"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What does `readonly` prevent on a class property?",
+    "options": [
+      "The property being read outside the class",
+      "The property being declared without an initial value",
+      "The property being reassigned after the constructor runs",
+      "The property being inherited by subclasses"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is the constructor shorthand `constructor(public name: string)` equivalent to?",
+    "options": [
+      "Declaring `name` as a local variable inside the constructor",
+      "Declaring `public name: string` in the class body AND assigning `this.name = name` in the constructor",
+      "Making `name` a static property",
+      "Creating a getter named `name`"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What does `static` mean on a class method?",
+    "options": [
+      "The method cannot be overridden",
+      "The method belongs to the class itself and is called on the class, not on instances",
+      "The method is compiled away and only exists as a type",
+      "The method is inherited by all subclasses automatically"
+    ],
+    "answer": 1
+  }
+]

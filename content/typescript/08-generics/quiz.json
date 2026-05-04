@@ -1,0 +1,47 @@
+[
+  {
+    "question": "What does `<T>` represent in `function first<T>(arr: T[]): T`?",
+    "options": [
+      "A specific type called T",
+      "A type parameter — a placeholder filled in when the function is called",
+      "A generic class named T",
+      "The letter T stands for TypeScript"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is the return type of `first([1, 2, 3])` if `first` is `function first<T>(arr: T[]): T`?",
+    "options": ["any", "T", "number", "number[]"],
+    "answer": 2
+  },
+  {
+    "question": "What does `<T extends object>` mean?",
+    "options": [
+      "T must be a class that extends the Object class",
+      "T is constrained — it must be an object type, not a primitive",
+      "T defaults to object if no type is provided",
+      "T can only be used with object literals"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Why use generics instead of `any`?",
+    "options": [
+      "Generics are faster at runtime",
+      "Generics preserve type information so TypeScript can check the return type",
+      "Generics work in JavaScript files too",
+      "Generics are required by the TypeScript compiler"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Can a function have more than one type parameter?",
+    "options": [
+      "No — only one type parameter is allowed",
+      "Yes — for example `function pair<K, V>(key: K, value: V): [K, V]`",
+      "Yes — but only if they extend the same base type",
+      "Only in classes, not standalone functions"
+    ],
+    "answer": 1
+  }
+]

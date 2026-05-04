@@ -1,0 +1,47 @@
+[
+  {
+    "question": "What is the default starting value of a numeric enum?",
+    "options": ["1", "0", "-1", "undefined"],
+    "answer": 1
+  },
+  {
+    "question": "Which enum type is safer for external APIs and JSON responses?",
+    "options": [
+      "Numeric enums — shorter values",
+      "String enums — human-readable values that don't shift if members are reordered",
+      "Const enums — no runtime object",
+      "All enum types are equally safe for APIs"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What does `const enum` do compared to a regular enum?",
+    "options": [
+      "Makes all values readonly",
+      "Prevents adding new members",
+      "Inlines the values at compile time — no runtime enum object is generated",
+      "Makes the enum available globally"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "How do you access the value of an enum member?",
+    "options": [
+      "OrderStatus[\"Pending\"]",
+      "OrderStatus.Pending",
+      "new OrderStatus().Pending",
+      "typeof OrderStatus.Pending"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is the main advantage of enums over plain magic strings like `\"pending\"`?",
+    "options": [
+      "Enums are faster at runtime",
+      "TypeScript catches typos and invalid values at compile time",
+      "Enums use less memory",
+      "Enums can be used in JavaScript files"
+    ],
+    "answer": 1
+  }
+]

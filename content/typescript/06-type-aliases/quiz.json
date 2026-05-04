@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What does `type UserId = number` create?",
+    "options": [
+      "A new primitive type called UserId",
+      "A named alias for the number type",
+      "A class named UserId",
+      "An interface with a number property"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Which of these is only possible with `type`, not `interface`?",
+    "options": [
+      "Describing an object shape",
+      "Using `extends` to inherit",
+      "Creating a union: `type Status = 'on' | 'off'`",
+      "Being implemented by a class"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What does `type Admin = User & { role: string }` produce?",
+    "options": [
+      "A union of User and { role: string }",
+      "A type that is either User or has a role field",
+      "An intersection — all User fields plus role",
+      "A subtype that removes the role field"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "When should you prefer `interface` over `type`?",
+    "options": [
+      "When you need a union type",
+      "When you want to alias a primitive",
+      "When defining object shapes that other interfaces will extend",
+      "When you need a function type"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is `type MaybeString = string | null` an example of?",
+    "options": [
+      "An intersection type",
+      "A union type alias",
+      "A mapped type",
+      "A conditional type"
+    ],
+    "answer": 1
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Which operator narrows a union type based on primitive type (string, number, boolean)?",
+    "options": ["instanceof", "in", "typeof", "keyof"],
+    "answer": 2
+  },
+  {
+    "question": "What is a discriminated union?",
+    "options": [
+      "A union where all members are different classes",
+      "A union where each member has a shared literal field (like `kind`) used to tell them apart",
+      "A union that can only hold two types at a time",
+      "A union created with the `discriminate` keyword"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What does the `in` operator check in a type guard?",
+    "options": [
+      "Whether a value is inside an array",
+      "Whether a string is a substring of another",
+      "Whether a property exists on an object",
+      "Whether a type is included in a union"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "Which guard is best for narrowing class instances?",
+    "options": ["typeof", "instanceof", "in", "keyof"],
+    "answer": 1
+  },
+  {
+    "question": "What is a type predicate?",
+    "options": [
+      "A built-in TypeScript keyword for runtime checks",
+      "A function return type like `value is string` that tells TypeScript the type after the function returns true",
+      "A type that only works inside if statements",
+      "A decorator that narrows types automatically"
+    ],
+    "answer": 1
+  }
+]

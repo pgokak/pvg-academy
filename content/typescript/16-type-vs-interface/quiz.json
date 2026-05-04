@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Which can represent a union type like `type Result = Success | Failure`?",
+    "options": [
+      "Both type and interface",
+      "Only interface",
+      "Only type",
+      "Neither — use a class instead"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is declaration merging, and which supports it?",
+    "options": [
+      "Combining two values at runtime — supported by both",
+      "Declaring the same name twice and having the declarations merge — only interface supports this",
+      "Merging two type aliases into one — only type supports this",
+      "Combining class and interface declarations — supported by class"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "A class wants to promise it has a `save()` method. What should define that contract?",
+    "options": [
+      "type — because it's more flexible",
+      "interface — designed for contracts that classes implement",
+      "class — extend it directly",
+      "Either works equally well here"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You need `type UserId = number`. Why must this be `type` and not `interface`?",
+    "options": [
+      "interface requires at least two properties",
+      "interface can only describe object shapes, not alias primitives",
+      "type is always preferred over interface",
+      "number is not a valid interface target"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is the recommended default for describing a plain object shape that might be extended later?",
+    "options": [
+      "type — more flexible",
+      "class — more powerful",
+      "interface — convention for extendable object shapes",
+      "Either — it truly doesn't matter"
+    ],
+    "answer": 2
+  }
+]
