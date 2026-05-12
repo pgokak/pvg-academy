@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "Why should you avoid returning @Entity objects directly from a Spring Boot REST controller?",
+      "options": [
+        "JPA entities are not serializable to JSON",
+        "It exposes sensitive fields, causes lazy-loading exceptions, and couples the API contract to the DB schema",
+        "Spring MVC cannot serialize entity objects — it only handles plain Java classes",
+        "Entities are too large to send over HTTP efficiently"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is a Java Record and why is it well-suited for DTOs?",
+      "options": [
+        "A record is a database row representation that maps directly to a table",
+        "A record is an immutable class with auto-generated constructor, getters, equals, hashCode, and toString — zero boilerplate for DTOs",
+        "A record is a Spring annotation that marks a class as a DTO",
+        "A record is a Java interface that enforces the DTO pattern"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "Where should the logic to map a User entity to a UserResponse DTO live?",
+      "options": [
+        "In the @RestController before returning the response",
+        "In the @Entity class itself, since it knows its own fields",
+        "In a static factory method on the DTO (UserResponse.from(user)) or a dedicated mapper class",
+        "In a @Component bean called MappingHelper with one giant switch statement"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "MapStruct generates mapping code at what point?",
+      "options": [
+        "At runtime using reflection when the first mapping is called",
+        "At compile time — it generates Java implementation classes during the build",
+        "During Spring context initialization using dynamic proxies",
+        "On-demand when the application receives its first HTTP request"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "A service method receives a CreateUserRequest DTO. What should it return?",
+      "options": [
+        "The User entity after saving — the controller can do the mapping",
+        "void — the service should not return anything",
+        "A UserResponse DTO — the service layer should map entity to DTO before returning",
+        "The raw Map<String, Object> from the HTTP request body"
+      ],
+      "answer": 2
+    }
+  ]
+}

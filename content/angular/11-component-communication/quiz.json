@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "A parent has <app-card [title]=\"pageTitle\" />. What does [title] mean here?",
+      "options": [
+        "It sets the HTML title attribute on the element",
+        "It binds the parent's pageTitle expression to the child's @Input() title property",
+        "It creates a two-way binding between parent and child",
+        "It passes a string literal 'pageTitle' to the child"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "When should you use @Output() and EventEmitter instead of a shared service?",
+      "options": [
+        "Never — shared services are always better",
+        "When the communication is between siblings at the same nesting level",
+        "When a direct child needs to notify its immediate parent of a user action",
+        "When you need to broadcast an event to all components in the app"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What is the key difference between @Input() product and input.required<Product>() in Angular 17.1+?",
+      "options": [
+        "There is no difference — they compile to the same code",
+        "input() returns a Signal; reading the value requires calling it as a function: product()",
+        "@Input() works with standalone components; input() only works with NgModules",
+        "input() is slower because it uses change detection"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "You emit this.product from an @Output EventEmitter. The parent then mutates the received object. What problem can this cause?",
+      "options": [
+        "The child's template will not update because Angular blocks external mutations",
+        "It throws a runtime error because EventEmitter payloads are frozen",
+        "The parent and child share the same object reference, so the child's state is silently mutated",
+        "Angular automatically creates a deep copy, so this is safe"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "How do siblings (two components with the same parent) best communicate?",
+      "options": [
+        "Sibling A emits an @Output; the parent catches it and passes it down via @Input to sibling B",
+        "Sibling A directly accesses sibling B's public properties",
+        "Both siblings use document.dispatchEvent() to broadcast native DOM events",
+        "Only one sibling can hold state; the other must always be stateless"
+      ],
+      "answer": 0
+    }
+  ]
+}

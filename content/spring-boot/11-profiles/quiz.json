@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What is the correct way to activate a Spring profile in a production environment?",
+      "options": [
+        "Add @Profile(\"prod\") to the main application class",
+        "Set the environment variable SPRING_PROFILES_ACTIVE=prod",
+        "Create a file named active-profile.txt with the word 'prod'",
+        "Set spring.profiles.default=prod in application-prod.properties"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "A @Service class is annotated with @Profile(\"dev\"). What happens when the application starts with spring.profiles.active=prod?",
+      "options": [
+        "The service is created but its methods are no-ops",
+        "Spring throws NoSuchBeanDefinitionException at startup",
+        "The bean is not created — Spring ignores all @Profile beans that don't match the active profile",
+        "The service is created but wrapped in a proxy that disables its methods"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "Which profile selector creates a bean for ALL environments EXCEPT production?",
+      "options": [
+        "@Profile(\"dev|staging|test\")",
+        "@Profile({\"dev\", \"staging\", \"test\"})",
+        "@Profile(\"!prod\")",
+        "@Profile(exclude = \"prod\")"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "In application-dev.properties, which ddl-auto value is appropriate for development but dangerous in production?",
+      "options": [
+        "validate — checks schema matches entities",
+        "none — no schema management",
+        "create-drop — creates schema on start, drops on stop",
+        "update — modifies existing schema to match entities"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What does @ActiveProfiles(\"test\") on a @SpringBootTest class do?",
+      "options": [
+        "It disables security for all test methods",
+        "It activates the 'test' profile, loading application-test.properties and profile-specific beans",
+        "It automatically creates mock beans for all @Autowired dependencies",
+        "It runs each test in an isolated Spring context"
+      ],
+      "answer": 1
+    }
+  ]
+}

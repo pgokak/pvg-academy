@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What does the selector property in @Component define?",
+      "options": [
+        "The CSS selector that styles the component",
+        "The HTML tag name used to render this component in templates",
+        "The route path that navigates to this component",
+        "The ID of the DOM element Angular mounts the component into"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is the difference between property binding [src]='url' and interpolation {{ url }}?",
+      "options": [
+        "They are identical — both set the src attribute to the url value",
+        "[src]='url' binds a TypeScript expression to a DOM property; {{ url }} renders a string in text content",
+        "Interpolation is faster; property binding requires extra compilation",
+        "[src]='url' only works in Angular 17+; {{ url }} works in all versions"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "A standalone component uses CommonModule directives (*ngFor, *ngIf). Where must CommonModule be added?",
+      "options": [
+        "In the AppModule's imports array",
+        "In the component's imports array inside @Component",
+        "As a parameter to the @Component decorator's providers array",
+        "It's included automatically — no import needed"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In Angular 17+, what is the syntax to conditionally render content using the new control flow?",
+      "options": [
+        "*ngIf='condition'",
+        "[hidden]='!condition'",
+        "@if (condition) { ... }",
+        "v-if='condition'"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "A component has isLoading = true. How do you conditionally add the CSS class 'loading' to a div?",
+      "options": [
+        "<div class='{{ isLoading ? \"loading\" : \"\" }}'>",
+        "<div [class]='isLoading'>",
+        "<div [class.loading]='isLoading'>",
+        "<div ngClass='loading: isLoading'>"
+      ],
+      "answer": 2
+    }
+  ]
+}

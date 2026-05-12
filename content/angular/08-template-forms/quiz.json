@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "Why is the name attribute required when using ngModel inside a <form> tag?",
+      "options": [
+        "Angular uses the name to apply CSS styles to the input",
+        "The name attribute is how Angular's template forms register and track each control in the NgForm",
+        "The name is required for HTML form submission even without Angular",
+        "Angular uses the name as the key when hashing the form value"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In a template-driven form, #email='ngModel' creates what?",
+      "options": [
+        "A two-way binding between the input and a class property named email",
+        "A template reference variable that gives access to the NgModel directive — including valid, invalid, touched, errors",
+        "A local variable that holds the raw string value of the input",
+        "A FormControl object that can be used in TypeScript"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What does form.reset() do in a template-driven form?",
+      "options": [
+        "Reloads the page",
+        "Resets all control values to empty AND resets validation state (touched, dirty, pristine)",
+        "Clears only the validation errors but keeps the input values",
+        "Re-runs all validators without changing any values"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "Which scenario is better suited for template-driven forms over reactive forms?",
+      "options": [
+        "A dynamic questionnaire with fields added/removed based on previous answers",
+        "A unit-tested form logic that runs in a Node.js environment",
+        "A simple login form with email and password — fixed fields, standard validation",
+        "A form that validates across 5 interdependent fields simultaneously"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "The 'email' attribute on an Angular input (not HTML5 type='email') does what?",
+      "options": [
+        "Adds the browser's native email validation (red border on invalid)",
+        "Registers Angular's Validators.email validator — checks the format against a regex",
+        "Sends the form value to the user's email address on submit",
+        "Restricts the keyboard to show the email keyboard on mobile"
+      ],
+      "answer": 1
+    }
+  ]
+}

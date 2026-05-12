@@ -1,0 +1,49 @@
+{
+  "questions": [
+    {
+      "question": "What is the syntax for two-way data binding in Angular (the 'banana in a box')?",
+      "options": [
+        "[ngModel]='property'",
+        "{{ngModel}}='property'",
+        "[(ngModel)]='property'",
+        "(ngModel)='property'"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "An Angular template has <button [disabled]='isLoading'>Submit</button>. What does [disabled] do?",
+      "options": [
+        "Adds a CSS class named 'disabled' when isLoading is true",
+        "Binds the DOM disabled property to the TypeScript isLoading expression — disables the button when true",
+        "Removes the button from the DOM when isLoading is false",
+        "Calls a method named 'disabled' on click"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What module must be imported to use [(ngModel)] in a component's template?",
+      "options": [
+        "CommonModule",
+        "ReactiveFormsModule",
+        "FormsModule",
+        "BrowserModule"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "In an event handler receiving $event from (input), what type should you cast event.target to?",
+      "options": ["HTMLElement", "InputEvent", "HTMLInputElement", "Event"],
+      "answer": 2
+    },
+    {
+      "question": "What is the difference between (click)='increment()' and [click]='increment()'?",
+      "options": [
+        "They are identical — both bind the click event",
+        "(click)='increment()' binds an event handler; [click]='increment()' is invalid — [] is for property binding, not events",
+        "[click] fires once; (click) fires on every click",
+        "(click) requires $event parameter; [click] does not"
+      ],
+      "answer": 1
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "questions": [
+    {
+      "question": "A component has @Input() userId. Where is the first safe place to read userId and make an HTTP call?",
+      "options": [
+        "In the constructor — it's the earliest hook available",
+        "In ngOnChanges — it fires before ngOnInit",
+        "In ngOnInit — @Input values are set before this hook runs",
+        "In ngAfterViewInit — the DOM is fully ready at that point"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What happens if you start an interval() in ngOnInit and never unsubscribe?",
+      "options": [
+        "Angular automatically stops the interval when the component is destroyed",
+        "The interval keeps running and the closed-over component reference prevents garbage collection — a memory leak",
+        "The interval throws an error once the component is destroyed",
+        "The browser stops the interval after 30 seconds as a security measure"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "Which hook fires every time a bound @Input changes, not just once on initialisation?",
+      "options": ["ngOnInit", "ngAfterViewInit", "ngOnChanges", "ngDoCheck"],
+      "answer": 2
+    },
+    {
+      "question": "What is the advantage of takeUntilDestroyed(destroyRef) over manually implementing ngOnDestroy?",
+      "options": [
+        "takeUntilDestroyed is faster at runtime",
+        "It removes the need for a separate Subscription variable and ngOnDestroy, keeping cleanup declarative and co-located with the subscription",
+        "ngOnDestroy only works with class-based components; takeUntilDestroyed works with both",
+        "takeUntilDestroyed retries failed HTTP requests automatically"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "You need to get the native DOM element for a canvas after Angular renders the view. Which hook and decorator pair is correct?",
+      "options": [
+        "@ViewChild + constructor",
+        "@ViewChild({ static: true }) + ngOnInit — for static references",
+        "@ContentChild + ngOnChanges",
+        "@ViewChild + ngAfterViewInit — view children exist only after this hook"
+      ],
+      "answer": 3
+    }
+  ]
+}

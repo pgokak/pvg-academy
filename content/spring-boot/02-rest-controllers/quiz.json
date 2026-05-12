@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What is the difference between @Controller and @RestController?",
+      "options": [
+        "@RestController only handles REST-style URLs; @Controller handles any URL",
+        "@RestController adds @ResponseBody to every method, serializing return values to JSON instead of resolving view names",
+        "@Controller is for class-level mapping; @RestController is for method-level mapping",
+        "@RestController automatically validates request bodies; @Controller does not"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "Which annotation extracts the value from a URL path segment like /users/{id}?",
+      "options": [
+        "@RequestParam",
+        "@RequestBody",
+        "@PathVariable",
+        "@RequestHeader"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "A POST endpoint creates a new resource. Which ResponseEntity method best communicates success?",
+      "options": [
+        "ResponseEntity.ok(created)",
+        "ResponseEntity.created(locationUri).body(created)",
+        "ResponseEntity.accepted().body(created)",
+        "ResponseEntity.status(200).body(created)"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "Where should the @Valid annotation be placed to trigger Bean Validation on a request body?",
+      "options": [
+        "On the DTO class definition",
+        "On the @RequestBody parameter in the controller method",
+        "On the @PostMapping method annotation",
+        "On the service method that receives the DTO"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "How do you map GET /api/users/search?email=alice@example.com to a controller method?",
+      "options": [
+        "@GetMapping(\"/search/{email}\") with @PathVariable String email",
+        "@GetMapping(\"/search\") with @RequestParam String email",
+        "@GetMapping(\"/search\") with @RequestBody String email",
+        "@GetMapping(\"/search?email\") with @RequestParam String email"
+      ],
+      "answer": 1
+    }
+  ]
+}

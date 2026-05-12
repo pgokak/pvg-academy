@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "Which part of a JWT is cryptographically protected and proves the token hasn't been tampered with?",
+      "options": [
+        "The header",
+        "The payload (claims)",
+        "The signature",
+        "All three parts are encrypted"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "Why is the JWT payload NOT a safe place to store passwords or credit card numbers?",
+      "options": [
+        "The payload size is limited to 256 bytes",
+        "The payload is only Base64-encoded, not encrypted — anyone who has the token can decode and read it",
+        "JWT payloads are stored in the database and could be leaked via SQL injection",
+        "Passwords in JWT payloads expire immediately due to the exp claim"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is the advantage of JWT over session-based authentication for microservices?",
+      "options": [
+        "JWT tokens are smaller than session cookies and load faster",
+        "Each service can validate the JWT independently without a shared session store or service call",
+        "JWT automatically refreshes itself before expiration",
+        "JWT is the only authentication method supported by REST"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In the JwtAuthFilter, why check SecurityContextHolder.getContext().getAuthentication() == null before setting authentication?",
+      "options": [
+        "SecurityContextHolder throws an exception if authentication is set twice",
+        "To avoid overwriting an already-authenticated context — prevents re-processing the token on every filter call",
+        "The authentication object is immutable after it's first set",
+        "Spring Security requires null-checking before every SecurityContextHolder access"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What happens when a JWT's expiration date is in the past and the server tries to parse it?",
+      "options": [
+        "The parser returns the claims but sets a flag indicating the token is expired",
+        "The parser throws an ExpiredJwtException",
+        "The server automatically issues a new token",
+        "The token is valid until the user logs out"
+      ],
+      "answer": 1
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "In Spring Boot 2.5+, when does a class with a single constructor NOT need @Autowired?",
+      "options": [
+        "Only when the constructor has exactly one parameter",
+        "Always — Spring automatically injects through the single constructor without @Autowired",
+        "Only when the class is annotated with @Service (not @Component)",
+        "Only when all constructor parameters are interfaces"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What extra behavior does @Repository add compared to @Component?",
+      "options": [
+        "It automatically generates CRUD methods without any code",
+        "It registers the class with the JPA entity manager",
+        "It translates platform-specific database exceptions into Spring's DataAccessException hierarchy",
+        "It creates a connection pool for the annotated class"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "Spring finds two beans implementing the same PaymentGateway interface. You inject PaymentGateway without @Qualifier. What happens?",
+      "options": [
+        "Spring randomly picks one of the two beans",
+        "Spring throws NoUniqueBeanDefinitionException at startup",
+        "Spring injects both beans into a List<PaymentGateway>",
+        "Spring ignores both beans and injects null"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "Why is programming to an interface (e.g., NotificationService) rather than a concrete class (EmailNotificationService) important for Spring DI?",
+      "options": [
+        "Spring can only inject interface types, not class types",
+        "Interfaces compile faster than classes in Java",
+        "You can swap implementations (mock, email, SMS) without changing the class that uses them",
+        "Spring requires interfaces to generate proxy objects for every injection point"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What is the primary reason to prefer constructor injection over field injection with @Autowired?",
+      "options": [
+        "Constructor injection runs faster at startup",
+        "Field injection requires more XML configuration",
+        "Constructor injection allows writing unit tests by calling new MyService(mock1, mock2) without a Spring context",
+        "Field injection is deprecated since Spring Boot 3.0"
+      ],
+      "answer": 2
+    }
+  ]
+}

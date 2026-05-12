@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What does form.markAllAsTouched() do and when should you call it?",
+      "options": [
+        "It submits the form programmatically",
+        "It marks all controls as touched so validation errors become visible — useful when a user clicks Submit without touching any fields",
+        "It disables all form controls to prevent further editing",
+        "It resets all controls to their initial values"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "A cross-field validator (passwordsMatch) should be applied where?",
+      "options": [
+        "On the password FormControl",
+        "On the confirmPassword FormControl",
+        "On the FormGroup — it receives the group as the AbstractControl and can read both controls",
+        "In the onSubmit() method as a manual if-check"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What is the difference between form.value and form.getRawValue()?",
+      "options": [
+        "They are identical — both return the same object",
+        "form.value excludes disabled controls; form.getRawValue() includes all controls regardless of state",
+        "form.getRawValue() converts all values to strings; form.value preserves types",
+        "form.value is synchronous; form.getRawValue() returns a Promise"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What Angular module must be imported for reactive forms to work in a standalone component?",
+      "options": [
+        "FormsModule",
+        "CommonModule",
+        "ReactiveFormsModule",
+        "FormModule"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "The nonNullable option on FormControl does what?",
+      "options": [
+        "Adds a required validator that prevents null values",
+        "Ensures the control value is never null — the typed value is always the specified type, not T | null",
+        "Prevents the form from being submitted when the control is null",
+        "Disables the input when the value becomes null"
+      ],
+      "answer": 1
+    }
+  ]
+}

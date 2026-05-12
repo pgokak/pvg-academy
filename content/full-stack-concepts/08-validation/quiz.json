@@ -1,0 +1,44 @@
+{
+  "questions": [
+    {
+      "question": "In Spring Boot, which annotation on a @RequestBody parameter triggers Bean Validation?",
+      "options": ["@Validated", "@Valid", "@Constrained", "@Checked"],
+      "answer": 1
+    },
+    {
+      "question": "In an Angular reactive form, where should a cross-field validator (e.g., checking that password === confirmPassword) be applied?",
+      "options": [
+        "On each individual FormControl separately",
+        "On the FormGroup — it receives the group as the AbstractControl",
+        "In the onSubmit() method using a manual if-check",
+        "As an async validator on the confirmPassword control only"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What does a custom Angular ValidatorFn return when validation PASSES?",
+      "options": ["true", "An empty object {}", "null", "{ valid: true }"],
+      "answer": 2
+    },
+    {
+      "question": "In Spring Boot, which class handles MethodArgumentNotValidException centrally for all controllers?",
+      "options": [
+        "@ExceptionMapper",
+        "@GlobalExceptionHandler",
+        "@ControllerAdvice with @ExceptionHandler",
+        "@ResponseStatus on the exception class"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "In an Angular template, why should validation errors be shown only when a field is both 'invalid' AND 'touched'?",
+      "options": [
+        "Angular's validation only runs after a field is touched",
+        "Showing errors before the user has interacted with the field creates a poor UX — touched means the user has visited the field",
+        "The 'invalid' state is only computed after 'touched' is set",
+        "It prevents the form from being submitted while the user is still typing"
+      ],
+      "answer": 1
+    }
+  ]
+}

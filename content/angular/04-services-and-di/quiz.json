@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What does @Injectable({ providedIn: 'root' }) do?",
+      "options": [
+        "Creates the service immediately when the application starts",
+        "Registers the service with the root injector as an application-wide singleton",
+        "Makes the service available only to the root component",
+        "Prevents the service from being overridden in child modules"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is the advantage of inject(UserService) over constructor injection?",
+      "options": [
+        "inject() is faster because it skips TypeScript type checking",
+        "inject() works outside constructors (in property initializers, computed signals) and reduces constructor parameter noise",
+        "inject() creates a new service instance each time instead of using the singleton",
+        "inject() automatically unsubscribes from Observables on component destruction"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "A UserService is provided in 'root'. How many instances exist in the application?",
+      "options": [
+        "One per component that injects it",
+        "One per route that uses it",
+        "One for the entire application — singleton",
+        "One per NgModule that imports the service"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "Why should components inject a UserService instead of HttpClient directly?",
+      "options": [
+        "Angular restricts HttpClient to services only — components can't use it",
+        "HTTP logic in a service is reusable across components; in a component it's duplicated for each consumer",
+        "HttpClient requires zone.js which is not available in components",
+        "Services automatically retry failed requests; components don't"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "How do you provide a service scoped to a single component and its children?",
+      "options": [
+        "Use @Injectable({ providedIn: 'component' })",
+        "Add the service to the component's providers array: @Component({ providers: [MyService] })",
+        "Use inject(MyService, { self: true })",
+        "Call injector.get(MyService) inside the component's constructor"
+      ],
+      "answer": 1
+    }
+  ]
+}

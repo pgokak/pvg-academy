@@ -1,0 +1,49 @@
+{
+  "questions": [
+    {
+      "question": "Where must the wildcard route { path: '**', ... } be placed in the routes array?",
+      "options": [
+        "First — it must catch all routes before others",
+        "After the root route '/' only",
+        "Last — Angular matches routes in order; wildcard must not shadow specific routes",
+        "It doesn't matter — Angular automatically moves it to the end"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What does <router-outlet></router-outlet> do in an Angular template?",
+      "options": [
+        "Creates a link to the router configuration",
+        "Defines where Angular renders the currently matched route's component",
+        "Enables routing in a standalone component",
+        "Creates a navigation menu from the routes array automatically"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "How do you navigate to /users/42 using router.navigate()?",
+      "options": [
+        "router.navigate('/users/42')",
+        "router.navigate(['/users', 42])",
+        "router.go('/users/42')",
+        "router.navigateTo({ path: 'users', id: 42 })"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is the benefit of lazy loading a route with loadComponent?",
+      "options": [
+        "The component renders faster because Angular pre-renders it",
+        "The component's JavaScript code is only downloaded when that route is first visited — reduces initial bundle",
+        "The component is cached after first load and never re-fetched",
+        "Angular automatically code-splits all components without needing loadComponent"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In UserDetailComponent, route.snapshot.paramMap.get('id') returns what type?",
+      "options": ["number", "string | null", "Observable<string>", "ParamMap"],
+      "answer": 1
+    }
+  ]
+}

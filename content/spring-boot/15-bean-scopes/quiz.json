@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What is the default scope for a Spring bean annotated with @Service?",
+      "options": [
+        "prototype — a new instance per injection",
+        "request — a new instance per HTTP request",
+        "singleton — one instance per Spring application context",
+        "session — one instance per user session"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "A ShoppingCart bean is session-scoped. Why does injecting it into a singleton OrderService cause a problem WITHOUT proxyMode?",
+      "options": [
+        "Session beans are immutable and cannot be assigned to singleton fields",
+        "At application startup, no HTTP session exists — Spring cannot create the session bean to inject",
+        "Singleton beans cannot depend on any non-singleton beans",
+        "Session beans require HTTP Basic Auth to be injected"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is the difference between @PostConstruct and a constructor for initialization logic?",
+      "options": [
+        "They are identical — both run after all dependencies are injected",
+        "Constructor runs before dependency injection completes; @PostConstruct runs after all @Autowired fields are set",
+        "@PostConstruct only works with @Service beans; constructors work with any class",
+        "Constructor is faster; @PostConstruct has a startup delay"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "Which scope should be used for a stateless service like UserService that calculates logic and delegates to a repository?",
+      "options": [
+        "prototype — ensures no shared state between callers",
+        "request — tied to HTTP request lifecycle",
+        "singleton — stateless, safe to share across all requests",
+        "application — lives for the application lifetime but separate from singleton"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "When is @PreDestroy called?",
+      "options": [
+        "Before each method call on the bean",
+        "When the bean is garbage collected by the JVM",
+        "When the Spring application context is shutting down (e.g., application stop)",
+        "After every HTTP request when using request-scoped beans"
+      ],
+      "answer": 2
+    }
+  ]
+}

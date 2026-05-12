@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "Why must you clone an HttpRequest in an Angular interceptor before modifying it?",
+      "options": [
+        "Cloning is required for TypeScript's strict type checking",
+        "HttpRequest objects are immutable — you cannot modify them directly",
+        "The original request is needed for retry logic in other interceptors",
+        "Cloning prevents the interceptor from being called twice"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In Spring Boot, what class should a custom filter extend to ensure it runs only once per request even in async scenarios?",
+      "options": [
+        "HttpServletFilter",
+        "GenericFilterBean",
+        "OncePerRequestFilter",
+        "AbstractSecurityFilter"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "In Angular, if you have two interceptors [loggingInterceptor, authInterceptor], in what order do they process an OUTGOING request?",
+      "options": [
+        "authInterceptor first, then loggingInterceptor",
+        "loggingInterceptor first, then authInterceptor",
+        "Both run in parallel",
+        "Order is non-deterministic — Angular chooses at runtime"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is the correct way to register a functional Angular interceptor in a standalone app?",
+      "options": [
+        "Add it to the declarations array of AppModule",
+        "Use provideHttpClient(withInterceptors([myInterceptor])) in app.config.ts",
+        "Annotate the function with @Interceptor()",
+        "Add HTTP_INTERCEPTORS to the providers with useClass"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "An Angular interceptor handles a 401 response by clearing the token and redirecting to /login. Where should this logic live?",
+      "options": [
+        "In every individual service method that makes HTTP calls",
+        "In the catchError operator inside the interceptor's return pipeline",
+        "In the component's ngOnInit where the subscription starts",
+        "In a separate error service that polls for 401 responses"
+      ],
+      "answer": 1
+    }
+  ]
+}

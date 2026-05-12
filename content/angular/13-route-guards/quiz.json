@@ -1,0 +1,49 @@
+{
+  "questions": [
+    {
+      "question": "What should an Angular route guard return to redirect the user to /login instead of just blocking navigation?",
+      "options": [
+        "false",
+        "null",
+        "router.createUrlTree(['/login'])",
+        "new RedirectCommand('/login')"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "In a functional CanActivateFn guard, how do you access services like AuthService?",
+      "options": [
+        "Pass them as constructor parameters to the guard function",
+        "Use inject() inside the guard function body — functional guards run in an injection context",
+        "Import a global singleton from the service file directly",
+        "Use the route.data property to retrieve injected services"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "A route has canActivate: [authGuard, adminGuard]. What happens if authGuard returns false?",
+      "options": [
+        "adminGuard still runs to give it a chance to override",
+        "Both guards run in parallel and results are combined",
+        "Angular short-circuits: adminGuard does not run, navigation is blocked",
+        "Angular throws an error because guards must not conflict"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "Which guard type would you use to warn a user 'You have unsaved changes' when they try to navigate away from a form?",
+      "options": ["canActivate", "canMatch", "canDeactivate", "resolve"],
+      "answer": 2
+    },
+    {
+      "question": "What is the advantage of using a resolve guard over loading data inside ngOnInit?",
+      "options": [
+        "resolve guards are faster because they bypass the HTTP cache",
+        "resolve guards prefetch data before the component renders, eliminating loading flickers in the template",
+        "resolve guards automatically retry failed requests; ngOnInit does not",
+        "resolve guards work only with lazy-loaded routes; ngOnInit works everywhere"
+      ],
+      "answer": 1
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "questions": [
+    {
+      "question": "Which HTTP method should be used to partially update a resource (only send changed fields)?",
+      "options": ["PUT", "POST", "PATCH", "UPDATE"],
+      "answer": 2
+    },
+    {
+      "question": "A Spring Boot endpoint creates a user and should signal success. Which HTTP status code is most appropriate?",
+      "options": ["200 OK", "201 Created", "204 No Content", "202 Accepted"],
+      "answer": 1
+    },
+    {
+      "question": "In REST, what does 'idempotent' mean for an HTTP method like DELETE?",
+      "options": [
+        "The operation has no side effects on the server",
+        "The operation can be called multiple times and the result is the same as calling it once",
+        "The operation always returns the same response body",
+        "The operation does not require authentication"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is the correct REST URL to get all orders belonging to user with id 5?",
+      "options": [
+        "GET /api/getOrdersForUser?userId=5",
+        "GET /api/orders?userId=5",
+        "GET /api/users/5/orders",
+        "POST /api/users/orders/5"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "In Angular, what happens if you subscribe to an HttpClient observable but provide no error handler?",
+      "options": [
+        "Angular automatically retries the request 3 times",
+        "The observable throws an unhandled error that crashes the application",
+        "The error is silently ignored — the observable completes without emitting",
+        "HttpClient shows a default browser alert with the error message"
+      ],
+      "answer": 2
+    }
+  ]
+}

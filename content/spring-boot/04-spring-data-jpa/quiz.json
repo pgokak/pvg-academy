@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What does extending JpaRepository<User, Long> provide without writing any implementation?",
+      "options": [
+        "Only findById and save — all other methods must be manually implemented",
+        "20+ CRUD methods including findById, findAll, save, delete, count, and existsById",
+        "All CRUD methods plus automatic REST endpoints at /api/users",
+        "Database schema generation and migration scripts"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What SQL does Spring Data JPA generate for the method findByRoleAndActiveTrue(String role)?",
+      "options": [
+        "SELECT * FROM users WHERE role = ? AND active IS NOT NULL",
+        "SELECT * FROM users WHERE role = ?",
+        "SELECT * FROM users WHERE role = ? AND active = true",
+        "SELECT * FROM users WHERE role = ? OR active = true"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "Why should service methods call userRepository.findById(id).orElseThrow() instead of .get()?",
+      "options": [
+        "orElseThrow() is faster because it avoids boxing/unboxing",
+        ".get() requires importing java.util.NoSuchElementException explicitly",
+        "orElseThrow() lets you throw a domain-specific exception with a meaningful message instead of a generic NoSuchElementException",
+        "Spring Data JPA deprecated .get() in favor of orElseThrow()"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "When is the @Transactional annotation required on a repository method?",
+      "options": [
+        "Always — every repository method needs @Transactional to function",
+        "Only on @Query methods that modify data (UPDATE/DELETE) — they need @Transactional + @Modifying",
+        "Only on methods that return Optional<T>",
+        "Only when using native SQL queries with nativeQuery = true"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In JPQL (used in @Query), which syntax correctly references the User entity's email field?",
+      "options": [
+        "WHERE users.email = :email (uses table name)",
+        "WHERE u.email = :email (uses entity alias defined in FROM clause)",
+        "WHERE User.email = :email (uses class name)",
+        "WHERE email = :email (no qualifier needed)"
+      ],
+      "answer": 1
+    }
+  ]
+}

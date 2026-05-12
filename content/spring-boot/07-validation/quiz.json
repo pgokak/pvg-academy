@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What is the difference between @NotNull and @NotBlank?",
+      "options": [
+        "@NotNull only works on String; @NotBlank works on any type",
+        "@NotNull checks that the value is not null; @NotBlank checks not null AND not empty/whitespace (String only)",
+        "@NotBlank is the newer version that replaces @NotNull in Java 17+",
+        "They are identical — @NotBlank is just an alias for @NotNull"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "Where must @Valid be placed to trigger Bean Validation on an incoming request body?",
+      "options": [
+        "On the DTO record class definition",
+        "On the @RequestBody parameter in the controller method signature",
+        "On the @Service method that processes the DTO",
+        "On the @PostMapping annotation"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "To validate a path variable like @GetMapping('/{id}') with @Min(1), what must be added to the controller class?",
+      "options": [
+        "@EnableValidation",
+        "@Valid on the class",
+        "@Validated on the controller class",
+        "Nothing — @Min automatically works on @PathVariable"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "When Spring throws MethodArgumentNotValidException, what HTTP status does the default Spring error handler return?",
+      "options": [
+        "200 OK",
+        "400 Bad Request",
+        "422 Unprocessable Entity",
+        "500 Internal Server Error"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In a custom ConstraintValidator, what should isValid() return when the field value is null?",
+      "options": [
+        "false — null values are always invalid",
+        "true — let dedicated null-check annotations (@NotNull, @NotBlank) handle null",
+        "It should throw a NullPointerException",
+        "It depends on the annotation's require attribute"
+      ],
+      "answer": 1
+    }
+  ]
+}

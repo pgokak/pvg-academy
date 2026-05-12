@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "Page numbers in Spring Data's Pageable are:",
+      "options": [
+        "1-indexed — first page is page 1",
+        "0-indexed — first page is page 0",
+        "Configurable — set spring.data.page-start in application.properties",
+        "Determined by the database driver being used"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What does Page<User>.map(UserResponse::from) do?",
+      "options": [
+        "Converts Page<User> to a List<UserResponse>",
+        "Creates a new Page<UserResponse> with the same pagination metadata but content transformed to UserResponse",
+        "Creates a HashMap mapping User IDs to UserResponse objects",
+        "Applies the transformation lazily — entities are only converted when the client reads them"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "The @PageableDefault(size = 20, sort = 'name') annotation does what?",
+      "options": [
+        "Enforces a maximum page size of 20 — requests for more are rejected",
+        "Sets default values for page size and sort when the client doesn't specify them",
+        "Caches the first 20 results for faster subsequent requests",
+        "Applies globally to all repository methods in the application"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What SQL clause does Spring Data JPA generate for PageRequest.of(2, 10)?",
+      "options": [
+        "LIMIT 10 OFFSET 10",
+        "LIMIT 10 OFFSET 20",
+        "FETCH FIRST 10 ROWS ONLY STARTING AT ROW 20",
+        "ROWNUM BETWEEN 21 AND 30"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "A client calls GET /api/users. The response Page has totalPages: 5 and last: false. What does this mean?",
+      "options": [
+        "There are 5 total users in the database",
+        "The current page has 5 items",
+        "There are 5 pages of results and there are more pages after the current one",
+        "The request timed out after 5 seconds, with a last-chance response"
+      ],
+      "answer": 2
+    }
+  ]
+}

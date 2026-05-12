@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "In Angular 17+, why does @for require a 'track' expression?",
+      "options": [
+        "For debugging purposes — the track value appears in browser DevTools",
+        "To give Angular a stable identity for each item so it can efficiently update only changed DOM nodes",
+        "To enable TypeScript type checking on the loop variable",
+        "To allow the loop to be paused and resumed asynchronously"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is the difference between *ngIf and [hidden] for conditional display?",
+      "options": [
+        "They are identical — both hide the element",
+        "*ngIf removes the element from the DOM; [hidden] keeps it in the DOM but sets display: none",
+        "[hidden] is deprecated — *ngIf is always preferred",
+        "*ngIf works with components; [hidden] only works with HTML elements"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "How does [ngClass]=\"{'active': isActive, 'disabled': isDisabled}\" work?",
+      "options": [
+        "Adds both 'active' and 'disabled' classes regardless of conditions",
+        "Adds 'active' if isActive is truthy, 'disabled' if isDisabled is truthy — independently evaluated",
+        "Adds a single class string 'active disabled' based on the object",
+        "Replaces all existing classes with the ones specified in the object"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "A custom directive uses @HostListener('click'). When does this event fire?",
+      "options": [
+        "When any element in the application is clicked",
+        "When the host element (the element the directive is applied to) is clicked",
+        "When the directive's parent component is clicked",
+        "When a programmatic click() is called, not from user interaction"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In Angular 17+, the @if control flow has a significant advantage over *ngIf. What is it?",
+      "options": [
+        "@if renders 50% faster due to Ivy compiler optimizations",
+        "@if provides type narrowing — TypeScript knows the type is non-null inside the @if block",
+        "@if supports async values without needing the async pipe",
+        "@if automatically cancels pending HTTP requests when the condition becomes false"
+      ],
+      "answer": 1
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "In an Angular NgModule, what is the difference between 'declarations' and 'imports'?",
+      "options": [
+        "declarations list services; imports list components",
+        "declarations list components/directives/pipes owned by this module; imports list other modules whose exports this module needs",
+        "declarations list what to export publicly; imports list what to keep private",
+        "There is no difference — both accept components and modules interchangeably"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In Spring Boot, what is the purpose of @Configuration on a class?",
+      "options": [
+        "It marks the class as the application entry point (like main class)",
+        "It tells Spring this class contains @Bean methods that define objects to manage",
+        "It activates component scanning in the package",
+        "It imports external Spring modules similar to Angular's imports array"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is the key advantage of Angular standalone components over NgModule-based components?",
+      "options": [
+        "Standalone components run faster at runtime",
+        "Standalone components can use @Output without @Input",
+        "Standalone components declare their own imports directly, eliminating the need for a separate module file",
+        "Standalone components automatically provide HttpClient without provideHttpClient()"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "If UserService is listed in UserModule's providers array (not providedIn: 'root'), what is the scope of that service?",
+      "options": [
+        "Application-wide singleton shared across all modules",
+        "A new instance is created per component that injects it",
+        "A separate instance is created for each lazy-loaded module that imports UserModule",
+        "The service is only available in unit tests"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "Spring Boot auto-configuration activates @Configuration classes based on what?",
+      "options": [
+        "The order of beans declared in application.properties",
+        "What's present on the classpath — starter dependencies trigger their matching configuration",
+        "Explicit @Import annotations in your main class",
+        "The package name matching a Spring naming convention"
+      ],
+      "answer": 1
+    }
+  ]
+}

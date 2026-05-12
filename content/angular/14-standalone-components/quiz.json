@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "A standalone component uses *ngIf in its template. What must appear in its imports array?",
+      "options": [
+        "Nothing — *ngIf is a built-in Angular directive that's always available",
+        "CommonModule (or NgIf directly), because standalone components declare their own dependencies",
+        "BrowserModule, because *ngIf is part of the browser platform",
+        "FormsModule, because ngIf is related to form control"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "You want to add a standalone component to an existing NgModule-based app. Where does it go in @NgModule?",
+      "options": [
+        "declarations — same as any other component",
+        "imports — standalone components are imported, not declared",
+        "providers — standalone components register themselves as services",
+        "exports only — never in imports or declarations"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What does bootstrapApplication(AppComponent, appConfig) replace in a modern Angular app?",
+      "options": [
+        "The app.component.ts file",
+        "platformBrowserDynamic().bootstrapModule(AppModule) from main.ts",
+        "The index.html entry point",
+        "The angular.json build configuration"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is the advantage of loadComponent over loadChildren for lazy loading?",
+      "options": [
+        "loadComponent is faster at runtime because it skips the router",
+        "loadComponent lazy-loads a single standalone component without requiring a NgModule or routes wrapper",
+        "loadChildren is deprecated; loadComponent is its direct replacement in all cases",
+        "loadComponent supports preloading; loadChildren does not"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In app.config.ts, which function replaces importing HttpClientModule in AppModule?",
+      "options": [
+        "withFetch()",
+        "importProvidersFrom(HttpClientModule)",
+        "provideHttpClient()",
+        "enableHttpClient()"
+      ],
+      "answer": 2
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What is the difference between a pure and impure pipe?",
+      "options": [
+        "Pure pipes are faster; impure pipes are more accurate",
+        "A pure pipe only re-runs when the input reference changes; an impure pipe re-runs on every change detection cycle",
+        "Pure pipes return strings; impure pipes can return any type",
+        "Pure pipes work with primitives; impure pipes work with objects and arrays"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "You're building a standalone component that needs the date pipe. What must you add to the imports array?",
+      "options": [
+        "DateModule",
+        "BrowserModule",
+        "CommonModule (which includes all built-in pipes) or DatePipe directly",
+        "AngularPipes"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What does the async pipe do that makes it better than manual subscribe in components?",
+      "options": [
+        "It makes HTTP requests faster by using a web worker",
+        "It automatically subscribes when the component is created and unsubscribes when destroyed — preventing memory leaks",
+        "It batches multiple Observable emissions into one template update",
+        "It converts the Observable to a Promise for simpler Angular template syntax"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "How do you chain two pipes — first truncate to 20 chars, then uppercase?",
+      "options": [
+        "{{ value | truncate(20) | uppercase }}",
+        "{{ value | truncate:20 | uppercase }}",
+        "{{ value.truncate(20).toUpperCase() }}",
+        "{{ value | [truncate:20, uppercase] }}"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "A TimeAgoPipe shows '5 minutes ago' but the display never updates. What is the likely fix?",
+      "options": [
+        "Inject ChangeDetectorRef and call markForCheck() every second",
+        "Change the pipe to pure: false — Angular's change detection will re-run impure pipes automatically",
+        "Use OnPush change detection strategy on the component",
+        "Subscribe to a timer Observable and manually call transform() in the component"
+      ],
+      "answer": 1
+    }
+  ]
+}

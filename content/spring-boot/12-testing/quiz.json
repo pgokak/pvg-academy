@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What does @WebMvcTest(UserController.class) start?",
+      "options": [
+        "The full Spring Boot application context including database and services",
+        "Only Spring MVC — web layer, Jackson, MockMvc — without JPA or real service beans",
+        "Only the UserController class without any Spring infrastructure",
+        "A real embedded Tomcat server on a random port"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is the purpose of @MockBean in a @WebMvcTest?",
+      "options": [
+        "It creates a real bean but wraps it in a spy that records calls",
+        "It replaces the real service bean with a Mockito mock in the Spring test context",
+        "It prevents the bean from being created to speed up the test",
+        "It marks the bean as optional so the test doesn't fail if it's missing"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "Which test annotation starts an H2 in-memory database and rolls back after each test?",
+      "options": [
+        "@SpringBootTest with H2 on the classpath",
+        "@DataJpaTest",
+        "@WebMvcTest with @Transactional",
+        "@AutoConfigureTestDatabase"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "Why is a unit test for UserService that uses new UserService(mockRepo, mockEmail) faster than a @SpringBootTest?",
+      "options": [
+        "JUnit runs faster when Spring annotations are absent",
+        "No Spring context is created — no classpath scanning, no bean initialization, no server startup",
+        "Mockito mocks run on native code while Spring beans use reflection",
+        "Unit tests skip the JVM warm-up phase"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "MockMvc.perform(get(\"/api/users/1\")) does what?",
+      "options": [
+        "Makes a real HTTP request to a running server",
+        "Simulates an HTTP request through the Spring MVC processing pipeline without a real network call",
+        "Calls the controller method directly, bypassing all filters",
+        "Creates a mock HTTP client that records requests for later verification"
+      ],
+      "answer": 1
+    }
+  ]
+}

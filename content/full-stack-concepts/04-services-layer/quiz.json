@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What is the primary responsibility of the Service layer in both Spring Boot and Angular?",
+      "options": [
+        "Handling HTTP request parsing and response formatting",
+        "Managing database connections and query execution",
+        "Containing business logic that can be reused across multiple controllers or components",
+        "Rendering templates and managing UI state"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "Why is putting business logic directly in an Angular component a problem?",
+      "options": [
+        "Angular components cannot contain TypeScript methods",
+        "The logic can't be reused in other components and can't be tested without a DOM",
+        "Components are compiled away and don't exist at runtime",
+        "Angular restricts the number of methods a component can have"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In Spring Boot, what is the correct layer for a @Service annotated class to sit in?",
+      "options": [
+        "Directly between the HTTP request and the database, replacing the repository",
+        "Between the controller (HTTP layer) and the repository (data layer)",
+        "Above the controller, acting as an API gateway",
+        "At the same level as the controller, handling alternative request formats"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "A UserService needs to create a user AND send a welcome email. Which approach follows the services layer pattern?",
+      "options": [
+        "Put both in the UserController alongside the @PostMapping method",
+        "Put both operations directly in the UserRepository",
+        "UserService orchestrates UserRepository.save() and EmailService.send() — two focused services",
+        "Create one massive ServiceManager class that handles all application operations"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What does it mean for a controller or component to be 'thin'?",
+      "options": [
+        "It has fewer than 100 lines of code",
+        "It only handles framework concerns (HTTP parsing / UI events) and delegates everything else to services",
+        "It has no constructor injection — all dependencies are static",
+        "It uses only template-driven forms, not reactive forms"
+      ],
+      "answer": 1
+    }
+  ]
+}

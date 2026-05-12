@@ -1,0 +1,49 @@
+{
+  "questions": [
+    {
+      "question": "Why is it wrong to make HTTP calls or access @Input properties in an Angular component's constructor?",
+      "options": [
+        "HTTP calls are blocked during constructor execution for security reasons",
+        "@Input properties are not yet set and injected services may not be fully initialized",
+        "The constructor runs in a web worker and cannot access the DOM or HTTP",
+        "Angular prohibits any method calls inside constructors"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is the Spring Boot equivalent of Angular's ngOnInit?",
+      "options": ["@Autowired", "@Component", "@PostConstruct", "@ServiceInit"],
+      "answer": 2
+    },
+    {
+      "question": "An Angular component subscribes to an interval observable in ngOnInit but never unsubscribes. What is the consequence?",
+      "options": [
+        "Angular automatically unsubscribes when the component's route changes",
+        "The interval keeps running and holds a reference to the component after it's destroyed — a memory leak",
+        "The subscription is garbage collected when the component's template is removed from the DOM",
+        "The Observable throws a SubscriptionClosedError when the component is destroyed"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In what order does Angular call lifecycle hooks on a component's first render?",
+      "options": [
+        "ngOnInit → ngOnChanges → constructor",
+        "constructor → ngOnInit → ngOnChanges",
+        "constructor → ngOnChanges → ngOnInit",
+        "ngOnChanges → constructor → ngOnInit"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What does takeUntilDestroyed(destroyRef) do in Angular 16+?",
+      "options": [
+        "It converts a Promise to an Observable that completes on destroy",
+        "It automatically unsubscribes from an Observable when the component is destroyed",
+        "It prevents the component from being destroyed while a subscription is active",
+        "It retries the Observable if it errors before the component is destroyed"
+      ],
+      "answer": 1
+    }
+  ]
+}

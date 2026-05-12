@@ -43,12 +43,29 @@ export const TRACKS: Track[] = [
     status: "coming-soon",
   },
   {
+    id: "full-stack-concepts",
+    title: "Full-Stack Concepts",
+    description:
+      "DI, decorators, services, and HTTP — the same idea in Spring Boot and Angular, side by side.",
+    icon: "🔀",
+    lessonCount: 8,
+    status: "available",
+  },
+  {
     id: "spring-boot",
     title: "Spring Boot",
     description: "Java microservices, REST APIs, and dependency injection.",
     icon: "☕",
-    lessonCount: 0,
-    status: "coming-soon",
+    lessonCount: 15,
+    status: "available",
+  },
+  {
+    id: "angular",
+    title: "Angular",
+    description: "Components, services, routing, reactive forms, and signals.",
+    icon: "🅰️",
+    lessonCount: 15,
+    status: "available",
   },
   {
     id: "kafka",

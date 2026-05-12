@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "How do you read the current value of a signal named 'count' in an Angular template or in TypeScript?",
+      "options": [
+        "count.value",
+        "count.getValue()",
+        "count() — call it as a function",
+        "signal.read(count)"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "You have items = signal<string[]>([]). You want to add a new item. Which approach is correct?",
+      "options": [
+        "items().push('new item') — mutate the array returned by the signal",
+        "items.value = [...items(), 'new item'] — set the .value property",
+        "items.update(list => [...list, 'new item']) — return a new array from update()",
+        "items.set(items() + 'new item') — concatenate with set()"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What is the key difference between computed() and a regular getter?",
+      "options": [
+        "computed() is asynchronous; a getter is synchronous",
+        "computed() memoises its result and only recalculates when its signal dependencies change; a getter recalculates on every read",
+        "computed() requires a subscription; a getter does not",
+        "Regular getters cannot read signals; computed() is the only way"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "When does effect() re-run?",
+      "options": [
+        "On every Angular change detection cycle",
+        "Only when you call effect.run() manually",
+        "Whenever any signal read inside the effect changes",
+        "Once per second by default, configurable via the interval option"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "When should you prefer RxJS Observables over Signals?",
+      "options": [
+        "For simple counter values — signals are too complex for that",
+        "For asynchronous streams like HTTP requests, WebSockets, and complex event pipelines",
+        "Whenever you need to display a value in the template",
+        "RxJS should always be preferred — signals are an experimental feature"
+      ],
+      "answer": 1
+    }
+  ]
+}

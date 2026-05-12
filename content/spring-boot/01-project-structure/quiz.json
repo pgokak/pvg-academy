@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What three annotations does @SpringBootApplication combine?",
+      "options": [
+        "@Component, @Service, @Repository",
+        "@Configuration, @EnableAutoConfiguration, @ComponentScan",
+        "@Controller, @Service, @Configuration",
+        "@SpringContext, @BeanFactory, @AutoWire"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "If your @SpringBootApplication class is in package com.example.app.controller, which packages will Spring's component scan discover?",
+      "options": [
+        "All packages in the project regardless of structure",
+        "Only com.example.app.controller and its sub-packages",
+        "com.example.app and all of its sub-packages",
+        "Only explicitly listed packages in @ComponentScan"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What does spring-boot-starter-web automatically provide?",
+      "options": [
+        "Only Spring MVC — you must add Tomcat and Jackson separately",
+        "An embedded Tomcat server, Spring MVC, and Jackson JSON support",
+        "Spring MVC, Jackson, and a H2 in-memory database",
+        "Web support plus Spring Security configured by default"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In application.properties, how do you reference an environment variable DB_PASSWORD with a fallback value of 'secret'?",
+      "options": [
+        "spring.datasource.password=env(DB_PASSWORD, secret)",
+        "spring.datasource.password=${DB_PASSWORD:-secret}",
+        "spring.datasource.password=${DB_PASSWORD:secret}",
+        "spring.datasource.password=@DB_PASSWORD|secret"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "Which spring.jpa.hibernate.ddl-auto value is safest for a production database?",
+      "options": [
+        "create — recreates the schema on every start",
+        "create-drop — drops and recreates on start and stop",
+        "update — modifies the schema to match entities",
+        "validate — checks schema matches entities but makes no changes"
+      ],
+      "answer": 3
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What does @ControllerAdvice do?",
+      "options": [
+        "It is a controller that provides advice to other controllers about routing",
+        "It marks a class that handles exceptions globally across all controllers",
+        "It adds validation logic to every @RequestBody in the application",
+        "It is a Spring Security annotation that restricts controller access"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "A ResourceNotFoundException is thrown from a service method. Nothing catches it. What does Spring Boot return by default?",
+      "options": [
+        "200 OK with null body",
+        "404 Not Found automatically — Spring knows RuntimeException means 404",
+        "500 Internal Server Error with a stack trace (or generic error message)",
+        "The application restarts automatically"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What is ProblemDetail in Spring Boot 3?",
+      "options": [
+        "A debugging tool that prints detailed stack traces to the console",
+        "A standard error response format following RFC 9457 (Problem Details for HTTP APIs)",
+        "An annotation that provides detailed information about a @RestController",
+        "A Spring Boot Actuator endpoint showing application health details"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "Which exception does Spring throw when @Valid fails on a @RequestBody parameter?",
+      "options": [
+        "ValidationException",
+        "ConstraintViolationException",
+        "MethodArgumentNotValidException",
+        "IllegalArgumentException"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "Why should the catch-all @ExceptionHandler(Exception.class) log the exception but send a generic message to the client?",
+      "options": [
+        "Clients cannot parse stack traces in HTTP responses",
+        "Spring requires all responses to be under 1KB",
+        "Stack traces leak internal implementation details and can be a security risk",
+        "The catch-all handler runs in a separate thread and cannot access the exception message"
+      ],
+      "answer": 2
+    }
+  ]
+}

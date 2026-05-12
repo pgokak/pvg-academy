@@ -1,0 +1,44 @@
+{
+  "questions": [
+    {
+      "question": "What does a TypeScript decorator actually do at the language level?",
+      "options": [
+        "It changes the compiled JavaScript output of the class methods",
+        "It is a function that runs at class definition time and can attach metadata",
+        "It prevents the class from being instantiated directly",
+        "It adds new methods to the class prototype automatically"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In Spring Boot, which annotation is specifically designed for the data access layer and also translates database exceptions into Spring's DataAccessException hierarchy?",
+      "options": ["@Component", "@Service", "@Repository", "@Controller"],
+      "answer": 2
+    },
+    {
+      "question": "What happens if you forget @Injectable on an Angular service and try to inject it into a component?",
+      "options": [
+        "Angular creates the service without DI — it just calls new automatically",
+        "TypeScript compilation fails with a type error",
+        "A runtime NullInjectorError is thrown: No provider for the service",
+        "The service is injected as undefined without any error"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "In Angular, which decorator would you use to add reusable behavior to an existing HTML element without creating a new element?",
+      "options": ["@Component", "@Injectable", "@Pipe", "@Directive"],
+      "answer": 3
+    },
+    {
+      "question": "What is @RestController in Spring Boot equivalent to?",
+      "options": [
+        "@Service + @Component",
+        "@Controller + @ResponseBody",
+        "@Controller + @RequestMapping",
+        "@Component + @RequestBody"
+      ],
+      "answer": 1
+    }
+  ]
+}

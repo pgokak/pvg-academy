@@ -1,0 +1,49 @@
+{
+  "questions": [
+    {
+      "question": "What is the core idea behind Dependency Injection?",
+      "options": [
+        "A class receives the objects it needs from outside rather than creating them itself",
+        "A class extends a base class to inherit functionality",
+        "A class uses static methods to avoid instantiation",
+        "A class caches its dependencies to avoid repeated creation"
+      ],
+      "answer": 0
+    },
+    {
+      "question": "Why is field injection with @Autowired considered problematic in Spring?",
+      "options": [
+        "It causes circular dependencies automatically",
+        "It makes the class impossible to instantiate without a full Spring context, breaking unit tests",
+        "It is slower than constructor injection at runtime",
+        "It only works with @Service beans, not @Repository or @Controller"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In Angular, which decorator registers a class with the DI container so it can be injected elsewhere?",
+      "options": ["@Component", "@Module", "@Injectable", "@Inject"],
+      "answer": 2
+    },
+    {
+      "question": "What is the main testing benefit of constructor injection?",
+      "options": [
+        "Tests run faster because constructors are compiled to native code",
+        "You can pass mock implementations directly without a framework or container",
+        "The compiler automatically generates test doubles for injected types",
+        "Unit tests automatically spin up a Spring context to resolve dependencies"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In Spring Boot, if a class has exactly one constructor and no @Autowired annotation, what does Spring do?",
+      "options": [
+        "Throws a NoSuchBeanDefinitionException",
+        "Creates the bean with null dependencies",
+        "Automatically injects dependencies through that single constructor",
+        "Requires you to add @Autowired explicitly to the constructor"
+      ],
+      "answer": 2
+    }
+  ]
+}

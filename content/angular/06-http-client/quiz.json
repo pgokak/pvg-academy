@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What does http.get<User[]>('/api/users') return?",
+      "options": [
+        "User[] immediately (synchronous)",
+        "Promise<User[]>",
+        "Observable<User[]> — a lazy stream that starts when subscribed",
+        "HttpResponse<User[]> — already containing the data"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What is the advantage of using the async pipe over manually subscribing in ngOnInit?",
+      "options": [
+        "The async pipe batches multiple HTTP requests into one",
+        "The async pipe automatically subscribes and unsubscribes — no memory leak, no ngOnDestroy needed",
+        "The async pipe caches the response and avoids duplicate HTTP requests",
+        "The async pipe converts the Observable to a Promise for simpler handling"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "HttpParams is immutable. What does const p = params.set('page', '2') do?",
+      "options": [
+        "Modifies params in-place and returns the same object",
+        "Creates and returns a NEW HttpParams instance with the 'page' parameter added",
+        "Appends '&page=2' to the URL string",
+        "Throws an error because HttpParams cannot be modified after creation"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What HTTP status code does Angular's HttpClient treat as an error (causing the error callback to fire)?",
+      "options": [
+        "Only 500 and above",
+        "4xx and 5xx — any non-2xx response",
+        "Only network errors (status 0) — HTTP errors are in the response body",
+        "401 and 403 only — all others are treated as success"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "How do you set up HttpClient in a standalone Angular application?",
+      "options": [
+        "Import HttpClientModule in the root NgModule",
+        "Add HttpClient to the @Component imports array",
+        "Call provideHttpClient() in the providers array of app.config.ts",
+        "Angular includes HttpClient automatically — no setup needed"
+      ],
+      "answer": 2
+    }
+  ]
+}

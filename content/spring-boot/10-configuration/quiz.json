@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What is the advantage of @ConfigurationProperties over @Value for a group of related settings?",
+      "options": [
+        "@ConfigurationProperties supports arrays; @Value does not",
+        "@ConfigurationProperties maps a group of properties to a typed class with IDE support, validation, and no string keys scattered in code",
+        "@Value requires a restart to pick up changes; @ConfigurationProperties reloads live",
+        "@ConfigurationProperties is faster at startup because it reads all properties in one pass"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "In application.properties, what does ${STRIPE_KEY:defaultValue} mean?",
+      "options": [
+        "The property is mandatory — throw an error if STRIPE_KEY is not set",
+        "Use the environment variable STRIPE_KEY if set; otherwise fall back to 'defaultValue'",
+        "Read STRIPE_KEY from a YAML file named defaultValue",
+        "Encrypt the value STRIPE_KEY using the key defaultValue"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is the highest-priority property source in Spring Boot's override hierarchy?",
+      "options": [
+        "application.properties",
+        "application-{profile}.properties",
+        "OS environment variables",
+        "Command-line arguments (--key=value)"
+      ],
+      "answer": 3
+    },
+    {
+      "question": "Adding @Validated to a @ConfigurationProperties class does what?",
+      "options": [
+        "Validates the properties at request time when they're first injected",
+        "Validates the property values at application startup — fails fast if config is invalid",
+        "Enables runtime validation only in test environments",
+        "Generates getter validation in the compiled code"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "Which approach is safer for storing a production API key?",
+      "options": [
+        "app.api.key=sk_live_abc123 in application.properties committed to git",
+        "app.api.key=${API_KEY} in application.properties, with API_KEY set as an environment variable",
+        "API key hardcoded as a private static final String in the service class",
+        "API key stored in a @Bean method inside a @Configuration class"
+      ],
+      "answer": 1
+    }
+  ]
+}

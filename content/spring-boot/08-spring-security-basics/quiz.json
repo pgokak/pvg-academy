@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "Why should CSRF protection be disabled for stateless REST APIs that use JWT?",
+      "options": [
+        "JWT tokens are immune to CSRF attacks by design",
+        "CSRF attacks exploit browser session cookies; JWT in Authorization headers are not sent automatically by browsers, so there's no CSRF risk",
+        "Spring Security's CSRF protection is incompatible with Jackson JSON serialization",
+        "Disabling CSRF is required for Spring Boot 3.x — it was removed from the default config"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What does SessionCreationPolicy.STATELESS mean?",
+      "options": [
+        "Spring Security will delete all existing sessions on startup",
+        "The application will not create or use HTTP sessions — each request must carry its own credentials",
+        "The application can only handle one user session at a time",
+        "Session data is stored in a stateless database instead of memory"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "How does Spring Security interpret .roles(\"ADMIN\") in UserDetails?",
+      "options": [
+        "It creates a custom role named exactly 'ADMIN'",
+        "It grants the authority 'ROLE_ADMIN' — Spring automatically prepends 'ROLE_'",
+        "It requires the user to have a 'roles' field in the database with value 'ADMIN'",
+        "It is equivalent to .authorities(\"admin\") — case is normalized automatically"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What is the purpose of BCryptPasswordEncoder's work factor (cost parameter)?",
+      "options": [
+        "It controls the length of the generated hash",
+        "It sets how many characters are required in a valid password",
+        "It controls how slow the hashing is — higher values resist brute force by making each attempt more expensive",
+        "It determines how many rounds of salt are added to the password before storage"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "Which annotation enables @PreAuthorize and @PostAuthorize on service methods?",
+      "options": [
+        "@EnableSecurity",
+        "@EnableGlobalMethodSecurity (Spring Security 5) or @EnableMethodSecurity (Spring Security 6)",
+        "@Secured on the @Configuration class",
+        "@MethodSecurity on the @SpringBootApplication class"
+      ],
+      "answer": 1
+    }
+  ]
+}

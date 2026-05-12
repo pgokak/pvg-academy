@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "In a @OneToMany relationship, which entity owns the relationship (has the foreign key column in its table)?",
+      "options": [
+        "The 'one' side — the User table has an orders_id column",
+        "The 'many' side — the Order table has a user_id column",
+        "Both tables have a foreign key pointing to each other",
+        "A separate join table always manages the foreign key"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What does FetchType.LAZY mean for a @OneToMany collection?",
+      "options": [
+        "The collection is loaded asynchronously in a background thread",
+        "The collection is loaded slower due to extra SQL overhead",
+        "The collection is not loaded until you call getOrders() — a separate SQL query runs at that point",
+        "The collection is never loaded — you must use a custom query"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What is the N+1 SELECT problem?",
+      "options": [
+        "A bug where Spring executes the same query N+1 times due to a caching error",
+        "For N parent entities, N additional queries are fired to load each parent's lazy collection — O(N) database round-trips instead of 1",
+        "A database constraint violation when inserting N+1 rows exceeds the table limit",
+        "A pagination bug where page N+1 returns the same data as page N"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "What SQL does @EntityGraph(attributePaths = {'orders'}) generate compared to a plain findById?",
+      "options": [
+        "It generates the same query but caches the orders result",
+        "It generates SELECT * FROM users WHERE id = ? plus a separate SELECT for orders",
+        "It generates a single LEFT JOIN query: SELECT u.*, o.* FROM users u LEFT JOIN orders o ON u.id = o.user_id WHERE u.id = ?",
+        "It generates a stored procedure call on the database"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "For @ManyToOne, what is the DEFAULT fetch type and what should you change it to?",
+      "options": [
+        "Default: LAZY — should change to EAGER for better performance",
+        "Default: EAGER — should change to LAZY to avoid loading the parent entity unnecessarily",
+        "Default: LAZY — no change needed, LAZY is always correct",
+        "Default: EAGER — EAGER is correct for @ManyToOne and should be kept"
+      ],
+      "answer": 1
+    }
+  ]
+}

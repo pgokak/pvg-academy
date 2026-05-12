@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question": "What is the key difference between an Observable and a Promise?",
+      "options": [
+        "Observables are faster; Promises are more reliable",
+        "Observables are lazy and can emit multiple values over time; Promises are eager and resolve once",
+        "Promises can be cancelled; Observables cannot",
+        "Observables only work with HTTP calls; Promises work everywhere"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "Why use switchMap instead of mergeMap for a search-as-you-type feature?",
+      "options": [
+        "switchMap is faster because it uses Web Workers",
+        "mergeMap does not support HTTP calls",
+        "switchMap cancels the previous inner Observable when a new value arrives, preventing stale responses",
+        "switchMap retries failed requests automatically; mergeMap does not"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What does takeUntilDestroyed(destroyRef) do in an Angular component?",
+      "options": [
+        "It deletes the component from the DOM when the Observable completes",
+        "It automatically completes the Observable and unsubscribes when the component is destroyed",
+        "It pauses the Observable stream until the component is re-initialised",
+        "It throws an error if the component is destroyed before the Observable emits"
+      ],
+      "answer": 1
+    },
+    {
+      "question": "A BehaviorSubject is initialised with 0. A new subscriber joins after the value has been set to 5. What value does the new subscriber receive immediately?",
+      "options": [
+        "0 — the initial value",
+        "Nothing — it only receives future emissions",
+        "5 — the current value replayed to new subscribers",
+        "An error, because the initial value was already consumed"
+      ],
+      "answer": 2
+    },
+    {
+      "question": "What does catchError(() => of([])) do inside a switchMap pipe?",
+      "options": [
+        "It re-throws the error after logging it",
+        "It stops the outer Observable stream entirely",
+        "It swallows the error and replaces the failed inner Observable with one that emits an empty array",
+        "It retries the HTTP request up to three times before returning []"
+      ],
+      "answer": 2
+    }
+  ]
+}

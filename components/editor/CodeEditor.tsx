@@ -6,9 +6,13 @@ import type { editor } from "monaco-editor";
 
 interface Props {
   starter: string;
+  language?: "typescript" | "java";
 }
 
-export default function CodeEditor({ starter }: Props) {
+export default function CodeEditor({
+  starter,
+  language = "typescript",
+}: Props) {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [output, setOutput] = useState<string[]>([]);
   const [hasRun, setHasRun] = useState(false);
@@ -72,24 +76,32 @@ export default function CodeEditor({ starter }: Props) {
     setRunning(false);
   }
 
+  const isJava = language === "java";
+
   return (
     <div className="rounded-xl overflow-hidden border border-gray-700">
       {/* Toolbar */}
       <div className="flex items-center justify-between bg-gray-800 px-4 py-2 border-b border-gray-700">
-        <span className="text-xs text-gray-400 font-mono">exercise.ts</span>
-        <button
-          onClick={handleRun}
-          disabled={running}
-          className="flex items-center gap-1.5 rounded bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {running ? "Running…" : "▶ Run"}
-        </button>
+        <span className="text-xs text-gray-400 font-mono">
+          {isJava ? "exercise.java" : "exercise.ts"}
+        </span>
+        {isJava ? (
+          <span className="text-xs text-gray-500 italic">read-only</span>
+        ) : (
+          <button
+            onClick={handleRun}
+            disabled={running}
+            className="flex items-center gap-1.5 rounded bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {running ? "Running…" : "▶ Run"}
+          </button>
+        )}
       </div>
 
       {/* Editor */}
       <Editor
         height="400px"
-        defaultLanguage="typescript"
+        defaultLanguage={isJava ? "java" : "typescript"}
         defaultValue={starter}
         theme="vs-dark"
         onMount={handleMount}
@@ -99,11 +111,12 @@ export default function CodeEditor({ starter }: Props) {
           scrollBeyondLastLine: false,
           lineNumbers: "on",
           tabSize: 2,
+          readOnly: isJava,
         }}
       />
 
-      {/* Output panel — only shown after first run */}
-      {hasRun && (
+      {/* Output panel — only shown after first run (TypeScript only) */}
+      {hasRun && !isJava && (
         <div className="border-t border-gray-700 bg-gray-950 px-4 py-3">
           <p className="text-xs text-gray-500 mb-2 font-mono">Output</p>
           {output.map((line, i) => (

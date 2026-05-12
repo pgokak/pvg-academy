@@ -58,7 +58,7 @@ export default async function LessonPage({
               <h2 className="text-lg font-semibold text-gray-900 mb-3">
                 Exercise
               </h2>
-              <CodeEditor starter={lesson.starter} />
+              <CodeEditor starter={lesson.starter} language={lesson.language} />
             </section>
 
             {/* Quiz */}

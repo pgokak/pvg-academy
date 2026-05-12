@@ -48,8 +48,16 @@ export function getLesson(
   );
   const { data, content: body } = matter(lessonFile);
 
-  // Read starter.ts — the code shown in the editor
-  const starter = fs.readFileSync(path.join(lessonDir, "starter.ts"), "utf-8");
+  // Read starter.ts or starter.java — prefer .ts, fall back to .java
+  const tsPath = path.join(lessonDir, "starter.ts");
+  const javaPath = path.join(lessonDir, "starter.java");
+  const language: "typescript" | "java" = fs.existsSync(tsPath)
+    ? "typescript"
+    : "java";
+  const starter = fs.readFileSync(
+    language === "typescript" ? tsPath : javaPath,
+    "utf-8",
+  );
 
   // Read and parse quiz.json
   const quizFile = fs.readFileSync(path.join(lessonDir, "quiz.json"), "utf-8");
@@ -65,6 +73,7 @@ export function getLesson(
     stable: data.stable as boolean,
     body,
     starter,
+    language,
     quiz,
   };
 }

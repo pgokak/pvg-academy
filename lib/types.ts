@@ -16,7 +16,8 @@ export interface QuizQuestion {
 
 export interface LessonContent extends LessonMeta {
   body: string; // markdown text without frontmatter
-  starter: string; // contents of starter.ts shown in the editor
+  starter: string; // contents of starter.ts or starter.java shown in the editor
+  language: "typescript" | "java"; // drives editor mode and Run button visibility
   quiz: QuizQuestion[]; // parsed quiz.json
 }
 
