@@ -1,0 +1,52 @@
+[
+  {
+    "question": "A void @Async method throws a RuntimeException. What happens if no AsyncUncaughtExceptionHandler is configured?",
+    "options": [
+      "The exception propagates to the calling thread and the caller handles it",
+      "Spring retries the async method automatically up to 3 times",
+      "The exception is silently swallowed — no stack trace, no log entry",
+      "The application context shuts down to prevent data corruption"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is the difference between @Scheduled(fixedRate = 5000) and @Scheduled(fixedDelay = 5000)?",
+    "options": [
+      "They are identical — both wait 5 seconds between executions",
+      "fixedRate starts the next run 5s after the previous run STARTED; fixedDelay starts 5s after the previous run COMPLETED",
+      "fixedRate is for cron-style schedules; fixedDelay is for interval-based schedules",
+      "fixedDelay runs in a separate thread; fixedRate runs on the main thread"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You call an @Async method from within the same @Service class. What actually happens?",
+    "options": [
+      "The method runs asynchronously as expected because @Async uses bytecode weaving",
+      "Spring throws an AsyncException because self-invocation is not allowed",
+      "The method runs synchronously — the Spring proxy is bypassed by the direct method call",
+      "Spring creates a new thread but still blocks the caller until it completes"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "Which return type should an @Async method use when the caller needs to know the result of the background operation?",
+    "options": [
+      "Optional<T> — allows the caller to check if a value is present",
+      "Future<T> or CompletableFuture<T> — allows the caller to retrieve the result when ready",
+      "ResponseEntity<T> — the standard Spring wrapper for async results",
+      "void — @Async always discards the result"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is the cron expression for a task that should run at 9:30 AM every weekday (Monday–Friday)?",
+    "options": [
+      "0 30 9 * * MON-FRI",
+      "30 9 0 * * 1-5",
+      "0 9 30 * * MON-FRI",
+      "9 30 * * * MON-FRI"
+    ],
+    "answer": 0
+  }
+]

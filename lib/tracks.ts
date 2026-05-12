@@ -56,7 +56,7 @@ export const TRACKS: Track[] = [
     title: "Spring Boot",
     description: "Java microservices, REST APIs, and dependency injection.",
     icon: "☕",
-    lessonCount: 15,
+    lessonCount: 23,
     status: "available",
   },
   {

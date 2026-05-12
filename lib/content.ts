@@ -59,9 +59,10 @@ export function getLesson(
     "utf-8",
   );
 
-  // Read and parse quiz.json
+  // Read and parse quiz.json — support both plain array and { questions: [] } wrapper
   const quizFile = fs.readFileSync(path.join(lessonDir, "quiz.json"), "utf-8");
-  const quiz = JSON.parse(quizFile);
+  const quizRaw = JSON.parse(quizFile);
+  const quiz = Array.isArray(quizRaw) ? quizRaw : quizRaw.questions;
 
   return {
     id: lessonId,

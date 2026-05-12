@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Which Spring Mail class supports HTML content, attachments, and inline images?",
+    "options": [
+      "SimpleMailMessage — it handles all email formats",
+      "MimeMessage configured via MimeMessageHelper — multipart mode required",
+      "HtmlMailMessage — the Spring Boot HTML-specific class",
+      "MailMessage with setHtmlContent() method"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Why should SMTP credentials be configured as ${MAIL_USERNAME} in application.yml rather than as literal strings?",
+    "options": [
+      "Spring Boot can only read SMTP credentials from environment variables",
+      "Literal strings in application.yml are encrypted by Spring, but ${} values are not",
+      "Hardcoding credentials in source files risks committing secrets to version control",
+      "Gmail requires environment variable format for authentication to succeed"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is the second boolean argument to helper.setText(content, true) in MimeMessageHelper?",
+    "options": [
+      "true = send asynchronously; false = send synchronously",
+      "true = content is HTML; false = content is plain text",
+      "true = include a read receipt; false = no read receipt",
+      "true = attach the text as a file; false = embed in body"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You add @Async to sendWelcomeEmail() but it runs synchronously. What is the most likely cause?",
+    "options": [
+      "@Async requires the method to return CompletableFuture to work",
+      "@EnableAsync was not added to a @Configuration class",
+      "SimpleMailMessage does not support asynchronous sending",
+      "@Async only works on methods annotated with @Transactional"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Which approach is recommended for integration-testing email sending without a real SMTP server?",
+    "options": [
+      "Use @SpringBootTest with a real Gmail account in test application.yml",
+      "Disable email sending in tests using spring.mail.enabled=false",
+      "Use GreenMail — an in-memory SMTP server that captures sent messages for assertion",
+      "Mock the JavaMailSender and verify the exact MIME bytes sent"
+    ],
+    "answer": 2
+  }
+]

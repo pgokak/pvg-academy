@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Where should @Transactional be placed in a typical Spring Boot application?",
+    "options": [
+      "On the repository interface methods, since they touch the database directly",
+      "On the controller methods, so the full HTTP request is transactional",
+      "On the service layer methods that coordinate multiple repository calls",
+      "On the entity class, so every field access is transactional"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "A method annotated @Transactional throws a checked IOException mid-way through two DB writes. What happens by default?",
+    "options": [
+      "Both writes are rolled back because any exception triggers rollback",
+      "Both writes are committed — Spring only rolls back on unchecked exceptions by default",
+      "The first write is rolled back but the second is committed",
+      "Spring re-tries the method automatically before committing"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You need an audit log to persist even when the calling transaction rolls back. Which propagation type achieves this?",
+    "options": [
+      "REQUIRED — joins the existing transaction so it shares the same fate",
+      "NESTED — creates a savepoint, but rolls back with the outer transaction on full failure",
+      "REQUIRES_NEW — suspends the outer transaction and commits the audit log independently",
+      "NEVER — runs without any transaction, so rollback can't affect it"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is the self-invocation problem with @Transactional?",
+    "options": [
+      "Calling a @Transactional method recursively causes a stack overflow",
+      "Calling a @Transactional method from within the same class bypasses Spring's proxy, so the transaction annotation is ignored",
+      "Spring disallows two @Transactional methods in the same class",
+      "@Transactional only works on beans injected via constructor injection, not field injection"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is the benefit of @Transactional(readOnly = true) on a query method?",
+    "options": [
+      "It prevents the method from being called inside an existing write transaction",
+      "It locks the database rows so no other transaction can modify them during the read",
+      "Hibernate skips dirty-checking and flush operations, improving read performance",
+      "It automatically caches the result in the second-level cache"
+    ],
+    "answer": 2
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is the primary advantage of each microservice owning its own database?",
+    "options": [
+      "Each service can use a different database vendor without coordination",
+      "Services can be deployed, scaled, and have their schema evolved independently without affecting other services",
+      "It reduces total storage costs by avoiding redundant data",
+      "Spring Boot auto-configures separate connection pools for each schema"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What does @FeignClient(name = \"user-service\") do when combined with Eureka service discovery?",
+    "options": [
+      "It creates a singleton bean that pings user-service every 30 seconds",
+      "It generates a type-safe HTTP client that resolves 'user-service' to an actual host and port via Eureka at runtime",
+      "It hardcodes the URL as http://user-service and requires a matching /etc/hosts entry",
+      "It imports all REST endpoints from user-service and exposes them locally"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Two microservices share the same database. Why is this considered an anti-pattern?",
+    "options": [
+      "Spring Boot only supports one database connection per application",
+      "Shared database creates tight coupling — a schema change in one service can break the other, and they can't be deployed independently",
+      "Databases can only handle connections from a single application at a time",
+      "It violates the CAP theorem by making the system non-consistent"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What does a Circuit Breaker do when a downstream service is consistently failing?",
+    "options": [
+      "It retries the request indefinitely until the downstream service recovers",
+      "It opens the circuit — calls immediately return the fallback result instead of attempting the network call",
+      "It reroutes requests to a backup database automatically",
+      "It sends an alert email to the operations team and pauses all traffic"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Why is an API Gateway valuable in a microservices architecture?",
+    "options": [
+      "It combines all microservice databases into a single queryable schema",
+      "It provides a single external entry point for routing, authentication, rate limiting, and SSL termination — clients don't need to know about individual services",
+      "It replaces Eureka for service discovery by maintaining a central service registry",
+      "It runs all microservices as threads inside a single JVM to reduce deployment overhead"
+    ],
+    "answer": 1
+  }
+]

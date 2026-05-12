@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why should you never use MultipartFile.getOriginalFilename() directly as the stored filename?",
+    "options": [
+      "The original filename may contain Unicode characters that crash the filesystem",
+      "An attacker can supply a filename like '../../etc/passwd' to write files outside the upload directory",
+      "Spring truncates filenames longer than 64 characters",
+      "getOriginalFilename() returns null for files over 1 MB"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "A user uploads a file with Content-Type: image/jpeg, but the actual bytes are a .exe file. Which validation approach detects this?",
+    "options": [
+      "Checking file.getContentType() — it reflects the true file type",
+      "Checking file.getOriginalFilename() extension — .jpg extension means it's an image",
+      "Using a library like Apache Tika to sniff the actual bytes for a MIME signature",
+      "Spring Boot automatically validates MIME types and rejects mismatches"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is the purpose of the Content-Disposition: inline header when serving a file download?",
+    "options": [
+      "It tells the browser to cache the file for 30 days",
+      "It tells the browser to render the file in-page (image, PDF) rather than prompting a download",
+      "It prevents the file from being served over HTTP without HTTPS",
+      "It sets the file size so the browser can show a progress bar"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You store uploaded files on the server's local disk. The app is deployed to two load-balanced instances. What goes wrong?",
+    "options": [
+      "Spring's multipart parser fails when multiple instances are running",
+      "Files uploaded to instance A are not visible to instance B — users get 404 on the second request",
+      "The OS file system locks files so only one instance can write at a time",
+      "Nothing — local disk storage works fine across multiple instances"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Which Spring Boot configuration limits the maximum size of a single uploaded file to 10 MB?",
+    "options": [
+      "spring.servlet.multipart.max-request-size=10MB",
+      "spring.mvc.max-upload-size=10MB",
+      "spring.servlet.multipart.max-file-size=10MB",
+      "server.tomcat.max-part-size=10MB"
+    ],
+    "answer": 2
+  }
+]

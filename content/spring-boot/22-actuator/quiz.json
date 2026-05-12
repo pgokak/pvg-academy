@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why is exposing /actuator/env without authentication a security risk?",
+    "options": [
+      "It allows attackers to change environment variables remotely",
+      "It exposes all configuration properties including database passwords, API keys, and secrets",
+      "It reveals the server's IP address and port configuration",
+      "It allows the JVM heap to be dumped and read remotely"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You implement HealthIndicator but your component never appears in /actuator/health. What is the most likely cause?",
+    "options": [
+      "Custom health indicators require @EnableHealthIndicator on the main class",
+      "The class is missing @Component — Spring never registered it as a bean",
+      "HealthIndicator only works with @Repository and @Service beans",
+      "management.endpoint.health.show-details must be set to always for custom indicators"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "A Kubernetes liveness probe needs to hit an endpoint that returns HTTP 200 when the app is healthy and 503 when it's down. Which actuator endpoint is designed for this?",
+    "options": [
+      "/actuator/info — returns app metadata including health status",
+      "/actuator/metrics/jvm.memory.used — reflects memory pressure",
+      "/actuator/health — returns UP (200) or DOWN (503) with component details",
+      "/actuator/beans — lists all beans, non-zero count means the app is running"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "A service is producing slow responses in production. You want to see average and max response time for POST /api/orders without restarting. Which endpoint helps?",
+    "options": [
+      "/actuator/httptrace — shows the last 100 requests with individual durations",
+      "/actuator/metrics/http.server.requests?tag=uri:/api/orders — shows count, total time, max",
+      "/actuator/env — shows configuration including timeout settings",
+      "/actuator/threaddump — shows which threads are currently blocked"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "How do you enable DEBUG logging for com.example.service without restarting the application?",
+    "options": [
+      "Edit application.yml and send SIGHUP to the process",
+      "POST to /actuator/loggers/com.example.service with body {\"configuredLevel\": \"DEBUG\"}",
+      "GET /actuator/loggers/com.example.service?level=DEBUG",
+      "Add logging.level.com.example.service=DEBUG to application.yml and restart"
+    ],
+    "answer": 1
+  }
+]

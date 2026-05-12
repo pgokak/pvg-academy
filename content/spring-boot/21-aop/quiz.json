@@ -1,0 +1,52 @@
+[
+  {
+    "question": "You write an @Around advice but forget to call joinPoint.proceed(). What happens?",
+    "options": [
+      "Spring detects the missing call and throws an AspectException at startup",
+      "The intercepted method executes normally without the around logic",
+      "The intercepted method never runs — the around advice returns null (or whatever the advice returns)",
+      "Spring calls proceed() automatically after the around advice completes"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is the difference between @After and @AfterReturning?",
+    "options": [
+      "@After runs after successful return only; @AfterReturning runs always, even on exception",
+      "@After always runs (success or exception); @AfterReturning runs only on successful return and can access the return value",
+      "@After is for void methods; @AfterReturning is for methods that return a value",
+      "They are identical — both run after the method, regardless of outcome"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Which pointcut expression matches all methods in any class inside the com.example.service package?",
+    "options": [
+      "within(com.example.service.*)",
+      "execution(* com.example.service.*.*(..))",
+      "@within(org.springframework.stereotype.Service)",
+      "call(* com.example.service.*.*(..))"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Why would you define a @Pointcut method instead of repeating the expression string in every advice?",
+    "options": [
+      "@Pointcut methods are evaluated at compile time, making them faster",
+      "Repeated strings are not valid — Spring requires a single @Pointcut definition",
+      "A named pointcut lets you change the expression in one place and all advices using it update automatically",
+      "@Pointcut is required for @Around but optional for @Before and @After"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "An @Aspect class is correctly written but none of its advices run. What is the most likely cause?",
+    "options": [
+      "The aspect class is missing @Component — Spring never registered it as a bean",
+      "AOP only works with @Repository and @Controller beans, not @Service",
+      "The pointcut expression must start with 'com.example' to be valid",
+      "@EnableAspectJAutoProxy must be added to every @Service class that should be intercepted"
+    ],
+    "answer": 0
+  }
+]

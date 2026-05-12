@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What does @Cacheable do when the same method is called with the same arguments a second time?",
+    "options": [
+      "Runs the method again and overwrites the cached value",
+      "Throws a CacheHitException to signal the cache was used",
+      "Skips the method body entirely and returns the previously cached result",
+      "Runs the method and compares the result to the cached value for consistency"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is the key difference between @Cacheable and @CachePut?",
+    "options": [
+      "@Cacheable is for reads; @CachePut is for deletes",
+      "@Cacheable skips method execution on a cache hit; @CachePut always runs the method and updates the cache",
+      "@CachePut requires a Redis backend; @Cacheable works with any provider",
+      "@Cacheable works with Spring Data; @CachePut only works with plain repositories"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "A product update saves to the database but findById() still returns the old product. What is the most likely cause?",
+    "options": [
+      "The database transaction was not committed",
+      "@CacheEvict or @CachePut was not added to the update method — the cache was never invalidated",
+      "The cache provider does not support updates",
+      "@Cacheable requires readOnly = true to detect changes"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Which cache provider is appropriate for a multi-instance production deployment where all instances must share the same cache?",
+    "options": [
+      "Simple (ConcurrentHashMap) — it is the fastest option",
+      "Caffeine — because it supports replication between JVM instances",
+      "Redis — a shared, external cache that all instances connect to",
+      "EhCache — stores cache on local disk and syncs between servers"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "You want to cache the result of getUserById(Long userId) but only if the user's account is active. Which annotation attribute enables this?",
+    "options": [
+      "key = \"#result.active\"",
+      "unless = \"#result.active == false\"",
+      "condition = \"#result != null && #result.active\"",
+      "sync = true"
+    ],
+    "answer": 2
+  }
+]
