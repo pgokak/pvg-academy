@@ -1,0 +1,52 @@
+[
+  {
+    "question": "A search input fires HTTP requests as the user types. Which operator should you use to ensure only the latest request's response is used, and previous in-flight requests are cancelled?",
+    "options": [
+      "mergeMap — runs all requests concurrently",
+      "concatMap — queues requests and runs them in order",
+      "switchMap — cancels the previous inner observable when a new value arrives",
+      "exhaustMap — ignores new values while a request is in flight"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is the difference between debounceTime(300) and throttleTime(300)?",
+    "options": [
+      "They are identical — both emit at most once every 300ms",
+      "debounceTime emits after 300ms of silence; throttleTime emits at most once every 300ms (emitting the first value in each window)",
+      "debounceTime is for clicks; throttleTime is for keypresses",
+      "debounceTime cancels the observable; throttleTime buffers values"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You need to fetch a user profile AND their posts in parallel, then display both. Which RxJS operator is best suited for this?",
+    "options": [
+      "combineLatest — emits whenever either observable emits",
+      "switchMap — cancels the previous request",
+      "forkJoin — waits for all observables to complete, then emits an array of their last values",
+      "withLatestFrom — combines with the latest value of another stream"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What happens if you subscribe to an observable in ngOnInit but never unsubscribe, and the user navigates away (destroying the component)?",
+    "options": [
+      "Angular automatically unsubscribes all subscriptions when a component is destroyed",
+      "The subscription remains active — the callback fires on destroyed component state, causing memory leaks and potential errors",
+      "The observable completes automatically when the component's injector is destroyed",
+      "The subscription pauses until the component is created again"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "A login button fires an HTTP login request. You want to prevent a second request if the first is still in flight (no double submission). Which operator handles this?",
+    "options": [
+      "switchMap — cancels the previous and starts the new request",
+      "mergeMap — allows concurrent requests",
+      "concatMap — queues the second request to run after the first",
+      "exhaustMap — ignores new values while the current inner observable is active"
+    ],
+    "answer": 3
+  }
+]

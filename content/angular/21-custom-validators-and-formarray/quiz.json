@@ -1,0 +1,52 @@
+[
+  {
+    "question": "A custom sync validator function should return what values?",
+    "options": [
+      "true when valid, false when invalid",
+      "null when valid, a ValidationErrors object (plain object) when invalid",
+      "An empty string when valid, an error message string when invalid",
+      "undefined when valid, an Error instance when invalid"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Where do you apply a cross-field validator that compares 'password' and 'confirmPassword'?",
+    "options": [
+      "On the 'confirmPassword' FormControl as a sync validator",
+      "On the 'password' FormControl as a sync validator",
+      "On the parent FormGroup using the validators option — group-level validators receive the group as the AbstractControl",
+      "As a template directive on the <form> element"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "An async validator checks username availability via an API. Without any extra config, when does it fire?",
+    "options": [
+      "Only when the form is submitted",
+      "Only when the control loses focus (blur)",
+      "On every value change — every keystroke triggers the async validator",
+      "Once when the component initializes"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "How do you add a new row to a FormArray at runtime?",
+    "options": [
+      "this.formArray.controls.push(newControl) — push directly to the controls array",
+      "this.formArray.push(newControl) — use the FormArray.push() method",
+      "this.form.patchValue({ arrayField: [...existing, newControl] })",
+      "You cannot add controls to a FormArray after it is created"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What does `updateOn: 'blur'` do when applied to a FormControl?",
+    "options": [
+      "It makes the control only show validation errors after the field loses focus",
+      "It changes when Angular updates the control's value and re-runs validators — from on every change to on blur only",
+      "It disables the control until the user has focused and blurred it",
+      "It runs async validators immediately when the field gains focus"
+    ],
+    "answer": 1
+  }
+]

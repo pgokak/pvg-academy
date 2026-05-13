@@ -64,7 +64,7 @@ export const TRACKS: Track[] = [
     title: "Angular",
     description: "Components, services, routing, reactive forms, and signals.",
     icon: "🅰️",
-    lessonCount: 15,
+    lessonCount: 23,
     status: "available",
   },
   {

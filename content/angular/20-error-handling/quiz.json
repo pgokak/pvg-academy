@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What does an HttpErrorResponse with status === 0 indicate?",
+    "options": [
+      "The server returned an empty response body",
+      "The request was cancelled by the user navigating away",
+      "A network-level error — no response was received (offline, DNS failure, CORS block)",
+      "The server returned HTTP status 0, which means 'no content'"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is the purpose of Angular's ErrorHandler class?",
+    "options": [
+      "It handles HTTP errors from the HttpClient only",
+      "It catches all unhandled JavaScript errors (including those outside RxJS) that escape other error handling — the last line of defense",
+      "It automatically retries failed HTTP requests",
+      "It provides a global try/catch around all component templates"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is wrong with this code? `catchError(() => EMPTY)` used on every HTTP call without anything else.",
+    "options": [
+      "EMPTY is not a valid return value from catchError",
+      "EMPTY causes the application to crash instead of completing the stream",
+      "Errors are silently swallowed — no logging, no user notification, bugs become impossible to diagnose",
+      "Nothing — this is the recommended pattern for all HTTP error handling"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "You want to retry an HTTP request up to 3 times if it fails, then show an error if all retries fail. Which RxJS operator handles the retry?",
+    "options": [
+      "catchError(retry(3, err => ...))",
+      "retry(3) — placed before catchError in the pipe chain",
+      "repeat(3)",
+      "switchMap with a retry counter"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "An error interceptor intercepts a 500 response and shows a toast notification. Should it also re-throw the error?",
+    "options": [
+      "No — the interceptor handled it, so the error should not propagate further",
+      "Yes — re-throw with throwError(() => error) so service-level catchError handlers can also react to it if needed",
+      "It depends on whether the service has its own catchError",
+      "Only if the component is subscribed with an error handler"
+    ],
+    "answer": 1
+  }
+]

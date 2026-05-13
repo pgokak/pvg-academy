@@ -1,0 +1,47 @@
+[
+  {
+    "question": "What does Angular's default view encapsulation (Emulated) do to your component's CSS?",
+    "options": [
+      "It does nothing — styles are global by default",
+      "It uses native browser Shadow DOM to isolate styles",
+      "It adds unique attribute selectors (like [_ngcontent-c1]) to your CSS rules and component elements, scoping styles to that component",
+      "It converts your CSS to CSS Modules with hashed class names"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "Why is `::ng-deep` considered problematic and marked as deprecated?",
+    "options": [
+      "It has poor browser support and causes layout issues",
+      "Styles written with ::ng-deep escape component encapsulation and become global, potentially affecting unrelated components across the app",
+      "It only works with ViewEncapsulation.ShadowDom",
+      "It prevents Angular from tree-shaking the component's styles"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You have a *ngFor that renders a 500-item list. What does adding trackBy: trackById do?",
+    "options": [
+      "It sorts the list by id before rendering",
+      "It enables virtual scrolling so only visible items render",
+      "It gives Angular a stable identity for each item so it can reuse existing DOM elements instead of destroying and recreating the entire list when data changes",
+      "It prevents the list from re-rendering when new items are added"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What is the `@defer (on viewport)` block in Angular 17+?",
+    "options": [
+      "A block that renders conditionally based on a boolean expression",
+      "A block that delays rendering AND code-splitting — the deferred component's bundle is not downloaded until the block enters the viewport",
+      "An alias for *ngIf with an IntersectionObserver",
+      "A block that preloads a component when it is close to the viewport"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Which CSS selector targets the component's root host element in its own stylesheet?",
+    "options": [":root {}", ".host {}", ":host {}", "::host {}"],
+    "answer": 2
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why must you clone an HttpRequest inside an interceptor before modifying it?",
+    "options": [
+      "Cloning is optional — you can modify the request directly",
+      "HttpRequest objects are immutable; you must clone and return a new instance with the modifications",
+      "Cloning prevents the request from being cached by the browser",
+      "Angular requires cloning for performance reasons — it avoids creating a new HttpRequest class"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is the main security risk of storing a JWT in localStorage?",
+    "options": [
+      "localStorage is synchronous and blocks the main thread",
+      "The token is automatically sent with every request, enabling CSRF attacks",
+      "Any JavaScript on the page (including XSS payloads) can read the token from localStorage",
+      "Tokens stored in localStorage expire immediately when the browser tab closes"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "Where do you register a functional HTTP interceptor in a standalone Angular app?",
+    "options": [
+      "In the @Component decorator of AppComponent",
+      "In provideHttpClient(withInterceptors([myInterceptor])) inside appConfig providers",
+      "By decorating the interceptor function with @Injectable",
+      "In the routes array using the interceptor property"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "An API returns a 401 response. What should your auth interceptor do?",
+    "options": [
+      "Retry the request 3 times before giving up",
+      "Ignore the error — 401 handling is the component's responsibility",
+      "Call authService.logout() and redirect to the login page (or attempt a token refresh first)",
+      "Throw a JavaScript Error object with the 401 status"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "Why is encapsulating token storage inside an AuthService better than using a global variable?",
+    "options": [
+      "Global variables are slower than class methods in modern JavaScript engines",
+      "Services prevent the token from being garbage-collected",
+      "Encapsulation lets you change the storage strategy (localStorage → httpOnly cookie, encryption, etc.) in one place without touching every consumer",
+      "Only services can call localStorage in Angular"
+    ],
+    "answer": 2
+  }
+]

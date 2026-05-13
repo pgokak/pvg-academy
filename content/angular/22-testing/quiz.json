@@ -1,0 +1,52 @@
+[
+  {
+    "question": "You set `component.user = newUser` in a test, then immediately query the DOM. The assertion fails because the DOM still shows the old value. What did you forget?",
+    "options": [
+      "You forgot to call component.ngOnChanges() to notify Angular of the change",
+      "You forgot to call fixture.detectChanges() to run change detection and update the DOM",
+      "You forgot to use fixture.componentRef.setInput() instead of direct assignment",
+      "You forgot to import ChangeDetectorRef in the test file"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What does `TestBed.configureTestingModule()` do?",
+    "options": [
+      "It compiles all TypeScript files in the project before running tests",
+      "It sets up Angular's DI container for the test — declaring components, providing mock services, and importing modules for the test scope",
+      "It runs the test suite automatically without needing a describe/it structure",
+      "It connects the test to a real backend server for integration testing"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "How do you provide a mock service in place of a real service in TestBed?",
+    "options": [
+      "{ replace: RealService, with: mockService }",
+      "TestBed.mockService(RealService, mockService)",
+      "{ provide: RealService, useValue: mockService } in the providers array of configureTestingModule",
+      "Decorate the mock with @MockService({ replaces: RealService })"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What does `HttpTestingController.verify()` do when called in afterEach?",
+    "options": [
+      "It verifies that all mock HTTP responses returned the correct data",
+      "It asserts that no unexpected HTTP requests were made during the test — catches accidental extra calls",
+      "It resets all spies to their original state",
+      "It verifies the HTTP module was imported correctly in configureTestingModule"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "You want to test code that uses setTimeout(fn, 300). Without special handling, the test would need to wait 300ms. What Angular testing utility eliminates this wait?",
+    "options": [
+      "async/await with a Promise.resolve() after the setTimeout",
+      "jasmine.clock().install() to mock the system clock",
+      "fakeAsync() wrapper with tick(300) to advance virtual time without real waiting",
+      "setTimeout cannot be tested — you must refactor the code to not use it"
+    ],
+    "answer": 2
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is the key difference between `loadComponent` and `loadChildren` in Angular routing?",
+    "options": [
+      "loadComponent is for lazy-loading standalone components; loadChildren is for lazy-loading NgModule-based route sets",
+      "loadComponent is synchronous; loadChildren is asynchronous",
+      "loadComponent requires a resolver; loadChildren does not",
+      "They are identical — loadChildren is just the older alias for loadComponent"
+    ],
+    "answer": 0
+  },
+  {
+    "question": "What does a route resolver do?",
+    "options": [
+      "It resolves route conflicts when two routes match the same path",
+      "It fetches data before the route activates, making the data available immediately when the component renders",
+      "It pre-renders the component on the server before sending it to the client",
+      "It caches the route so subsequent navigations don't require a new HTTP call"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "A user navigates from /users/1 to /users/2. The UserDetailComponent is reused (not destroyed). You read the user ID using `this.route.snapshot.paramMap.get('id')` in ngOnInit. What happens?",
+    "options": [
+      "The component correctly loads user 2 because snapshot is always current",
+      "Angular throws a navigation error because the component is reused",
+      "The component still shows user 1's data because snapshot was captured at init and never updates",
+      "The component re-initializes automatically, so ngOnInit runs again with the new snapshot"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "What does `PreloadAllModules` do when used as a preloading strategy?",
+    "options": [
+      "It loads all lazy modules eagerly at startup, defeating the purpose of lazy loading",
+      "After the app's initial load completes, it fetches all lazy chunks in the background so future navigations feel instant",
+      "It only preloads modules that are currently visible in the viewport",
+      "It preloads a module only when the user hovers over a routerLink pointing to it"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "In a nested routes setup, where does the child component render?",
+    "options": [
+      "In the root <router-outlet> of AppComponent",
+      "Inside a <router-outlet> in the parent route's component template",
+      "As a sibling element next to the parent component",
+      "Nested routes are not supported — each route must have its own top-level outlet"
+    ],
+    "answer": 1
+  }
+]

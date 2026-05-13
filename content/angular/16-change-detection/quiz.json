@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What triggers a change detection cycle in Angular's Default strategy?",
+    "options": [
+      "Only when @Input values change",
+      "Any async event patched by Zone.js (setTimeout, fetch, DOM events, etc.)",
+      "Only when the component emits an EventEmitter",
+      "Only when the developer calls detectChanges() manually"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Which conditions cause a component with OnPush strategy to be checked? (Best answer)",
+    "options": [
+      "Only when the parent component re-renders",
+      "Only when an @Input reference changes",
+      "When an @Input reference changes, an async pipe emits, an event originates from the component, or markForCheck() is called",
+      "When any property on the component instance changes, regardless of reference"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "You have an OnPush component. You call `this.users.push(newUser)` inside the component. What happens?",
+    "options": [
+      "The template updates immediately because the array now has a new item",
+      "The template does not update because the array reference did not change",
+      "Angular throws a runtime error for mutating an array",
+      "The template updates on the next setTimeout tick"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "What is the difference between ChangeDetectorRef.markForCheck() and ChangeDetectorRef.detectChanges()?",
+    "options": [
+      "markForCheck() runs synchronously; detectChanges() schedules for the next frame",
+      "markForCheck() marks the component as dirty for the next cycle; detectChanges() runs the check immediately and synchronously",
+      "They are identical; both schedule an async check",
+      "markForCheck() only works with Default strategy; detectChanges() only works with OnPush"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "How do Angular Signals relate to Zone.js and change detection?",
+    "options": [
+      "Signals require Zone.js to notify Angular of changes",
+      "Signals work only with the Default change detection strategy",
+      "Signals bypass Zone.js entirely — Angular tracks which template bindings depend on each signal and updates only those bindings when the signal changes",
+      "Signals are a replacement for @Input and have nothing to do with change detection"
+    ],
+    "answer": 2
+  }
+]
