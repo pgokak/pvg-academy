@@ -1,0 +1,27 @@
+[
+  {
+    "question": "A senior developer says 'always use switchMap for HTTP calls.' When is this wrong?",
+    "answer": "`switchMap` cancels the previous inner observable when a new outer value arrives — for search autocomplete, this is correct (you don't need the previous search result). But for save operations, file uploads, or any mutation where each individual request must complete, `switchMap` is destructive: if the user rapidly triggers saves, each new save cancels the previous one, potentially losing data or creating partially-completed state. `concatMap` queues requests in order (appropriate for sequential dependent operations like a multi-step form submission). `mergeMap` runs all concurrently (appropriate for truly independent parallel operations like uploading multiple files). `exhaustMap` ignores new values while the current one is active (ideal for login buttons, form submit — prevents double submission). The rule: use the operator that matches the concurrency semantics of the operation, not a default choice.",
+    "followUp": null
+  },
+  {
+    "question": "What is the shareReplay memory leak and how do you prevent it?",
+    "answer": "The leak: `shareReplay(1)` (the old API without options object) uses `refCount: false` by default — the source subscription is never closed when all subscribers unsubscribe. For an HTTP request wrapped in `shareReplay(1)`, the completed observable stays in memory indefinitely, cached. For a service-level observable (like a user profile stream), `shareReplay(1)` without `refCount: true` keeps the source (a timer, a WebSocket, a polling interval) alive forever, even after all consumers have been destroyed. Fix: always use `shareReplay({ bufferSize: 1, refCount: true })`. With `refCount: true`, when the subscriber count reaches zero, the shared observable unsubscribes from the source and clears the buffer. The next subscription re-executes the source. This is the correct behavior for most use cases — caches the value while someone is using it, releases it when no one is.",
+    "followUp": null
+  },
+  {
+    "question": "When does combineLatest emit and how is it different from withLatestFrom?",
+    "answer": "`combineLatest([a$, b$])` emits whenever any of its source observables emits, combining the latest value from all sources — but only after all sources have emitted at least once. If `a$` emits 5 times and `b$` hasn't emitted yet, `combineLatest` produces nothing. Once both have emitted, each subsequent emission from either triggers a new combined emission. `withLatestFrom(b$)` takes the value from `b$` at the moment `a$` emits — `a$` drives the timing and `b$` is a sample-on-demand. If `b$` hasn't emitted when `a$` emits, `withLatestFrom` produces nothing for that emission. The key difference: `combineLatest` is triggered by any source; `withLatestFrom` is triggered only by the primary observable. Use `withLatestFrom` when you have a primary trigger (user action, form submit) that needs the current value of a secondary stream.",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between takeUntil and takeUntilDestroyed, and why is takeUntilDestroyed preferred?",
+    "answer": "`takeUntil(destroy$)` requires you to create a `Subject`, emit from it in `ngOnDestroy`, and pipe every observable through `takeUntil`. This is the traditional pattern and requires manual implementation and the risk of forgetting `ngOnDestroy` or forgetting to add `takeUntil` to a subscription. `takeUntilDestroyed()` (Angular 16+) is a utility that internally uses `DestroyRef` to automatically complete the observable when the injection context (component, directive, service) is destroyed — no `ngOnDestroy` needed, no manual Subject. Call it in the injection context (constructor or field initializer) with `takeUntilDestroyed()`, or pass an explicit `DestroyRef` when calling it outside the injection context. The preference for `takeUntilDestroyed` is that it reduces boilerplate, makes the pattern composable in utility functions, and removes a category of memory leak that arises from developers forgetting to emit on the Subject.",
+    "followUp": null
+  },
+  {
+    "question": "How do you implement a polling mechanism that stops when the component is destroyed and resumes when the app comes back online?",
+    "answer": "Combine `timer(0, interval)` (immediate first emission, then every `interval` ms) with `takeUntilDestroyed()` for lifecycle management. For online/offline: use `fromEvent(window, 'online')` and `fromEvent(window, 'offline')` to track connectivity. Pause polling when offline by combining with `switchMap`: `fromEvent(window, 'online').pipe(startWith(null), switchMap(() => timer(0, 5000).pipe(takeUntil(fromEvent(window, 'offline')), switchMap(() => this.http.get('/api/data')))))`. When the app goes offline, `takeUntil(offline$)` completes the inner timer. When it comes back online, the outer `switchMap` re-subscribes and creates a new timer. Wrap the outer observable in `takeUntilDestroyed()` for component lifetime management. This pattern requires careful `distinctUntilChanged()` on the HTTP results to avoid redundant renders when data hasn't changed.",
+    "followUp": null
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between TypeScript's `private` and JavaScript's `#private` fields?",
+    "answer": "TypeScript's `private` keyword is a compile-time-only restriction — the property is still public JavaScript at runtime and can be accessed via `(obj as any).field` or in JavaScript code that doesn't go through TypeScript. It does not affect the emitted JavaScript at all. JavaScript's `#private` fields (ES2022 class fields) are a hard runtime privacy mechanism — the field is stored in a separate slot that is physically inaccessible outside the class, not even via `Object.keys` or reflection. `#private` also prevents subclasses from accessing the field, which TypeScript's `private` allows through `protected`. For security-sensitive data like tokens or internal state that must not leak, `#private` is the correct choice. TypeScript supports `#private` syntax and will type-check it correctly.",
+    "followUp": "What are the performance implications of JavaScript private fields (`#`) compared to conventional underscore-prefixed properties?"
+  },
+  {
+    "question": "How do abstract classes differ from interfaces in TypeScript, and when is each appropriate?",
+    "answer": "Abstract classes can contain both abstract method declarations (no implementation, must be overridden) and concrete method implementations with shared logic. Interfaces only declare the shape with no implementations. Abstract classes compile to JavaScript base classes with real runtime presence; interfaces are erased completely. Use an abstract class when you have a template method pattern — shared algorithm steps with variation points — or when you want to share implementation code across subclasses. Use an interface when you're defining a contract that multiple unrelated classes can satisfy, especially when those classes already extend other things (TypeScript allows only single inheritance but multiple interface implementations). Abstract classes also support constructor logic, which interfaces cannot.",
+    "followUp": null
+  },
+  {
+    "question": "What are accessor decorators and how do they differ from method decorators?",
+    "answer": "Accessor decorators target getter and setter pairs (defined with `get`/`set`) and receive a property descriptor for the accessor. They allow you to intercept property reads and writes — useful for lazy initialization, change tracking, or validation on assignment. Method decorators target regular methods and receive the method descriptor, allowing you to wrap the function body. The key difference is that accessor decorators can intercept both the read and write operations on a property without callers knowing, whereas method decorators only wrap explicit function calls. With TC39 Stage 3 decorators (the modern standard), accessor decorators have stricter semantics than legacy TypeScript decorators and cannot be applied to regular class fields, only to explicit getters/setters.",
+    "followUp": "What is the practical difference between TC39 Stage 3 decorators and TypeScript's legacy `experimentalDecorators` flag?"
+  },
+  {
+    "question": "What is the `declare` modifier on class properties and when is it needed?",
+    "answer": "The `declare` modifier tells TypeScript that a property exists on the class without emitting any initialization code for it. It's needed in two main scenarios: Angular components where decorators set up metadata that Ivy uses to inject values (adding `declare @Input() value: string` avoids TypeScript emitting a redundant property initializer that might interfere with the decorator's work), and when using `useDefineForClassFields: true` (the modern ES standard behavior) where TypeScript would emit a class field initializer that shadows an inherited accessor from a base class. Without `declare`, enabling `useDefineForClassFields` can break code that expects parent class getters/setters to intercept property assignments on child class instances.",
+    "followUp": null
+  },
+  {
+    "question": "How does TypeScript handle mixins and what are their limitations?",
+    "answer": "TypeScript supports a functional mixin pattern where a mixin is a function that takes a base class constructor and returns a new class extending it: `const Serializable = <T extends Constructor>(Base: T) => class extends Base { serialize() { ... } }`. You compose mixins with `class MyClass extends Serializable(Timestamped(Base)) {}`. TypeScript can type this correctly if the mixin functions are typed with the `Constructor` pattern. The limitations are: type inference breaks down with more than a few composed mixins, the constructor signatures of mixin classes are complex to type correctly, and the pattern has no clean way to express that a mixin requires specific base class methods. Angular moved away from mixins partly because they created confusing class hierarchies that were hard to test and reason about.",
+    "followUp": null
+  }
+]

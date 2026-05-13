@@ -1,0 +1,27 @@
+[
+  {
+    "question": "A third-party API returns string status codes. Should you model them as an enum or union literals? Why?",
+    "answer": "Union literals are the correct choice for values that come from an external source. The API returns strings like `'pending'`, `'active'`, `'cancelled'` — your TypeScript model should reflect those exact string values. With union literals, the value in your TypeScript type is identical to the wire value, so JSON deserialization works transparently and you can validate incoming strings against the union. With a string enum, the enum member values may match the wire format, but you're adding a runtime object that provides no benefit — callers must use `Status.Pending` instead of `'pending'`, adding indirection without gain. If the API changes a status code, union literals make the required change obvious in your type definition; enum changes have the additional risk of breaking reverse mapping or bitflag patterns if they existed.",
+    "followUp": "How do you safely narrow an API-returned string to a union literal type at the boundary where the response is parsed?"
+  },
+  {
+    "question": "What is a const enum and what problems do they cause in declaration files?",
+    "answer": "Const enums are inlined by the TypeScript compiler — every reference is replaced with the literal value and the enum object is erased from the output. This is efficient for applications, but in declaration files (`.d.ts`), the inlining can't happen because consumers compile against the `.d.ts` without access to the source TypeScript. If a library ships const enums in its `.d.ts`, consumers using Babel, esbuild, or `isolatedModules: true` will fail to compile because these tools cannot inline const enum values from external `.d.ts` files. TypeScript's own `--declaration` emit partially works around this, but Babel and other transpile-only tools do not run the TypeScript compiler and cannot perform the inlining. The TypeScript documentation explicitly recommends against using const enums in public-facing declaration files.",
+    "followUp": null
+  },
+  {
+    "question": "How do you exhaustively handle a union literal type without a compile-time guarantee?",
+    "answer": "Without TypeScript's compile-time exhaustive check, the best runtime approach is a default branch that throws with a descriptive message: `default: throw new Error(`Unhandled status: ${status}`)`. This at least fails loudly at runtime rather than silently doing nothing. For a weaker compile-time check, you can cast to `never` in the default branch — but if you don't use `assertNever`, TypeScript won't error on missing cases unless you also remove the default. The honest answer is that without TypeScript's static analysis, exhaustive handling requires discipline and testing. This is why teams migrating from JavaScript to TypeScript often prioritize enabling `strict` and using discriminated unions with `assertNever` as one of the first refactorings — the runtime behavior can't be trusted without compile-time enforcement.",
+    "followUp": null
+  },
+  {
+    "question": "What is the 'reverse mapping' feature of numeric enums and when does it cause confusion?",
+    "answer": "TypeScript numeric enums create a bidirectional object: `enum Direction { Up = 0 }` compiles to both `Direction.Up === 0` and `Direction[0] === 'Up'`. This reverse mapping (numeric to name) is unique to numeric enums — string enums and union literals do not have it. It causes confusion in several ways: `Object.values(Direction)` returns both the string names and the numeric values (doubled output), `for...in` over the enum object iterates over both, and serializing to JSON includes both directions. Code that iterates over enum values to build UI dropdowns often accidentally includes the numeric keys. The reverse mapping is also why `enum` values in TypeScript are assignable to `number` without explicit casting, which is the source of many type safety gaps that string enums and union literals avoid.",
+    "followUp": null
+  },
+  {
+    "question": "How would you design an extensible set of constants that consumers can add to?",
+    "answer": "The interface merging pattern is the most type-safe approach: define a base interface `interface StatusMap { pending: 'pending'; active: 'active' }` and derive the union type from it: `type Status = StatusMap[keyof StatusMap]`. Consumers augment `StatusMap` by adding entries through module augmentation, and the `Status` union automatically includes their additions. Alternatively, use a readonly object with `as const` as the single source of truth and let consumers create their own extended object using spread and re-derive the type. The least safe but most pragmatic approach for simple use cases is to just use `string` with a JSDoc comment listing valid values. The interface registry pattern is more complex but provides compile-time safety for plugin systems where consumers need to declare their constants at the type level.",
+    "followUp": "What are the limitations of the interface registry pattern when a consumer's extension conflicts with another consumer's extension?"
+  }
+]

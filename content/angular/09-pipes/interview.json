@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between a pure and impure pipe? Why are impure pipes a performance risk?",
+    "answer": "A pure pipe only re-executes when its input reference changes (by value for primitives, by reference for objects). Angular caches the result and reuses it across change detection cycles if the input is unchanged. An impure pipe re-executes on every change detection cycle, regardless of whether the input changed. The performance risk: Angular's change detection can run hundreds of times per second under user interaction. An impure pipe that makes a computation, sorts an array, or (critically) makes an HTTP call runs that computation on every cycle. A `| async` on an Observable is the standard impure pipe example — it must check on every cycle whether a new value has arrived. Custom impure pipes that do expensive work can silently destroy application performance. The rule: never make a pipe impure unless the output depends on state outside the pipe's arguments (like the current time, or an observable).",
+    "followUp": null
+  },
+  {
+    "question": "What does the async pipe do beyond just unwrapping an observable?",
+    "answer": "The async pipe does several things: subscribes to the Observable when the component is created, unsubscribes when the component is destroyed (automatic memory management), marks the component for check-detection on each emission (critical for OnPush components — without this, OnPush components using async pipe would never update), and handles the `null` state between subscription and first emission. It's an impure pipe that calls `ChangeDetectorRef.markForCheck()` on each emission, which is the mechanism by which OnPush components update when observable data arrives. It also triggers change detection on error and completion. The async pipe's unsubscription on destroy is the primary reason it's preferred over manual subscription — it eliminates the most common source of memory leaks in Angular applications.",
+    "followUp": null
+  },
+  {
+    "question": "How do you write a pipe that depends on a service (e.g., a translation pipe)?",
+    "answer": "Inject the service in the pipe's constructor — Angular creates pipes as injectables (they can use DI). For a translation pipe: `@Pipe({ name: 'translate', pure: false }) class TranslatePipe implements PipeTransform { constructor(private i18n: I18nService) {} transform(key: string): string { return this.i18n.translate(key); } }`. The pipe must be `pure: false` if the translation service can change its translations after initialization (e.g., when the language is switched at runtime) — otherwise Angular won't re-execute the pipe and the translated strings stay stale. The service must notify the pipe that translations have changed; a common pattern is subscribing to a language change event in the pipe itself and calling `ChangeDetectorRef.markForCheck()` to force re-evaluation of all instances. Register the pipe as a standalone import in the components that use it.",
+    "followUp": null
+  },
+  {
+    "question": "Why does the date pipe behave differently in SSR vs. browser environments?",
+    "answer": "The `DatePipe` uses the locale registered via `LOCALE_ID` token and relies on the `Intl.DateTimeFormat` API for formatting. In the browser, `Intl.DateTimeFormat` is natively available. In Angular Universal (SSR), the same code runs on Node.js — `Intl` is available in Node.js but may have different timezone handling, locale data coverage, or default timezone from the server's environment variable rather than the user's browser timezone. This causes SSR-rendered dates to use the server's timezone and locale, while the browser re-renders with the client's settings — a hydration mismatch that causes content flicker or Angular's hydration error. The fix: use UTC for SSR-rendered dates, pass timezone explicitly to the date pipe (`{{ date | date: 'short' : 'UTC' }}`), or defer date rendering to the browser using `isPlatformBrowser` checks.",
+    "followUp": null
+  },
+  {
+    "question": "How do you test a custom pipe and what edge cases should you cover?",
+    "answer": "Pure pipes are easily unit tested without Angular's test bed — instantiate the pipe directly and call `transform()`: `const pipe = new CurrencyFormatPipe(); expect(pipe.transform(1000)).toBe('$1,000')`. Cover edge cases: null/undefined input (should return empty string or a default, not throw), zero values, negative values, minimum and maximum representable values, and boundary conditions specific to the pipe's domain. For pipes with service injection, use `TestBed.configureTestingModule` with `declarations` or `imports` for standalone pipes and mock the service. Impure pipes that read global state (current time, locale) need special handling — mock the dependency to return a fixed value in tests to prevent non-deterministic results. For pipes that transform observable-like inputs (the async pipe pattern), test both the pending state (no value yet) and the resolved state.",
+    "followUp": null
+  }
+]

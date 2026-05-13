@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between a component's view encapsulation modes (Emulated, ShadowDom, None)? When would you choose None?",
+    "answer": "`Emulated` (the default) adds unique attribute selectors to all component styles and host elements, scoping CSS to the component without using actual Shadow DOM — it works in all browsers and is the safe default. `ShadowDom` uses native Shadow DOM for true encapsulation where styles cannot leak in or out — style isolation is guaranteed by the browser, not Angular's simulation. `None` adds no scoping whatsoever — styles defined in the component affect the entire document. Choose `None` when you intentionally want a component to set global styles, such as a root `AppComponent` that sets document-level typography or CSS variables. The risk of `None` is accidental style pollution — a common pitfall in teams where developers don't realize their component's styles are global. `ShadowDom` is appropriate when building web components for use outside Angular, but adds complexity with form association and CSS custom property inheritance.",
+    "followUp": null
+  },
+  {
+    "question": "How does Angular's Ivy compiler differ from the older View Engine, and what were the practical improvements?",
+    "answer": "View Engine generated code that centralized component information in external factories and ngfactories — the compiler produced a large interconnected object graph that couldn't be tree-shaken at the component level. Ivy generates `ɵcmp`, `ɵfac`, and `ɵinj` static properties directly on each class, making components self-describing. The practical improvements: better tree-shaking (unused components and directives are eliminated at build time), faster compilation (each file compiled in isolation with less inter-file dependency), smaller bundle sizes (the Angular runtime itself shrunk significantly), better debugging (error messages reference actual class names), and the foundation for standalone components (components can declare their own dependencies without a module). Ivy also enabled `ngcc` for incremental compilation and eventually the fully incremental compilation introduced in later Angular versions.",
+    "followUp": null
+  },
+  {
+    "question": "What is the @ViewChild vs @ContentChild difference and when does each return undefined?",
+    "answer": "`@ViewChild` queries elements defined in the component's own template. `@ContentChild` queries elements projected into the component via `<ng-content>` by the parent. `@ViewChild` returns undefined before `ngAfterViewInit` fires — the view is not yet initialized during `ngOnInit`. `@ContentChild` returns undefined before `ngAfterContentInit` fires — projected content is not yet initialized. Both return undefined if the queried element does not exist in the respective template (the element is conditionally rendered with `*ngIf` and the condition is false, or the component is used without projecting any content). A common bug: accessing a `@ViewChild` in `ngOnInit` and getting undefined because the view isn't ready yet. The solution is to use the values in `ngAfterViewInit`/`ngAfterContentInit` or use the `static: true` option if the element is always present and not inside `*ngIf` or `*ngFor`.",
+    "followUp": null
+  },
+  {
+    "question": "What is host binding and how does it differ from putting styles directly in the template?",
+    "answer": "Host binding binds to properties of the component's host element (the custom element tag like `<app-button>`) using `@HostBinding` or the `host` metadata object. This is distinct from the template, which renders the element's content. `@HostBinding('class.active') isActive: boolean` adds the `active` class to the `<app-button>` element itself, not to something inside its template. This is important for component-level accessibility attributes (`[attr.aria-expanded]`), conditional CSS classes that affect how the component appears in its parent's layout, and sizing/positioning styles applied to the host. Putting equivalent logic inside the template with a wrapper `<div>` creates an unnecessary DOM element and pushes styling concerns to the wrong level. Host bindings make the component element first-class in the CSS layout system rather than requiring a wrapper div to receive the styles.",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between a component and a directive in Angular?",
+    "answer": "A component is a directive with a template — it creates its own view (DOM subtree) defined by its template. A directive modifies an existing element or component: attribute directives change the appearance or behavior of an existing DOM element (`[ngClass]`, `[ngStyle]`, custom `[highlight]`), and structural directives change the DOM structure by adding or removing elements (`*ngIf`, `*ngFor`). Directives do not have templates and do not create new DOM elements themselves (except structural directives which use `ng-template`). The distinction matters architecturally: use a component when you need to create a new piece of UI with its own template; use an attribute directive when you need to add behavior or style to an existing element across your application without wrapping it in a new component. Directives are more composable — multiple directives can be applied to the same element.",
+    "followUp": "What is directive composition in Angular 15+ and how does it reduce the need for wrapper components?"
+  }
+]

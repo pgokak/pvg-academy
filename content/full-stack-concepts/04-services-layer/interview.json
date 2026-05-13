@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the Single Responsibility Principle violation in a fat controller/component? How does it manifest in testing?",
+    "answer": "A fat controller or component contains business logic, data access coordination, input validation, error handling, and presentation concerns all in one class. The SRP violation manifests in testing as difficulty: to test any one behavior, you must set up all the infrastructure for all the other behaviors. Unit testing a business rule requires spinning up HTTP context (controller) or change detection (component), mocking database repositories, and configuring security context. The test becomes an integration test even though you wanted a unit test. When business logic lives in a service, you test it with just the service and its mocked dependencies — fast, isolated, and focused. The fat controller is also a change magnet — any business change, UI change, or data change all require modifying the same class, creating merge conflicts and unclear commit blame.",
+    "followUp": null
+  },
+  {
+    "question": "How do you design a service layer that works for both REST API and a message-queue consumer?",
+    "answer": "The service layer should be transport-agnostic — it operates on plain domain objects and has no knowledge of HTTP, message formats, or serialization. Both the REST controller and the message consumer act as thin adapters: they receive their respective input (HTTP request body or message payload), deserialize and validate it into the domain input object, and delegate to the same service method. The service returns a result, and the adapter translates it back to the appropriate transport response (HTTP response or acknowledgment). This design means you can add a new transport (gRPC, CLI, scheduled job) by writing only the adapter — the business logic is tested once and reused everywhere. The key is keeping `HttpServletRequest`, `@RequestBody`, and Angular's `HttpClient` out of the service entirely.",
+    "followUp": "How do you handle transaction boundaries when the same service method is called from both HTTP and a message consumer with different failure semantics?"
+  },
+  {
+    "question": "What is the difference between application services and domain services in DDD?",
+    "answer": "Application services orchestrate use cases — they receive input from the transport layer, load aggregates from repositories, call domain logic on those aggregates, and persist the results. They have no domain knowledge themselves; they're the conductor. Domain services contain business logic that doesn't naturally belong to any single aggregate — for example, a `TransferService` that moves money between two `Account` aggregates, because the transfer logic spans both accounts and doesn't belong to either one alone. The practical distinction: if a service method mostly calls repositories and orchestrates, it's an application service. If it contains domain rules (calculations, invariants, policies) that operate on domain objects, it's a domain service. Mixing them creates the 'anemic domain model' where domain objects are just data containers and all logic sits in application-layer services.",
+    "followUp": null
+  },
+  {
+    "question": "How do you prevent business logic from leaking into the data layer?",
+    "answer": "Business logic leaks into the data layer through computed columns with business meaning, stored procedures implementing business rules, repository methods that encode business queries as named finders, and JPA entity lifecycle callbacks (`@PrePersist`, `@PostLoad`) that run business validation. The guard is strict layer discipline: repositories should only express data access patterns (find by ID, find by criteria, save, delete), not business concepts. A method like `findActiveUsersEligibleForPromotion()` in a repository is business logic masquerading as a query — the eligibility rules should live in a domain service that calls simpler repository methods. Similarly, calculated fields that derive from other fields should be computed in domain logic, not in database generated columns, so the rules are visible, testable, and not locked to a specific database.",
+    "followUp": null
+  },
+  {
+    "question": "When is it acceptable to put logic directly in a controller vs. delegating to a service?",
+    "answer": "Input validation at the transport boundary (parameter parsing, type conversion, basic format checks) is appropriate in a controller via framework validators like Spring's `@Valid`. Request routing logic — deciding which service method to call based on path parameters — is also appropriate. What is never appropriate: business rules, domain calculations, conditional business logic, or anything that must be consistent across multiple transport entry points. The heuristic: if the same logic would need to exist in a message consumer or a scheduled job that performs the same operation, it belongs in the service. Controllers that contain `if/else` branches based on business conditions, domain object manipulation, or multi-step orchestration are the clearest sign of leakage. In Angular, the component is the controller equivalent — event handlers should call services, not contain application logic inline.",
+    "followUp": null
+  }
+]

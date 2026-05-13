@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between Subject, BehaviorSubject, ReplaySubject, and AsyncSubject? Give the canonical use case for each.",
+    "answer": "`Subject` does not replay — late subscribers miss all previous values, only receiving emissions after they subscribe. Canonical use: event buses, one-shot triggers, user action streams where historical values are irrelevant. `BehaviorSubject` requires an initial value and emits the most recent value to new subscribers immediately. Canonical use: state management, form value streams, any 'current state' that new subscribers need immediately (shopping cart, authentication status). `ReplaySubject(n)` replays the last n values to new subscribers. Canonical use: logging/audit streams, configuration that may be read before or after setup, or when exactly the last few events matter. `AsyncSubject` only emits the last value when it completes — like a Promise. Canonical use: when you want observable-style but single-result semantics, or wrapping computation results. `BehaviorSubject` is by far the most commonly used in production Angular applications due to the ubiquitous need for reactive state.",
+    "followUp": null
+  },
+  {
+    "question": "What does shareReplay({ bufferSize: 1, refCount: true }) do and why is refCount: true critical for memory management?",
+    "answer": "`shareReplay({ bufferSize: 1, refCount: true })` multicasts the source observable to multiple subscribers, replays the last 1 emission to new subscribers, and automatically unsubscribes from the source when the subscriber count drops to zero. With `refCount: false` (or the deprecated `shareReplay(1)` shorthand), the shared observable never unsubscribes from the source — even when all subscribers unsubscribe. For HTTP requests, this is a memory leak: the observable is never garbage collected, the HTTP response is cached in memory indefinitely, and future subscribers get the cached (potentially stale) response. With `refCount: true`, when the last subscriber unsubscribes (e.g., component destroyed), the shared observable also unsubscribes and clears the buffer. The next subscription triggers a fresh source execution. Use `refCount: false` only when you explicitly want an infinite cache (e.g., application-lifetime configuration that never changes).",
+    "followUp": "When would you intentionally use refCount: false, and what are the implications for memory and staleness?"
+  },
+  {
+    "question": "What is the glitch problem in reactive programming and how do Signals solve it where observables don't?",
+    "answer": "The glitch problem occurs when two dependencies update simultaneously but derived computations are recalculated in between, temporarily showing an inconsistent state. In RxJS: `combineLatest([a$, b$])` where `a$` and `b$` both change together — the `combineLatest` emits once with the old `b$` value and the new `a$` value, then again with both new values. Any component consuming this fires twice and may briefly show inconsistent data. Signals solve this with the 'glitch-free' guarantee: when multiple signals that a `computed()` depends on update in the same batch, `computed()` recalculates only once after all updates are applied, never showing an intermediate inconsistent state. This is achieved through Angular's scheduling: signal writes are batched and dependent computations are evaluated lazily on the next read, ensuring consistency without intermediate spurious evaluations.",
+    "followUp": null
+  },
+  {
+    "question": "How do you implement an exponential backoff retry strategy with RxJS?",
+    "answer": "Use `retryWhen` (deprecated in newer RxJS) or the modern `retry({ count: N, delay: (error, retryCount) => timer(Math.pow(2, retryCount) * 1000) })`. The `delay` function in the retry config receives the error and retry attempt number, and returns an Observable that acts as a notifier — the retry happens when that notifier emits. `timer(2000)` retries after 2 seconds; `Math.pow(2, retryCount) * 1000` gives 1s, 2s, 4s, 8s... For jitter (preventing thundering herd when many clients retry simultaneously): add a random component `Math.pow(2, retryCount) * 1000 + Math.random() * 1000`. Add `filter(error => isRetryable(error))` to the delay function — throw the error immediately for non-retryable conditions like 404 or 401 (which won't succeed on retry regardless).",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between hot and cold observables, and why does it matter when sharing HTTP responses?",
+    "answer": "A cold observable starts its producer for each new subscriber — subscribing to an `HttpClient.get()` observable fires a new HTTP request for each subscriber. A hot observable has a single producer shared across all subscribers — like a `Subject` or a DOM event. `HttpClient` observables are cold, which means two simultaneous subscribers to the same request fire two HTTP requests. This matters in Angular when multiple components or services subscribe to the same data stream — without `shareReplay`, each subscription triggers a separate API call. Converting cold to hot with `shareReplay({ bufferSize: 1, refCount: true })` makes the HTTP request fire once and the result shared. The canonical example: a `currentUser$` observable in `AuthService` that many components subscribe to — without shareReplay, every component subscription would re-fetch the user profile.",
+    "followUp": null
+  }
+]

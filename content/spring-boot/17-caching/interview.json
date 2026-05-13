@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is cache stampede and how do you prevent it when a popular cached value expires?",
+    "answer": "Cache stampede (thundering herd) occurs when a highly-requested cached value expires and hundreds of concurrent requests simultaneously find a cache miss, all proceed to the database or upstream service, and all populate the cache with the same value — the database receives traffic proportional to the cache miss rate, potentially causing a cascade failure. Prevention strategies: probabilistic early expiration refreshes the cache before it expires using a random probability that increases as expiry approaches, so one request refreshes proactively; locking-based prevention uses a distributed lock (Redis SETNX) so only the first cache-miss request computes the value while others wait for it; background refresh uses a scheduled job to refresh before expiry, keeping the cache always warm; stale-while-revalidate serves the stale value immediately while refreshing asynchronously. Probabilistic early expiration and background refresh are most practical for production systems.",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between @Cacheable, @CachePut, and @CacheEvict? Give the canonical use case for each.",
+    "answer": "`@Cacheable` reads from the cache first — if a value exists for the key, return it without calling the method; if not, call the method, store the result, and return it. Canonical use: `findById()` — read-through caching for data that's expensive to fetch. `@CachePut` always calls the method and stores the result in the cache — it updates the cache after every call. Canonical use: an `update()` method that both saves and refreshes the cache so the cache is always current after a write. `@CacheEvict` removes entries from the cache without calling the underlying method (or after calling it). Canonical use: `delete()` methods and any update method where you prefer to invalidate and force a fresh read rather than pre-populate. `@CacheEvict` with `allEntries=true` clears the entire cache namespace, which is the correct strategy when an update might affect many cached queries.",
+    "followUp": "What is the stale cache bug that occurs when you forget @CacheEvict on an update method, and how would you detect it in production?"
+  },
+  {
+    "question": "How does Spring's cache abstraction support multiple cache providers, and how do you configure Redis with TTL?",
+    "answer": "Spring's cache abstraction defines `CacheManager` and `Cache` interfaces — the actual storage is pluggable. By adding `spring-boot-starter-data-redis` and configuring `spring.cache.type=redis`, Spring Boot auto-configures a `RedisCacheManager`. TTL is configured per cache name: `RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(30))`, with per-cache overrides using `RedisCacheManagerBuilderCustomizer`. Spring supports multiple cache managers (Caffeine for L1, Redis for L2) simultaneously through `@Cacheable(cacheManager = \"caffeineCacheManager\")`. The abstraction means switching from in-memory Caffeine to Redis (for distributed caching across multiple instances) requires only configuration changes, not code changes — the `@Cacheable` annotations remain identical.",
+    "followUp": null
+  },
+  {
+    "question": "What are the risks of caching entities vs. caching DTOs?",
+    "answer": "Caching JPA entities is problematic for several reasons: entities may have lazy-loaded associations that, when accessed outside a Hibernate Session (which is typically closed after the method returns), throw `LazyInitializationException`. Serializing entities to Redis also serializes their Hibernate proxy objects, which are not serializable in most configurations and require either special serialization configuration or EAGER loading. Entities also contain Hibernate's internal state (`__hibernate_extractor`, version fields) that inflates cache size and can cause deserialization issues across application restarts when Hibernate's internal classes change. DTOs are plain data objects with no proxy baggage — they serialize cleanly, have predictable size, and contain only the fields you explicitly intended to cache. The rule is to always cache DTOs or primitive types, never entities.",
+    "followUp": null
+  },
+  {
+    "question": "How do you handle cache invalidation in a microservices architecture where multiple services share data?",
+    "answer": "Cache invalidation in distributed systems is notoriously hard — the problem is that Service A updates data while Service B has that data cached. Event-driven invalidation is the standard approach: when Service A updates a resource, it publishes a domain event (`UserUpdated`, `ProductPriceChanged`) to a message broker (Kafka, RabbitMQ). All services with relevant caches subscribe and evict their cached entries upon receiving the event. This is eventually consistent — there's a window between the update and the event delivery where stale data may be served. The tradeoff: if the message is lost or the consumer is down, the cache is never invalidated. Mitigations: short TTLs as a backstop (stale cache expires eventually even without invalidation), idempotent consumers with retry logic, and dead letter queues for failed invalidations. Alternatively, avoid sharing cache at all — each service owns its data and others request it via API.",
+    "followUp": null
+  }
+]

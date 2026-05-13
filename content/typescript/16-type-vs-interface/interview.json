@@ -1,0 +1,27 @@
+[
+  {
+    "question": "A new teammate wants to use `type` everywhere. How do you explain when `interface` is specifically needed?",
+    "answer": "`interface` is specifically needed in two cases: when you need declaration merging (a consumer of your library needs to extend your type without modifying your source), and when you're defining the `implements` contract for classes (both `type` and `interface` work here, but `interface` is the conventional choice). For public library APIs, `interface` is the right default because it's extensible — if you ship a `Config` type and a user needs to add properties, they can with `interface` but not with `type`. For computed types, unions, conditional types, mapped types, and intersections, `type` is the only option. The practical advice is: default to `interface` for object shapes that represent public contracts; default to `type` for everything computed or composed.",
+    "followUp": "Can you show a concrete case where using `type` instead of `interface` for a public API caused a real problem for consumers?"
+  },
+  {
+    "question": "How does declaration merging break in unexpected ways with `type` aliases?",
+    "answer": "Type aliases cannot be merged — declaring `type Foo = { a: string }` and then `type Foo = { b: number }` in the same scope is a compile error ('Duplicate identifier Foo'). This breaks in unexpected ways when frameworks or tools rely on merging as their extension mechanism: Angular's component input/output typing augmentation, Vuex module type registration, and Express's Request extension all depend on interface merging. If these patterns use `type` instead of `interface`, augmentation attempts fail silently or produce confusing errors. Another unexpected breakage: module augmentation syntax requires `interface` — `declare module 'library' { type Foo = ... }` re-exports rather than merges, which is not the intended behavior for augmentation.",
+    "followUp": null
+  },
+  {
+    "question": "When would you use `interface extends` vs `type &` intersection for composing types?",
+    "answer": "`interface extends` is checked eagerly — TypeScript verifies that all extended interfaces are compatible at the declaration site and errors if there are conflicting property types. `type &` defers conflict resolution — conflicting properties produce `never` for that property, which only surfaces when you try to use it. This makes `interface extends` better for catching design errors early, and `type &` more forgiving but harder to debug when conflicts arise. `interface extends` also has a performance advantage in large type systems because TypeScript can cache the computed shape of the interface rather than recomputing the intersection each time it's used. For mixins and ad-hoc composition of types you don't control, `type &` is often the only option.",
+    "followUp": "What happens to error messages in the IDE when a property conflict occurs via `type &` vs `interface extends`?"
+  },
+  {
+    "question": "What happens to performance in the TypeScript compiler when you have hundreds of complex type intersections?",
+    "answer": "Complex type intersections are the primary source of TypeScript type-checking slowness in large codebases. Each intersection must be resolved lazily on use, and deeply nested intersections create an exponential blowup — `A & B & C & D & E` where each type is itself an intersection can cause the compiler to evaluate enormous type structures on each usage. `interface` with `extends` avoids this because TypeScript computes and caches the resolved interface shape at declaration time, amortizing the cost. Codebases that represent complex domain models as chains of `type &` intersections often see the TypeScript language server become unusable slow. The fix is to flatten intersections into interfaces wherever possible, and to use `interface extends` for inheritance hierarchies.",
+    "followUp": null
+  },
+  {
+    "question": "How do you design a plugin system in TypeScript where third parties can extend your types?",
+    "answer": "The standard pattern is a central interface registry that third parties augment using module augmentation. You define an empty interface in your library: `interface PluginRegistry {}`, then write APIs that accept or return `PluginRegistry`. Third-party plugins augment the interface by adding their own keys: `declare module 'your-library' { interface PluginRegistry { myPlugin: MyPluginConfig } }`. This is the pattern used by Vite's plugin system, Fastify's type augmentation, and Prisma's client extensions. The key requirement is that the central interface must be an `interface` (not `type`) and must be in a named module that consumers can augment. The resulting system is type-safe: once a plugin is registered, its configuration type is available throughout the consuming application.",
+    "followUp": null
+  }
+]

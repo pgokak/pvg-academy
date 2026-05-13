@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between Spring's @Configuration and Angular's NgModule at an architectural level?",
+    "answer": "Spring's `@Configuration` is a Java class that defines beans and their wiring — it's a programmatic alternative to XML, executed at container startup to populate the IoC container. It's a configuration declaration, not a runtime grouping mechanism. Angular's `NgModule` was a runtime grouping mechanism for components, directives, pipes, and providers, defining what's available within a compilation unit and managing the dependency graph for template compilation. The key architectural difference: Spring's `@Configuration` is about constructing objects, while Angular's `NgModule` was about declaring template scope and provider visibility. Angular's move to standalone components effectively decoupled template compilation scope from provider grouping, making `NgModule` optional and gradually obsolete.",
+    "followUp": null
+  },
+  {
+    "question": "How does Angular's standalone component model change dependency resolution compared to NgModule?",
+    "answer": "In the NgModule model, components declared in a module inherited all the imports of that module — a component could use a directive just because it was in the same module's `imports` array. With standalone components, each component explicitly declares its own `imports` list with the exact components, directives, and pipes it uses. This makes the dependency graph explicit and local rather than inherited and global. The benefit is tree-shaking precision — the Angular compiler knows exactly what each component uses and can eliminate unused code. The cost is verbosity — every component must list its dependencies. Angular's IDE tooling helps by auto-suggesting and auto-importing, making the explicit model practical at scale.",
+    "followUp": "What happens to a standalone component's providers when it's lazy-loaded as a route component vs. when it's used directly in a template?"
+  },
+  {
+    "question": "When would you create a feature module vs. a shared module in Angular?",
+    "answer": "A feature module groups all components, services, routing, and state for a cohesive domain feature (like `OrdersModule` or `ProfileModule`) and can be lazy-loaded as a route. It contains things that are only used within that feature. A shared module contains reusable components, directives, and pipes that are used across multiple feature modules — think UI components like a `LoadingSpinnerComponent` or `DatePickerComponent`. The anti-pattern is a `SharedModule` that becomes a dumping ground for everything, defeating lazy loading benefits because importing it into a lazy-loaded module causes all its contents to be eagerly loaded. In standalone Angular, the shared module pattern largely disappears — you import individual standalone components directly, getting precise tree-shaking without needing to curate shared module contents.",
+    "followUp": null
+  },
+  {
+    "question": "How does Spring's conditional configuration (@ConditionalOnMissingBean) enable library extensibility?",
+    "answer": "`@ConditionalOnMissingBean` tells Spring to only create a bean if no bean of that type already exists in the container. This is the mechanism Spring Boot starters use to provide sensible defaults while allowing applications to override them: the starter defines `@Bean @ConditionalOnMissingBean ObjectMapper jacksonObjectMapper()`, and any application that defines its own `ObjectMapper` bean will use theirs instead. This is how Spring Boot achieves the 'opinionated but overridable' principle — the auto-configuration provides production-ready defaults, but every default can be overridden without modifying the starter code. Without this mechanism, using a starter would either force you to accept its configuration or require disabling the entire auto-configuration class.",
+    "followUp": "What is the difference between @ConditionalOnMissingBean and @ConditionalOnProperty? When would you use each?"
+  },
+  {
+    "question": "What are the tradeoffs between centralized and distributed configuration in microservices?",
+    "answer": "Centralized configuration (Spring Cloud Config Server, HashiCorp Vault, AWS SSM Parameter Store) provides a single source of truth, audit trail, and the ability to update configuration across multiple service instances without redeployment. The tradeoff is a dependency on the config server at startup — if the config server is unavailable, services cannot start unless they have local fallbacks. Distributed configuration (each service's own application.yml, environment variables per pod) is simpler operationally, more independent, but makes it harder to maintain consistency across environments and services. The industry best practice is centralized secrets management (for credentials, never in code or env files) combined with environment-specific configuration through the deployment platform (Kubernetes ConfigMaps, Helm values), with services having local defaults for non-sensitive config.",
+    "followUp": null
+  }
+]

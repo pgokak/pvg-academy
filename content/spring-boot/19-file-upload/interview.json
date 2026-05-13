@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is a path traversal vulnerability in file upload and how does using UUID filenames prevent it?",
+    "answer": "A path traversal attack uses filenames like `../../etc/passwd` or `../config/application.properties` to write files outside the intended upload directory, potentially overwriting system files or application configuration. If an application saves files using the client-provided filename directly, this attack is trivial. Using a server-generated UUID as the filename (`UUID.randomUUID().toString() + \".pdf\"`) completely prevents path traversal because the UUID has no directory separator characters and doesn't reference any existing path. You separately store the original client filename in a database record (for display purposes) but never use it in the filesystem operation. Relative path components in the original filename (`../`, `..\\`) are defanged because they're never used for actual storage. Defense-in-depth also includes canonicalizing the resolved storage path and verifying it starts with the expected base directory.",
+    "followUp": null
+  },
+  {
+    "question": "How do you validate file type securely — why is checking the file extension insufficient?",
+    "answer": "File extensions are controlled by the uploader and can be trivially changed — renaming `malware.exe` to `malware.pdf` bypasses extension-based validation. Magic bytes (file signatures) are the correct approach: the first few bytes of a file identify its true format regardless of the extension. For example, PDF files begin with `%PDF`, JPEG with `FF D8 FF`, PNG with `89 50 4E 47`. Apache Tika is the standard Java library for detecting file type from content: `new Tika().detect(inputStream)` returns the MIME type based on the file's actual content. Validate the Tika-detected MIME type against an allowlist of permitted types. Checking `ContentType` from the HTTP multipart request is also insufficient — it's set by the client and equally untrusted. For the most secure validation on image uploads, attempt to parse the file as an image and reject anything that fails to parse.",
+    "followUp": null
+  },
+  {
+    "question": "What is the streaming vs. buffering tradeoff when handling large file uploads in Spring?",
+    "answer": "By default, Spring's multipart handling buffers the entire upload to memory (up to `spring.servlet.multipart.max-file-size`) or a temporary file before the controller method is called. For large files (100MB+), this means the entire file is in memory or on local disk before processing begins. Streaming reads the file incrementally as it arrives — the handler processes parts of the file while the upload is still in progress, keeping memory usage constant regardless of file size. In Spring, streaming is achieved through `HttpServletRequest.getParts()` directly or by disabling Spring's multipart resolver and parsing the request manually. The tradeoff: buffering is simpler but limits scalability (one 1GB upload ties up 1GB of memory); streaming is more complex but handles arbitrarily large files with fixed memory. For cloud storage uploads (S3, GCS), streaming directly to the cloud API avoids local disk usage entirely.",
+    "followUp": null
+  },
+  {
+    "question": "How do you design a file upload architecture that works in a horizontally-scaled, stateless environment?",
+    "answer": "In a horizontally-scaled environment, files cannot be stored on the application server's local filesystem — if the file lands on Instance A, Instance B has no access to it, and after a deployment the local file is lost. The correct architecture stores files in centralized object storage: AWS S3, GCP Cloud Storage, or Azure Blob Storage. Two patterns: server-side proxying (the client uploads to the Spring Boot server, which streams it to object storage — simple but adds load and latency to the application server); or presigned URL upload (the client requests a short-lived presigned URL from the API, uploads directly to S3, then calls back to confirm — no file traffic through the application server, highly scalable). The presigned URL pattern is the production standard for large files. The Spring Boot application only handles metadata — storing the file's S3 key, original name, size, and content type in the database.",
+    "followUp": "How do you handle a scenario where the client gets a presigned URL but then fails to upload — how do you detect and clean up orphaned S3 objects?"
+  },
+  {
+    "question": "What are the Spring multipart configuration limits you must set in production and what happens if you don't?",
+    "answer": "`spring.servlet.multipart.max-file-size` (default 1MB) and `spring.servlet.multipart.max-request-size` (default 10MB) must be set to values appropriate for your use case. If they're left at defaults and users try to upload larger files, Spring throws a `MaxUploadSizeExceededException` which, if unhandled, returns a 500 Internal Server Error instead of a 400. Worse, if you increase these limits without limit, a single client can upload a multi-gigabyte file, exhausting the JVM heap. The server-side Tomcat default is also constrained by `server.tomcat.max-swallow-size`. For file upload endpoints, these limits should be set conservatively and enforced before expensive processing begins. A `@ControllerAdvice` handler for `MaxUploadSizeExceededException` should return a clear 413 Payload Too Large response with a message explaining the size limit, not a generic 500.",
+    "followUp": null
+  }
+]

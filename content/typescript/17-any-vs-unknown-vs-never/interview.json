@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Your codebase has 200 `any` types from a JS migration. How do you prioritize which to fix first?",
+    "answer": "Prioritize by blast radius and data source, not by count. Start with `any` types at external boundaries — API response parsing, event handlers receiving external data, and third-party library wrappers — because these are where runtime type errors most often originate and where `any` propagates into the rest of the codebase. Second priority: `any` in shared utility functions that are called across the codebase, because fixing these eliminates `any` propagation at the widest scale. Third: `any` in component props or service interfaces that represent contracts between team-owned modules. The least urgent `any` types are in isolated leaf functions where the type error stays localized. Enable `noImplicitAny` first (rejecting new `any` introduction) before tackling existing ones, so the problem doesn't grow while you're fixing it.",
+    "followUp": "What TypeScript compiler flags and ESLint rules would you use to prevent `any` from being reintroduced after your migration?"
+  },
+  {
+    "question": "How does `unknown` in catch clauses improve error handling quality, and what does it require of developers?",
+    "answer": "Before TypeScript 4.0, caught errors were implicitly typed as `any`, meaning you could call `.message` on them without a type error even though not everything thrown is an Error object — someone might throw a string, number, or plain object. With `useUnknownInCatchVariables: true` (or TypeScript 4.4+ default with strict mode), caught errors are `unknown`, forcing developers to narrow before accessing any property. This requires writing `if (error instanceof Error)` or using a type guard, which is correct because catch clauses genuinely can receive anything. The improvement in code quality is significant: error handling becomes explicit about which properties are actually checked, and edge cases like thrown strings or non-standard error objects are handled rather than silently ignored.",
+    "followUp": null
+  },
+  {
+    "question": "What is the `@ts-expect-error` directive and when is it preferable to `@ts-ignore`?",
+    "answer": "`@ts-expect-error` suppresses a TypeScript error on the next line, but also produces a new error if the next line has no error — it validates that you actually needed the suppression. `@ts-ignore` silently suppresses any error (or lack thereof) without feedback. The practical advantage of `@ts-expect-error` is that when you fix the underlying issue, the directive itself becomes an error, prompting you to remove it. With `@ts-ignore`, fixed code silently accumulates dead suppressions that confuse future readers about whether there's a real problem being worked around. The canonical use of `@ts-expect-error` is in test files where you intentionally test type errors: `@ts-expect-error — should reject null` followed by a call that should fail type checking.",
+    "followUp": "What ESLint rule enforces that `@ts-ignore` cannot be used and that `@ts-expect-error` must have a description?"
+  },
+  {
+    "question": "How do you use `never` in a type-level unit test?",
+    "answer": "A type-level test uses TypeScript's type system to assert that a type equals an expected type at compile time. The canonical pattern: `type Assert<T, Expected> = [T] extends [Expected] ? [Expected] extends [T] ? true : never : never` — if this evaluates to `never`, you've caught a type regression. A `never` assignment test: `type ShouldBeNever = SomeType extends SomeOtherType ? never : 'error'` — if `ShouldBeNever` is `'error'`, the expected relationship didn't hold. Libraries like `tsd` and `expect-type` formalize this pattern with readable assertion functions that all compile to nothing in production but fail type-checking when assertions don't hold. This is how TypeScript utility type implementations are tested in the TypeScript compiler's own test suite.",
+    "followUp": null
+  },
+  {
+    "question": "What is `strict: true` missing that senior engineers should add manually?",
+    "answer": "`strict: true` enables `strictNullChecks`, `noImplicitAny`, `strictFunctionTypes`, `strictBindCallApply`, `strictPropertyInitialization`, `noImplicitThis`, and `alwaysStrict`. It does not enable `noUncheckedIndexedAccess` (array access returns T instead of T|undefined), `exactOptionalPropertyTypes` (stricter optional property handling), `noImplicitOverride` (must use `override` keyword when overriding), `noPropertyAccessFromIndexSignature` (must use bracket notation for index signatures), and `useUnknownInCatchVariables` (catch errors typed as unknown — this was added to strict in TS 4.4). Senior engineers also add `@typescript-eslint/no-explicit-any` and `@typescript-eslint/no-unsafe-*` rules because ESLint can enforce boundaries that the compiler doesn't catch, like preventing `any` from spreading through return types.",
+    "followUp": null
+  }
+]

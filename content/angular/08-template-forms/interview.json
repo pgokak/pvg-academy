@@ -1,0 +1,27 @@
+[
+  {
+    "question": "When would you choose template-driven forms over reactive forms? What is the canonical answer?",
+    "answer": "Template-driven forms are appropriate for simple forms with few fields, minimal validation, and straightforward data binding where the reactive forms' boilerplate would outweigh the benefits. They're also preferable when the form structure mirrors the template structure very closely (no conditional controls, no dynamic addition/removal of controls), or when the team has a stronger HTML/template background and prefers keeping form logic in the template. Reactive forms are preferred when: validation logic is complex or conditional, the form structure is built dynamically from data, you need to test the form logic in isolation (reactive forms are testable without rendering), you need to react to value changes with RxJS operators, or the form is large. The senior answer acknowledges the legitimate use case for template-driven forms while recognizing that reactive forms scale better and are more aligned with Angular's recommended patterns for production applications.",
+    "followUp": null
+  },
+  {
+    "question": "What is the NgModel lifecycle — at what point is the value available in the component class?",
+    "answer": "In template-driven forms, `[(ngModel)]` binds asynchronously — the two-way binding goes through Angular's change detection cycle. When the template is first rendered, `ngModel` initializes from the bound variable. When the user changes the input, the DOM event fires, Angular runs change detection, `ngModelChange` emits, and the component's property is updated. This means that in `ngOnInit`, the model-bound properties have their initial values (from component initialization), not DOM values — because the template hasn't rendered yet. If you need to access form values programmatically before the user interacts, template-driven forms work fine (they reflect the initial values). After `ngAfterViewInit`, the form is fully initialized and `@ViewChild(NgForm)` gives access to the full form state.",
+    "followUp": null
+  },
+  {
+    "question": "How do you write a custom value accessor (ControlValueAccessor) for a custom input component?",
+    "answer": "Implement `ControlValueAccessor` with four methods: `writeValue(obj)` (called when the form sets a value — update your component's display), `registerOnChange(fn)` (store the function to call when your internal value changes), `registerOnTouched(fn)` (store the function to call when your component is touched), `setDisabledState(isDisabled)` (optional, respond to disabled state changes). Provide the component as a `NG_VALUE_ACCESSOR`: `{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => MyInputComponent), multi: true }`. When the user interacts with your component, call `this.onChange(newValue)` and `this.onTouched()`. This makes your component work transparently with both `ngModel` and reactive forms `[formControl]`. Without implementing this interface, Angular has no way to communicate values in and out of your custom input.",
+    "followUp": null
+  },
+  {
+    "question": "What is the ngModelGroup directive and when do you use it?",
+    "answer": "`ngModelGroup` groups related form controls into a nested object in the form's value model. `<div ngModelGroup=\"address\"><input ngModel name=\"city\">...` creates `form.value.address.city` instead of `form.value.city`. This is valuable for complex forms with logical sections (personal info, address, billing) where you want the model to reflect the logical grouping — the resulting form value object matches the expected API payload structure, reducing mapping code. It also enables validation at the group level and accessing the group's validity independently from the whole form. In reactive forms, this is handled by nested `FormGroup` instances, which is more explicit and testable. `ngModelGroup` is the template-driven equivalent and works well for forms where the logical grouping is stable and the nesting structure is known at design time.",
+    "followUp": null
+  },
+  {
+    "question": "How do template-driven forms handle async validation differently from reactive forms?",
+    "answer": "In reactive forms, async validators are added to `FormControl` explicitly: `new FormControl('', [], [asyncValidator])` — the third argument. They return `Observable<ValidationErrors | null>` or `Promise<ValidationErrors | null>`. In template-driven forms, async validation requires a custom directive implementing both `Validator` (or `AsyncValidator`) and `NG_ASYNC_VALIDATORS` provider. The directive's `validate()` method returns the async result. The difference in behavior: both show a `PENDING` state while the async validator is running, but reactive forms give you explicit control over `updateOn` and debouncing through the `FormControl` configuration. Template-driven async validators are harder to configure for debouncing — you need to manage the debounce inside the directive or the validator function itself rather than via FormControl configuration.",
+    "followUp": null
+  }
+]

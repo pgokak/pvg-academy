@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What are the tradeoffs between storing JWT in localStorage vs an httpOnly cookie?",
+    "answer": "localStorage is accessible by JavaScript, making it vulnerable to XSS attacks — if any script on the page (including injected third-party scripts) executes malicious code, it can read the JWT and exfiltrate it. Once the token is stolen, the attacker has full access until expiry. httpOnly cookies are set by the server with the `HttpOnly` flag, making them inaccessible to JavaScript — XSS cannot read them, only the browser's HTTP layer includes them in requests. The httpOnly cookie tradeoff is CSRF vulnerability — any request from any origin includes the cookie automatically, requiring CSRF token protection for state-changing requests. The industry security recommendation: store refresh tokens in httpOnly cookies (long-lived, high-value), store short-lived access tokens in memory (JavaScript variable, not localStorage) for API calls. This provides XSS and CSRF resistance with minimal UX impact.",
+    "followUp": "How do you handle the access token refresh flow when the access token lives only in memory and the page is refreshed?"
+  },
+  {
+    "question": "How do you implement silent token refresh in an Angular interceptor when a 401 occurs?",
+    "answer": "The interceptor catches a 401 response and calls the refresh token endpoint. The critical complexity is concurrent 401 handling: if 10 requests all get 401 simultaneously, you must refresh once and replay all 10. Use a shared Observable pattern: a boolean `isRefreshing` flag and a `BehaviorSubject<string | null> refreshTokenSubject` initialized to null. When the first 401 arrives, set `isRefreshing = true`, set `refreshTokenSubject.next(null)`, and call the refresh endpoint. Other 401s filter on `refreshTokenSubject` and use `switchMap` to wait for a non-null value before retrying. When refresh succeeds, set `isRefreshing = false` and `refreshTokenSubject.next(newToken)` — all waiting requests get the new token and retry. If refresh fails, clear the auth state, emit an error, and redirect to login. The `retry(1)` operator on the original request with the new token header handles the actual replay.",
+    "followUp": null
+  },
+  {
+    "question": "What is refresh token rotation and why is it more secure than a long-lived refresh token?",
+    "answer": "Refresh token rotation issues a new refresh token on every use and immediately invalidates the old one. A static, long-lived refresh token is a high-value target — if an attacker obtains it (from a log file, a compromised device, or a network intercept), they can generate access tokens indefinitely until the token expires or the user explicitly revokes it. With rotation, each use renders the token invalid — the attacker's stolen token can only be used once before becoming stale. More importantly, rotation enables theft detection: if an already-used token is presented (attacker used it after the legitimate client used it), the server detects the reuse and invalidates the entire token family, forcing re-authentication. This converts a silent ongoing compromise into a detectable event. The implementation stores the token family ID and generation number server-side.",
+    "followUp": null
+  },
+  {
+    "question": "How do you handle the race condition when multiple parallel requests all get a 401 simultaneously?",
+    "answer": "The race condition: 5 parallel API calls all receive 401 simultaneously. Without coordination, each interceptor invocation independently attempts to refresh, resulting in 5 refresh token calls — the first one succeeds and rotates the token, the remaining 4 use an invalidated token and fail, logging the user out. The solution requires a global lock using a shared Observable: in the `AuthService` or interceptor, maintain `private refreshInProgress$: Observable<string> | null`. The first 401 creates this observable by calling the refresh endpoint and sharing it: `this.refreshInProgress$ = this.refresh().pipe(shareReplay(1), finalize(() => this.refreshInProgress$ = null))`. Subsequent 401s check if `refreshInProgress$` exists and attach to it rather than starting a new refresh. All interceptor invocations share the single refresh and receive the new token when it arrives.",
+    "followUp": null
+  },
+  {
+    "question": "What are the OWASP top risks specific to JWT authentication in single-page applications?",
+    "answer": "Key JWT-specific OWASP risks in SPAs: (1) XSS + token theft — if the token is in localStorage, any XSS vector steals it; use httpOnly cookies for sensitive tokens; (2) algorithm confusion attacks — the `alg: none` header or HS256 vs RS256 confusion; always explicitly require the expected algorithm on the server and reject tokens with unexpected algorithms; (3) weak secret keys — HMAC-signed tokens with short or dictionary-based secrets are brute-forceable; use at least 256-bit random secrets or asymmetric keys; (4) missing expiry validation — tokens without `exp` claims or with server-side skipped expiry checks remain valid forever after theft; (5) sensitive data in payload — JWT payloads are only base64 encoded, not encrypted; avoid putting PII or secrets in them. The biggest real-world risk remains XSS-enabled token extraction, making content security policy (CSP) headers and sanitization critical defenses.",
+    "followUp": null
+  }
+]

@@ -5,6 +5,7 @@ import { getLesson } from "@/lib/content";
 import CodeEditor from "@/components/editor/CodeEditor";
 import Quiz from "@/components/quiz/Quiz";
 import LessonNotes from "@/components/notes/LessonNotes";
+import InterviewQA from "@/components/interview/InterviewQA";
 
 // Next.js 15: params is a Promise — must be awaited
 export default async function LessonPage({
@@ -62,7 +63,7 @@ export default async function LessonPage({
             </section>
 
             {/* Quiz */}
-            <section className="mt-8 mb-16">
+            <section className="mt-8">
               <h2 className="text-lg font-semibold text-gray-900 mb-3">Quiz</h2>
               <Quiz
                 questions={lesson.quiz}
@@ -70,6 +71,11 @@ export default async function LessonPage({
                 trackId={trackId}
               />
             </section>
+
+            {/* Interview Q&A */}
+            {lesson.interview.length > 0 && (
+              <InterviewQA questions={lesson.interview} />
+            )}
           </div>
 
           {/* Right column — sticky notes */}

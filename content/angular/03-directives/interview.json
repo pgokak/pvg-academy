@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between a structural directive and an attribute directive at the DOM level?",
+    "answer": "Attribute directives modify the element they're applied to — they change appearance, behavior, or add event listeners but don't add or remove elements. Structural directives change the DOM structure by adding, removing, or manipulating elements. The key DOM difference: structural directives use `ng-template` internally and stamp out (or remove) template views. When Angular sees `*ngIf`, it desugars to `<ng-template [ngIf]=\"condition\"><actual-element></actual-element></ng-template>` — the actual element is inside a template that Angular creates or destroys based on the condition. Structural directives have exclusive access to `TemplateRef` (the template to stamp) and `ViewContainerRef` (the container where views are inserted). This is why structural directives are prefixed with `*` — the asterisk is a syntactic sugar that signals the structural transformation.",
+    "followUp": null
+  },
+  {
+    "question": "How do you write a custom structural directive that conditionally renders content with a context object?",
+    "answer": "Inject `TemplateRef<C>` and `ViewContainerRef` in the directive constructor. To render: `this.vcr.createEmbeddedView(this.templateRef, contextObject)`. To remove: `this.vcr.clear()`. The context object's properties are available in the template with `let-varName` microsyntax: `*appHasPermission=\"'ADMIN'; let user = user\"` where `user` is a context property. For TypeScript type safety, declare a static `ngTemplateContextGuard` method on the directive class: `static ngTemplateContextGuard(dir: AppDirective, ctx: unknown): ctx is MyContext`. Angular calls this during compilation to type the `let-` variables correctly. The standard example is `ngIf` itself, which provides `{ $implicit: value, ngIf: value }` as context, making `*ngIf=\"user as u\"` equivalent to `let u = $implicit`.",
+    "followUp": "How does the ngTemplateContextGuard static method improve IDE experience when using a custom structural directive?"
+  },
+  {
+    "question": "What is HostListener vs addEventListener — when does the difference matter?",
+    "answer": "`@HostListener` registers an event listener on the component's host element through Angular's event system — Angular manages the listener lifecycle, automatically removes it when the component is destroyed, and the callback runs inside Angular's zone (triggering change detection). `addEventListener` registers a raw DOM listener that Angular doesn't manage — you must remove it in `ngOnDestroy` manually, and callbacks run outside Zone.js by default (no automatic change detection). The difference matters for: memory leaks (`addEventListener` without cleanup leaks the directive if the component is destroyed); change detection (DOM events added via `addEventListener` outside Zone don't trigger change detection — you'd need `NgZone.run()`); and server-side rendering (`@HostListener` is aware of the platform, `addEventListener` requires platform checks). Use `@HostListener` for all normal event handling; use `addEventListener` only in specific performance-critical scenarios via `ngZone.runOutsideAngular()`.",
+    "followUp": null
+  },
+  {
+    "question": "What is directive composition (Angular 15+) and what problem does it solve?",
+    "answer": "Directive composition allows a component or directive to apply other directives to itself via the `hostDirectives` metadata property, rather than requiring consumers to apply them manually on every usage. `@Component({ hostDirectives: [CdkDrag, { directive: CdkDropList, inputs: ['cdkDropListData'] }] })` makes the component automatically draggable without the consumer needing to add `cdkDrag` to the host element. The problem it solves: previously, applying multiple behaviors to a component required either inheritance (brittle) or wrapping in a new component with directive application (extra DOM element). With composition, you build composite components by declaring which behaviors are composed, and the composed directive's inputs/outputs can be forwarded to the host's API. Angular Material uses this extensively for accessibility and drag-and-drop features built into components.",
+    "followUp": null
+  },
+  {
+    "question": "What is the ng-template and ng-container and how are they used with directives?",
+    "answer": "`ng-template` defines a template fragment that is not rendered immediately — it's a blueprint that structural directives, `ViewContainerRef.createEmbeddedView()`, or template outlets can instantiate. It doesn't create any DOM element itself. `ng-container` is a virtual grouping element that Angular renders its children without adding any DOM wrapper element — it's a placeholder for applying structural directives to a group of elements or when you need to apply multiple structural directives (since you can't apply two structural directives to the same element). For example: `<ng-container *ngIf=\"show\"><div>A</div><div>B</div></ng-container>` conditionally renders two divs without a wrapper. `<ng-template #myTpl let-data>...</ng-template>` with `<ng-container *ngTemplateOutlet=\"myTpl; context: {$implicit: data}\">` is the pattern for reusable template fragments passed as inputs to components.",
+    "followUp": null
+  }
+]

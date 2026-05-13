@@ -1,0 +1,27 @@
+[
+  {
+    "question": "How do Angular's HTTP interceptors and Spring's HandlerInterceptors differ in their position in the request lifecycle?",
+    "answer": "Angular's HTTP interceptors run entirely in the browser, wrapping outbound requests and inbound responses in the client-side request pipeline — they never touch the server. Spring's `HandlerInterceptor` (or `Filter`) runs on the server, executing before and after a request reaches a controller. The practical implication is that Angular interceptors are the right place for client concerns: attaching auth tokens, logging client-side request timing, and handling 401 responses with token refresh. Spring filters/interceptors are the right place for server concerns: authentication verification, rate limiting, CORS, request logging with server-side context, and response compression. An Angular interceptor that adds an `Authorization` header is complementary to a Spring filter that validates that header — they work at different layers of the same request-response cycle.",
+    "followUp": "What is the difference between a Spring HandlerInterceptor and a Servlet Filter, and when would you use each?"
+  },
+  {
+    "question": "How do you handle token refresh in an Angular interceptor when a 401 is received — including the retry mechanism?",
+    "answer": "The pattern uses `catchError` to detect 401s, calls the refresh token endpoint, and retries the original request with the new token. The critical complexity is the concurrent request problem: if five requests go out simultaneously and all receive 401s, you must refresh exactly once and retry all five. This requires a locking mechanism using a `BehaviorSubject` or a shared Observable: set `isRefreshing = true` when the first 401 arrives, buffer subsequent 401 requests using `switchMap` on a refresh subject, perform the refresh, then emit the new token to unblock all waiting requests. Without this locking, each 401 triggers its own refresh call, invalidating tokens in a race condition. After refresh fails (e.g., refresh token expired), redirect to login and complete the error without retrying.",
+    "followUp": "How do you prevent an infinite retry loop if the refresh endpoint itself returns a 401?"
+  },
+  {
+    "question": "What is the order of interceptor execution and how do you control it?",
+    "answer": "In Angular, interceptors execute in the order they are provided in the `HTTP_INTERCEPTORS` multi-provider token — the first provided interceptor wraps the outermost layer, the last is closest to the actual HTTP call. On the outbound side (request), interceptors run in provided order (first to last). On the inbound side (response), they run in reverse order (last to first, unwinding the chain). This is identical to middleware stack behavior in frameworks like Express. To control order, sequence your provider declarations intentionally: authentication (adding tokens) should come before logging (which logs the authenticated request), and error handling should be outermost (first declared) to catch errors from all subsequent interceptors. In Spring, `FilterRegistrationBean.setOrder()` or implementing `Ordered` controls filter execution order.",
+    "followUp": null
+  },
+  {
+    "question": "How do you implement rate limiting in a Spring filter vs. an API Gateway?",
+    "answer": "In a Spring filter, rate limiting uses a token bucket or sliding window algorithm backed by Redis (for distributed consistency across multiple instances) — the filter checks and decrements a counter per client IP or user ID before forwarding the request. Libraries like Bucket4j integrate directly with Spring and Redis. The problem with application-level rate limiting is that traffic still hits your application server before being rejected — under a DoS attack, the application must process millions of requests just to reject them. API Gateway rate limiting (Kong, AWS API Gateway, Nginx) sits before your application and rejects excess traffic at the infrastructure layer without consuming application resources. The best architecture is rate limiting at the gateway for DoS protection and application-level rate limiting for per-user quotas with business logic.",
+    "followUp": null
+  },
+  {
+    "question": "What are the security risks of logging request/response bodies in an interceptor?",
+    "answer": "Logging request bodies can capture passwords, credit card numbers, social security numbers, and other PII in plaintext in log files — this is a PCI DSS and GDPR violation in most contexts. Response bodies can contain sensitive user data, API keys in JSON responses, and JWTs. Log files in production are often aggregated to centralized systems (ELK, Splunk) with broader access than the application itself, making the exposure surface larger than expected. Even in non-compliance contexts, logs are frequently indexed and searchable, meaning a plain-text password in a login request body can be found by anyone with log access indefinitely. The mitigations: never log authentication endpoints, use field-level masking for known sensitive fields, log only metadata (HTTP method, path, status, timing) rather than bodies, and enforce log retention policies that automatically purge old logs.",
+    "followUp": null
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Explain the `infer` keyword. Write a type that unwraps a Promise and a type that extracts a function's return type.",
+    "answer": "`infer` introduces a type variable inside a conditional type that TypeScript infers by pattern-matching the structure of the type being tested. `type UnwrapPromise<T> = T extends Promise<infer U> ? U : T` says: if T is a Promise wrapping some type U, return U, otherwise return T unchanged. `type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never` captures whatever type the function returns as R. The key insight is that `infer` only works inside `extends` clauses in conditional types, and the inferred variable is only in scope in the truthy branch. This is how the TypeScript standard library implements `ReturnType`, `Parameters`, `InstanceType`, and dozens of other utility types — they're all conditional types with `infer` pulling out the shape you care about.",
+    "followUp": "How do you use `infer` to extract the element type from a deeply nested Promise like `Promise<Promise<string>>`?"
+  },
+  {
+    "question": "What is the difference between generic constraints and conditional types?",
+    "answer": "Generic constraints (`<T extends Foo>`) restrict what types can be passed to a generic at the call site — the constraint is checked once when the generic is instantiated. Conditional types (`T extends Foo ? A : B`) distribute over union members and compute different output types based on the structure of the input type — they're evaluated lazily and can produce different results for each member of a union. The practical difference: constraints tell TypeScript what properties T has so you can access them safely inside the function body; conditional types compute new types that may not be expressible as a constraint. A function parameter constraint `<T extends Serializable>` is about calling the function safely; a return type `T extends string ? number : string` is about computing a result type based on the input.",
+    "followUp": null
+  },
+  {
+    "question": "How do you write a type-safe `pipe` function that composes N functions?",
+    "answer": "A fully type-safe variadic pipe requires a tuple of function types where each function's input matches the previous function's output — this is modeled with recursive conditional types or overloads. The overload approach creates overloads for 1 through N functions, where each overload constrains the chain: `pipe(f: (a: A) => B, g: (b: B) => C): (a: A) => C`. For variadic N, TypeScript 4.0 variadic tuple types allow `type Pipe<Fns extends any[]> = ...` with a recursive structure. Libraries like `fp-ts` use the overload approach with up to 9 or 10 overloads since fully variadic type-safe pipes hit the limits of what TypeScript can compute without becoming extremely slow. This is a case where practical engineering (bounded overloads) beats theoretical completeness.",
+    "followUp": null
+  },
+  {
+    "question": "What is higher-kinded types and how do TypeScript developers simulate them?",
+    "answer": "Higher-kinded types (HKT) are type constructors that take other type constructors as arguments — a `Functor<F>` where `F` is itself a generic type like `Array` or `Promise`. TypeScript doesn't natively support HKT because you can't pass `Array` as a type argument without instantiating it. The standard simulation uses interface declaration merging and string keys: you define a `URItoKind` interface mapping string tags to concrete types, then define `HKT<URI, A> = URItoKind<A>[URI]`. Libraries extending the capability add their own entries to `URItoKind`. This is the approach used by `fp-ts` to build generic abstractions over functors, monads, and applicatives. It's verbose and requires coordination through module augmentation, but it works without language changes.",
+    "followUp": "What are the TypeScript language feature proposals that would enable native HKT, and why haven't they been implemented yet?"
+  },
+  {
+    "question": "When should a generic default (`<T = string>`) be used?",
+    "answer": "Generic defaults are most useful when a type parameter has an obvious or common case that covers the majority of usages, and requiring callers to always specify it would be noise. A caching utility `Cache<T = string>` where most caches store strings avoids repetition while remaining flexible. They're also used in library APIs to provide backward-compatible additions — adding a new type parameter with a default preserves compatibility with existing code that doesn't supply it. The tradeoff is that defaults can mask missing information: if callers forget to specify T and the default is too broad (like `unknown`), they get a less precise type than they need without any warning. Good defaults are specific enough to be useful in the common case but not so specific that they cause subtle errors when the default doesn't apply.",
+    "followUp": null
+  }
+]

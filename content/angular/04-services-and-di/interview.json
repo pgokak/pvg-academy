@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Explain Angular's hierarchical injector system. What is the difference between root, module, and component providers?",
+    "answer": "Angular's injector hierarchy mirrors the component tree. The root injector (created by `bootstrapApplication` or the root module) provides services that are singletons shared across the entire application. Module-level injectors (for lazy-loaded modules) create a new injector scoped to the lazy module — services provided here are singletons within the module but separate instances from the root. Component-level injectors (providers in `@Component({ providers: [] })`) create a new service instance for each component instance and its children, destroyed when the component is destroyed. The resolution algorithm walks up: a component first asks its own injector, then the parent's, continuing up to the root injector. This hierarchy enables both global singletons (services provided in root) and local instances (stateful services for specific component trees) in the same application.",
+    "followUp": "What happens when two sibling components both have the same service in their providers array? Do they share an instance?"
+  },
+  {
+    "question": "What is providedIn: 'any' vs 'root' vs a specific module, and what are the memory/sharing implications?",
+    "answer": "`providedIn: 'root'` registers the service in the root injector — one instance for the entire application, tree-shakable (only included in the bundle if injected somewhere). `providedIn: 'any'` creates a separate instance for each lazy-loaded module that injects it, while all eagerly-loaded code shares one instance — useful for services that should not share state between lazy modules (like a per-module cache or form state manager). `providedIn: SomeModule` registers the service in that module's injector, but this is not tree-shakable when the module is used — the service is always included even if not injected. The memory implication of `'any'`: each lazy-loaded route that injects the service gets its own instance, which is destroyed when the module is unloaded (if Angular route-level module destruction is triggered). `'root'` services are never destroyed until the application ends.",
+    "followUp": null
+  },
+  {
+    "question": "What is an InjectionToken and why is it necessary for non-class dependencies?",
+    "answer": "Angular's DI system uses tokens to identify what to inject — for class-based services, the class itself is the token (a runtime value). For non-class dependencies (string, number, configuration objects, functions, interfaces), there is no runtime value to use as a token. `InjectionToken<T>` creates a unique token object with a type parameter: `const API_URL = new InjectionToken<string>('API_URL')`. Provide it with `{ provide: API_URL, useValue: 'https://api.example.com' }` and inject with `inject(API_URL)` or `@Inject(API_URL)`. The type parameter provides compile-time type checking — `inject(API_URL)` returns `string`. Without `InjectionToken`, you'd need a class wrapper just to make configuration injectable, adding unnecessary complexity. Factory tokens (`useFactory`) with `InjectionToken` enable environment-specific values and computed configuration.",
+    "followUp": null
+  },
+  {
+    "question": "What are @Self, @SkipSelf, @Host, and @Optional resolution modifiers?",
+    "answer": "`@Self` restricts injection lookup to the component's own injector — if the token isn't provided there, injection fails (or returns null with `@Optional`). Useful for enforcing that a required collaborator is local, not inherited. `@SkipSelf` starts the lookup at the parent injector, skipping the current component's own injector — used in services that need to reference the 'outer' instance (like a component checking if a parent instance of itself exists). `@Host` restricts lookup to the component's own injector and its host element's injector but not above — used in directives to access services provided by the host component. `@Optional` makes the dependency optional, returning null if not found instead of throwing. These modifiers compose — `@Optional @SkipSelf` is a common pattern in directives that check if they're nested inside a parent directive without requiring it.",
+    "followUp": null
+  },
+  {
+    "question": "What is the inject() function (Angular 14+) and how does it change service consumption patterns?",
+    "answer": "`inject(Token)` provides DI outside of class constructors, in any code running within an injection context (component/service/directive factory function, field initializer in a class constructor). It replaces `@Inject()` constructor parameters for standalone function-based patterns: `const router = inject(Router)` in a route guard function eliminates the need to create a class just to inject. It enables functional guards (`export const authGuard = () => inject(AuthService).isLoggedIn()`), functional interceptors, and composable utility functions that take services as internally-injected dependencies rather than parameters. The key constraint: `inject()` can only be called in injection context — during construction, in field initializers, or explicitly within `runInInjectionContext()`. Calling it in `ngOnInit` or event handlers throws 'NG0203: inject() must be called from an injection context'.",
+    "followUp": "How does inject() enable Angular composables (similar to Vue composables or React hooks) and what are the rules for using them?"
+  }
+]

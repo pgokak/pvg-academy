@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Explain function overloads. When are they necessary, and what is the implementation signature?",
+    "answer": "Function overloads let you declare multiple type signatures for a single function, allowing it to behave differently based on the argument types while keeping a single implementation. They are necessary when a function's return type depends on the input type in a way that generics cannot express — for example, `function createElement(tag: 'canvas'): HTMLCanvasElement` and `function createElement(tag: 'div'): HTMLDivElement`. The implementation signature is the actual function body and must be compatible with all overload signatures, but it is not visible to callers — callers only see the declared overloads. A common mistake is writing an implementation signature that is too narrow, causing valid calls that match an overload to fail. The implementation usually uses a broad signature like `(tag: string): HTMLElement` and then narrows internally with if/switch.",
+    "followUp": "What happens if a caller calls the function with arguments that don't match any overload but do match the implementation signature?"
+  },
+  {
+    "question": "What is contravariance in function parameter types and why does `--strictFunctionTypes` matter?",
+    "answer": "Contravariance means a function is a subtype of another function only if its parameter types are supertypes — the direction is reversed compared to regular type assignability. Without `strictFunctionTypes`, TypeScript used bivariant checking for method parameters (accepting both directions), which allowed unsafe assignments like assigning a `(dog: Dog) => void` handler where `(animal: Animal) => void` was expected — if the handler calls `dog.bark()`, passing a Cat at runtime would crash. With `strictFunctionTypes` enabled, TypeScript enforces proper contravariance for function types expressed in function syntax, catching these assignments at compile time. Notably, method shorthand syntax (`method(x: T): void`) is still bivariant even with the flag, which is a deliberate exception to preserve compatibility with common patterns like array methods.",
+    "followUp": "Why does TypeScript intentionally exclude method shorthand syntax from strictFunctionTypes checking?"
+  },
+  {
+    "question": "What is the difference between `void` and `undefined` return types in TypeScript?",
+    "answer": "A function typed to return `undefined` must explicitly return `undefined` or have a `return` statement with no value, and TypeScript will error if you try to return anything else. A function typed to return `void` is a signal that the return value is intentionally not meaningful — callers should not use it — but TypeScript does not enforce that the function returns nothing. This distinction matters significantly for callbacks: `Array.prototype.forEach` takes a callback typed as `(value: T) => void`, which allows you to pass a function that actually returns a value (like `push` which returns a number) without a type error. If `forEach` required `(value: T) => undefined`, you couldn't pass most real functions as callbacks.",
+    "followUp": null
+  },
+  {
+    "question": "How do generic function constraints work, and when would `<T extends object>` be too broad?",
+    "answer": "Generic constraints narrow the set of types a type parameter can represent, giving the compiler enough information to allow property access or method calls inside the function body. `<T extends object>` means T must be any non-primitive — this includes arrays, functions, classes, and plain objects, which is usually far broader than intended. If you wanted only plain records, `<T extends Record<string, unknown>>` is more precise. The constraint `<T extends { id: number }>` means you can safely access `item.id` inside the function body. Over-broad constraints are a common mistake — `extends object` is often used when the developer means `extends Record<string, unknown>` or a more specific shape, and it can mask bugs where arrays or functions are accidentally passed.",
+    "followUp": "How does TypeScript handle a generic constraint where T extends another generic type, like `<T extends Partial<U>>`?"
+  },
+  {
+    "question": "What is an assertion function (`asserts condition`) and how does it differ from a type guard?",
+    "answer": "A type guard function returns a boolean and narrows the type only in the `if` branch where the return is truthy — the caller's control flow continues either way. An assertion function has return type `asserts condition` (or `asserts value is Type`) and tells TypeScript that if the function returns normally (without throwing), the condition is guaranteed to be true from that point forward in the calling function. The key difference is control flow: a type guard narrows within a branch, an assertion function narrows for all subsequent code in the current scope. Assertion functions are used for invariant checking — `assertNonNull(value)` after which TypeScript knows `value` is not null. They must throw or return never in the falsy case, otherwise the type narrowing would be unsound.",
+    "followUp": null
+  }
+]

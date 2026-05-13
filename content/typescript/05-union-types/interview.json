@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is a discriminated union and why is it safer than conditional logic based on instanceof?",
+    "answer": "A discriminated union is a union of types that share a common literal property (the discriminant) which uniquely identifies each member — for example `{ kind: 'circle', radius: number } | { kind: 'square', side: number }`. Switching on `kind` narrows TypeScript to the exact member, giving you full type safety for the other properties. `instanceof` checks are fragile because they rely on the prototype chain, which breaks across iframe boundaries, after serialization/deserialization, and when working with plain objects from REST APIs that have no class identity. Discriminated unions work with any data shape including plain JSON objects, and they compose better with functional patterns. At the architectural level, they model state machines and result types more naturally than class hierarchies.",
+    "followUp": "How do you handle a discriminated union where the same discriminant value appears in different parts of your codebase with different shapes?"
+  },
+  {
+    "question": "How does TypeScript's control flow analysis narrow union types, and what breaks it?",
+    "answer": "TypeScript tracks the possible types of a variable through every branch in the code — after `if (x !== null)`, it knows `x` is not null in the truthy branch. This analysis is flow-sensitive and handles `if`, `switch`, ternary, `&&`, `||`, `??`, early returns, and type guard calls. What breaks narrowing: storing a value in a variable and then mutating it in a callback (TypeScript can't guarantee the callback doesn't run at an unexpected time), complex conditions that TypeScript's analysis doesn't follow (nested function calls that perform checks), and aliasing a value to another variable before narrowing (the narrowing applies to the original name, not the alias). Assignment to a variable also widens the type back, which surprises developers who expect the narrowed type to persist.",
+    "followUp": "Why does narrowing break inside a setTimeout callback even if you narrowed the value just before calling setTimeout?"
+  },
+  {
+    "question": "What is the difference between a union type and an overloaded function signature?",
+    "answer": "A union parameter `(x: string | number)` means the function accepts either type but must handle both with the same logic — the return type is fixed regardless of which branch. Overloads allow different return types for different input types: `fn(x: string): string[]` vs `fn(x: number): number[]`. This is the critical distinction — when the output type depends on the input type in a way that cannot be expressed as a single type, overloads are the right tool. Union types are simpler and preferred when the function genuinely treats inputs uniformly. Overloads are necessary when the relationship between input and output types is more specific than what a generic can capture with constraints alone.",
+    "followUp": null
+  },
+  {
+    "question": "When would you prefer an optional property over a union with undefined?",
+    "answer": "Optional properties (`bar?: string`) are preferred when the property's absence is a natural state that does not need to be explicitly communicated — they fit patterns where you build objects incrementally or where most callers won't provide the field. A union with undefined (`bar: string | undefined`) is preferred when you want to force callers to make a conscious choice rather than accidentally omitting the property — it documents that the absence of a value is a deliberate decision, not an oversight. This distinction matters most in function parameters: optional parameters let callers skip them entirely, while `undefined` in a union type forces callers to pass something (even if that something is `undefined`). With `exactOptionalPropertyTypes` enabled, the difference becomes stricter and the choice has more concrete implications.",
+    "followUp": null
+  },
+  {
+    "question": "What are template literal types and what type-safety problems do they solve at senior level?",
+    "answer": "Template literal types let you construct string types by interpolating other types — `type EventName = `on${Capitalize<string>}`` — enabling type-safe patterns for things that were previously stringly-typed. They solve the problem of event names, CSS property names, API route patterns, and i18n keys that have a predictable structure. For example, `type CssProperties = `${string}-${string}`` is weak, but `type EventMap<T extends string> = { [K in T as `on${Capitalize<K>}`]: () => void }` creates type-safe event handler objects from a union of event names. At senior level they're used to create type-safe pub/sub systems, typed query builders, and REST client types where the path parameters are extracted from the URL string pattern.",
+    "followUp": "What are the performance implications of deeply nested template literal types in a large TypeScript project?"
+  }
+]

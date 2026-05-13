@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Why is ::ng-deep deprecated and what is the correct way to theme child components from a parent?",
+    "answer": "`::ng-deep` pierces the view encapsulation of descendant components, allowing parent styles to reach into child component internals — it effectively disables encapsulation globally for those styles and has unpredictable behavior across component boundaries. It was deprecated because it couples parent styles to child implementation details, making child component refactoring risky. The correct alternatives: CSS custom properties (variables) are the standard mechanism — the child component defines which properties it exposes for theming (`var(--primary-color, blue)`) and parents set them at a container level. Angular Material uses this extensively. Another approach: the child component exposes specific CSS classes for theming via the `[class]` binding or `@Input()` for class names. Theming via the host element (putting theme-defining classes on the root element) and `::part()` in Shadow DOM mode are additional options.",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between Emulated and ShadowDom encapsulation in terms of how styles are applied?",
+    "answer": "`Emulated` encapsulation (default) compiles component styles and adds a unique attribute to every element in the component's template and to the host element itself — styles are scoped using these attributes as selectors without requiring Shadow DOM browser support. The styles are injected into the document's `<head>` with the attribute scoping, meaning they're global but targeted. `ShadowDom` uses native Shadow DOM — styles are in a shadow root that is genuinely isolated from the document. Parent styles cannot penetrate into Shadow DOM (except through CSS variables and `::part()`), and the component's styles cannot leak out. The practical differences: Shadow DOM prevents parent stylesheets from accidentally affecting the component (stronger isolation) but complicates form association, accessibility attribute inheritance, and integration with global CSS frameworks like Tailwind. Emulated encapsulation is more compatible with existing CSS patterns.",
+    "followUp": null
+  },
+  {
+    "question": "How does Angular's @defer block differ from lazy-loaded routes?",
+    "answer": "`@defer` (Angular 17+) enables template-level deferred loading — a portion of a component's template, including the components and directives it uses, is split into a separate lazy chunk and loaded conditionally: on idle (`@defer (on idle)`), on viewport entry (`@defer (on viewport)`), on user interaction (`@defer (on interaction)`), or immediately with loading/error/placeholder states. Lazy-loaded routes defer entire route-level modules at the router level. The key difference: `@defer` works within a single component's template to defer below-the-fold or rarely-needed UI sections without a route boundary; lazy routes defer entire features behind URL changes. `@defer` is more granular — you can defer a complex table component, a rich text editor, or a chart library that's only needed when a specific tab is active, without restructuring the route hierarchy.",
+    "followUp": null
+  },
+  {
+    "question": "What is the trackBy function in *ngFor and why does omitting it hurt performance on large lists?",
+    "answer": "Without `trackBy`, Angular's default `*ngFor` behavior identifies list items by object reference — any change to the array (even recreating it with the same data) destroys all existing DOM elements and creates new ones, because the new objects have different references. For a 100-item list that refreshes every 5 seconds, this means 100 DOM element destructions and 100 creations on every refresh, even if only one item changed. `trackBy` provides a function that returns a unique identifier (typically the item's ID): Angular now only creates, moves, or destroys DOM elements for items whose IDs changed, moved position, or appeared/disappeared. The performance difference is significant for lists with many items, complex item templates, or frequent data refreshes. `trackBy` is also important for preserving user state in list items (focused inputs, expanded accordions, animations).",
+    "followUp": null
+  },
+  {
+    "question": "What is NgOptimizedImage and what does it do that a plain <img> doesn't?",
+    "answer": "`NgOptimizedImage` (directive `ngSrc`) enforces image performance best practices at the framework level. It automatically sets `loading=\"lazy\"` for below-the-fold images and `fetchpriority=\"high\"` for LCP images (marked with `priority` attribute). It generates `srcset` attributes for responsive images using the configured image loader (Cloudinary, Imgix, ImageKit) to serve appropriately sized images for each device. It validates that the rendered `width` and `height` attributes are specified (preventing layout shift — CLS), warns if an image is oversized for its rendered dimensions, and enforces that LCP-candidate images don't use lazy loading. A plain `<img>` has none of this automation — it loads at full size, doesn't generate srcset, has no LCP optimization, and requires manual specification of all performance attributes. `NgOptimizedImage` can improve Lighthouse performance scores significantly with minimal code changes.",
+    "followUp": null
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "How would you implement `DeepPartial<T>` and what are its limitations with circular types?",
+    "answer": "`DeepPartial<T>` recursively makes all properties optional: `type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] }`. The limitation with circular types is that this definition causes TypeScript to infinitely recurse — for a type like `type Node = { children: Node[] }`, `DeepPartial<Node>` would try to evaluate `DeepPartial<Node>` again, hitting TypeScript's instantiation depth limit. Circular handling requires an explicit break condition or a lazy evaluation trick using `interface` (since TypeScript handles self-referential interfaces lazily). Another limitation: `DeepPartial` makes even required fields on deeply nested objects optional, which can hide genuine programming errors where required data is expected to be present.",
+    "followUp": "How does the TypeScript compiler differ in how it handles recursive `type` aliases vs recursive `interface` declarations?"
+  },
+  {
+    "question": "What is `NonNullable<T>` and when is it insufficient for null safety?",
+    "answer": "`NonNullable<T>` removes `null` and `undefined` from a type union, producing `T extends null | undefined ? never : T`. It's useful when you've already performed a null check at runtime and want to tell TypeScript the value is safe. It's insufficient when the value is a nested property — `NonNullable<User>` removes null from User itself but leaves all nullable properties on User untouched. It's also insufficient as a substitute for actual null checking — using `user as NonNullable<User>` without a runtime guard is just suppressing the type error, not solving the underlying null safety problem. For nested null safety, you need `Required<DeepNonNullable<T>>` or a library approach, and for runtime safety you still need actual guard logic.",
+    "followUp": null
+  },
+  {
+    "question": "How do `Parameters<T>` and `ReturnType<T>` enable type-safe function wrapping?",
+    "answer": "`Parameters<T>` extracts the parameter types of a function as a tuple, and `ReturnType<T>` extracts the return type. Together they let you write wrappers that perfectly mirror the original function's signature without manually duplicating it: `function withLogging<T extends (...args: any[]) => any>(fn: T): (...args: Parameters<T>) => ReturnType<T>`. If the original function changes its signature, the wrapper automatically updates its types, catching mismatches at compile time. This is the foundation for decorators, middleware, memoization wrappers, and performance monitoring utilities. The alternative — manually copying the signature — creates two separate type declarations that can drift apart silently.",
+    "followUp": "How do you use `Parameters` and `ReturnType` to create a type-safe mock function in a testing utility?"
+  },
+  {
+    "question": "What is the difference between `Omit<T, K>` and `Exclude<T, U>`?",
+    "answer": "`Omit<T, K>` operates on object types and produces a new object type with the specified keys removed from T. `Exclude<T, U>` operates on union types and produces a new union with all members assignable to U removed. They're conceptually related but operate at different levels — `Omit` removes properties, `Exclude` removes union members. A subtle gotcha: `Omit<T, K>` is implemented as `Pick<T, Exclude<keyof T, K>>`, which means when T is a union type, `Omit` distributes differently than you might expect — it takes the keys common to all union members rather than removing from each member separately. For union types, you often need a distributive version: `type DistributiveOmit<T, K> = T extends any ? Omit<T, K> : never`.",
+    "followUp": null
+  },
+  {
+    "question": "When would you use `Extract<T, U>` in a real application?",
+    "answer": "`Extract<T, U>` keeps only the members of union T that are assignable to U, the inverse of `Exclude`. A real-world use case: you have a union of all possible API actions `type Action = LoadUsers | LoadOrders | DeleteUser | DeleteOrder` and you want to extract only the delete actions `type DeleteAction = Extract<Action, { type: `delete${string}` }>`. Another use: extracting the string members from a mixed union `Extract<string | number | boolean, string>` gives `string`. In discriminated unions it's useful for getting the subset of states where a particular property exists — `Extract<AppState, { data: unknown }>` gives you only the states that have a `data` property, which are the loaded/success states.",
+    "followUp": null
+  }
+]

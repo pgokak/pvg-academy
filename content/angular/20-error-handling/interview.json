@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between catchError returning EMPTY vs throwError? When does each cause problems?",
+    "answer": "`EMPTY` is an observable that completes immediately without emitting — returning it from `catchError` swallows the error silently, the subscriber's `next` callback is never called (no value emitted), and the stream completes without error. This is appropriate when the error is truly recoverable and you want to proceed with no data. `throwError(() => error)` re-throws (or throws a new error) — the subscriber's `error` callback is called with the error for further handling. Problems: returning `EMPTY` when the caller expects a value causes the UI to show nothing with no feedback — a silent failure. Returning `EMPTY` in a `switchMap` completes the inner observable without affecting the outer, which may or may not be the intended behavior. Rethrowing with `throwError` without further handling causes the observable chain to terminate and the subscriber must handle it or the error propagates unhandled.",
+    "followUp": null
+  },
+  {
+    "question": "How do you implement a global error handler in Angular that reports to a monitoring service?",
+    "answer": "Implement `ErrorHandler` and provide it in the root injector: `{ provide: ErrorHandler, useClass: GlobalErrorHandler }`. Override the `handleError(error)` method to capture all unhandled errors from: synchronous code, Zone.js-wrapped async code (setTimeout, event handlers), and errors thrown in component lifecycle hooks. In the handler: log to the monitoring service (Sentry, Datadog, Bugsnag via `sentryService.captureException(error)`), optionally show a user-facing error notification, and prevent swallowing the original error (log it or re-throw for other handlers). For Promises and Observables that are not subscribed in templates (manual subscriptions without error handling), you need `window.addEventListener('unhandledrejection', ...)` as an additional catch — Angular's `ErrorHandler` doesn't catch unhandled Promise rejections automatically in all configurations.",
+    "followUp": "What errors does Angular's ErrorHandler NOT catch, and how do you ensure full error coverage?"
+  },
+  {
+    "question": "What are the limitations of Angular's ErrorHandler for async errors in effects/observables?",
+    "answer": "Angular's `ErrorHandler` catches errors that propagate through Zone.js's execution context — synchronous throws and errors in Zone.js-patched async operations (setTimeout, event listeners, Promise rejections inside Zone.js). It does not automatically catch: errors in Observable subscriptions where no `error` callback is provided (the Observable error is a 'dead' stream — it terminates silently without propagating to ErrorHandler); errors in `effect()` bodies (signal effects have their own error handling — an uncaught error in an effect terminates the effect and may not propagate to ErrorHandler); and errors in unzoned code (`ngZone.runOutsideAngular()`). For Observable-based code, always provide error handling via `catchError` and either display errors or rethrow to the global handler via `throwError`. For effects, wrap in try/catch and call `injectedErrorHandler.handleError(e)`.",
+    "followUp": null
+  },
+  {
+    "question": "How do you show different error UI based on HTTP status code (401 vs 403 vs 500)?",
+    "answer": "In a global HTTP error interceptor, inspect `HttpErrorResponse.status` and dispatch to appropriate handlers or navigate to appropriate error pages: 401 → clear auth tokens and navigate to `/login`; 403 → navigate to `/forbidden` or show an in-page 'access denied' message; 404 → show a 'not found' component in the interceptor or let individual page components handle it; 500+ → show a generic error overlay or navigate to `/error`. For component-level handling, return the error from `catchError` with type information: `catchError(error => throwError(() => new HttpError(error.status, error.message)))` — components can then handle specific status codes in their `subscribe` error callback. The single global interceptor approach is most consistent; component-level handling is appropriate when different routes need different 404/403 experiences.",
+    "followUp": null
+  },
+  {
+    "question": "What is the retry vs retryWhen operator distinction and when do you need retryWhen?",
+    "answer": "`retry(n)` retries immediately n times on any error — no delay, no error inspection. `retryWhen` (RxJS 6 and earlier) accepts a notifier factory that receives an Observable of errors and returns an Observable that controls when retries happen — each emission from the notifier triggers a retry, while the notifier completing or erroring ends the retry loop. In RxJS 7+, `retry({ count, delay, resetOnSuccess })` replaces most `retryWhen` uses — the `delay` function provides the same flexibility as `retryWhen`'s notifier. You need the explicit control when: implementing exponential backoff (each retry waits progressively longer); implementing conditional retry (only retry on specific error types, not all); implementing retry with jitter (randomized delay to prevent thundering herd); or implementing retry that resets after successful periods (`resetOnSuccess: true`). Simple retry-up-to-n-times uses `retry(3)`; any timing, filtering, or adaptive behavior uses `retry` with a `delay` function.",
+    "followUp": null
+  }
+]

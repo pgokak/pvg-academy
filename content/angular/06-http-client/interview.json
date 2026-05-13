@@ -1,0 +1,27 @@
+[
+  {
+    "question": "How does Angular's HttpClient differ from fetch() in terms of change detection integration?",
+    "answer": "Angular's `HttpClient` runs inside Zone.js's patched `XMLHttpRequest` — when a response arrives, Zone.js detects the async completion and triggers Angular's change detection cycle. Components using `async pipe` or subscribing in the template update automatically without any manual intervention. The `fetch()` API is not patched by Zone.js in all Angular versions — in some configurations, fetch responses don't trigger change detection, requiring `NgZone.run()` to manually trigger it. Angular 18+ introduced `withFetch()` in the HTTP provider configuration which switches `HttpClient` to use `fetch()` internally with proper Zone integration. Beyond change detection, `HttpClient` provides interceptors, request/response transformation, type-safe generics, automatic JSON parsing, and integration with Angular's testing utilities (`HttpClientTestingModule`) — none of which `fetch()` provides natively.",
+    "followUp": null
+  },
+  {
+    "question": "What is the HttpContext and how do you use it to pass metadata to interceptors?",
+    "answer": "`HttpContext` is a request-scoped key-value store attached to an `HttpRequest` that interceptors can read without the interceptor being hardcoded for specific URL patterns. Define a token: `const SKIP_AUTH = new HttpContextToken<boolean>(() => false)`. Pass it on a specific request: `http.get('/public', { context: new HttpContext().set(SKIP_AUTH, true) })`. In the interceptor: `if (request.context.get(SKIP_AUTH)) return next(request)`. This decouples interceptor behavior from URL matching — you don't need to maintain URL allowlists in the interceptor. Common uses: skipping auth token injection for public endpoints, setting retry count on specific requests, enabling/disabling loading spinners per request, and passing cache configuration. The token's factory function provides the default value when the context key is not set.",
+    "followUp": null
+  },
+  {
+    "question": "How do you implement request deduplication — preventing duplicate API calls for the same resource?",
+    "answer": "Request deduplication uses `shareReplay({ bufferSize: 1, refCount: true })` or a manual cache that returns a shared Observable for in-flight requests. The pattern: maintain a `Map<string, Observable<T>>` keyed by request URL/params. When a request comes in, check if an Observable for that key exists — if so, return it (all subscribers share the same request). If not, create the request Observable with `shareReplay`, store it, and add cleanup logic to remove it from the map on completion or error. This ensures 20 simultaneous requests for the same resource trigger one HTTP call, not 20. `shareReplay({ bufferSize: 1, refCount: true })` is critical: `refCount: true` removes the in-flight entry when the subscriber count drops to zero (all subscribers unsubscribed before completion), preventing a stale cached observable from being served for future requests.",
+    "followUp": null
+  },
+  {
+    "question": "What happens to an in-flight HTTP request when a component is destroyed? How do you cancel it?",
+    "answer": "An in-flight HTTP request continues to run after a component is destroyed if you don't explicitly cancel it — the XHR (or fetch) is still in progress, the response still arrives, and if you subscribed in the component class, the subscription callback runs on the destroyed component. This doesn't typically cause visible bugs but wastes network resources and can cause ExpressionChangedAfterItHasBeenCheckedError if the callback triggers change detection on a destroyed view. To cancel: use `takeUntilDestroyed()` (Angular 16+) to automatically complete the Observable when the component is destroyed, which causes Angular to call `abort()` on the underlying fetch/XHR. The async pipe also handles cancellation automatically — when the component is destroyed, the pipe unsubscribes, cancelling in-flight requests. Explicit `AbortController` usage with `HttpContext` is the low-level alternative.",
+    "followUp": null
+  },
+  {
+    "question": "What is XSRF protection in Angular's HttpClient and how does it work with Spring Security?",
+    "answer": "Angular's `HttpClient` provides built-in XSRF protection by reading a cookie named `XSRF-TOKEN` and adding its value as an `X-XSRF-TOKEN` request header on state-changing requests (POST, PUT, PATCH, DELETE). This works because browsers enforce the same-origin policy for reading cookies from cross-origin responses but allow cross-origin form submissions — the token in the header proves the request came from your own JavaScript (which could read the cookie), not a cross-origin form. Spring Security reads the `_csrf` token from the session and expects it in a header or form field. For Angular integration, configure Spring Security to set a `XSRF-TOKEN` cookie: `CookieCsrfTokenRepository.withHttpOnlyFalse()` (the cookie must be readable by JavaScript). Angular's `HttpClientXsrfModule.withOptions()` lets you configure the cookie name and header name to match Spring's configuration.",
+    "followUp": null
+  }
+]

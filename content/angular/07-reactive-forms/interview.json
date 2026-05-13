@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between FormGroup.setValue() and FormGroup.patchValue()?",
+    "answer": "`setValue()` requires providing values for all controls in the FormGroup — passing an object with missing or extra keys throws an error. `patchValue()` only updates the controls you provide values for, leaving others unchanged — extra keys are silently ignored. Use `setValue()` when you're populating the entire form from a complete data object (e.g., loading an entity for editing) — the strictness catches schema mismatches between your form definition and your data model. Use `patchValue()` for partial updates: resetting specific fields, applying defaults for a subset of controls, or progressively filling form sections. A common mistake is using `patchValue()` everywhere 'to be safe' — this hides bugs where required form fields are accidentally never populated because the key was renamed in the data model.",
+    "followUp": null
+  },
+  {
+    "question": "How do you implement a form that conditionally shows/hides fields and adds/removes validators dynamically?",
+    "answer": "Use `formControl.setValidators()` and `formControl.updateValueAndValidity()` in response to value changes from other controls. Subscribe to `formGroup.get('type')?.valueChanges` and conditionally call `addressControl.setValidators([Validators.required])` or `addressControl.clearValidators()` based on the selected type. Combine with `*ngIf` or CSS visibility on the template. The critical step: always call `updateValueAndValidity({ emitEvent: false })` after changing validators, otherwise the control's validation state is stale. For complex conditional logic, use `FormGroup`-level cross-field validators rather than individual field validators — they run on every value change and have access to the full form state. In typed reactive forms (Angular 14+), dynamic `add/removeControl` changes the inferred type of the FormGroup, which requires careful type management.",
+    "followUp": "How do you avoid triggering infinite validation loops when using valueChanges to modify validators?"
+  },
+  {
+    "question": "What is updateOn: 'blur' vs 'change' and when does the performance difference matter?",
+    "answer": "`updateOn: 'change'` (default) triggers validation on every keystroke — validators run on every character typed. For synchronous validators this is fast, but for async validators (calling an API to check username availability), each keystroke fires an HTTP request. `updateOn: 'blur'` only updates and validates when the user leaves the field — the API call fires once when focus leaves, not hundreds of times while typing. `updateOn: 'submit'` delays all validation until form submission. The performance and UX choice: for async validators, `blur` is almost always correct to avoid hammering the API. For synchronous validators, `change` provides immediate feedback. A hybrid approach: use `change` mode with `debounceTime(300)` in the async validator's observable to batch rapid typing into a single API call after the user pauses.",
+    "followUp": null
+  },
+  {
+    "question": "How do typed reactive forms (Angular 14+) change the developer experience and what migration work is required?",
+    "answer": "Angular 14 introduced fully typed `FormControl<T>`, `FormGroup<{}>`, and `FormArray<T>`, replacing the previous `any`-typed forms API. With typed forms, `formGroup.get('email')?.value` returns `string | null` instead of `any`, enabling type checking in templates and TypeScript code. TypeScript catches property access on non-existent controls, wrong value types passed to `setValue`, and mismatches between the form structure and the data model. Migration work: existing code using `new FormGroup({})` must be updated to `new FormGroup({ email: new FormControl<string>('') })`. The `UntypedFormGroup` and `UntypedFormControl` classes exist as drop-in replacements during migration, allowing incremental adoption. The biggest migration challenge is complex dynamic forms where the control structure changes at runtime — expressing the dynamic type correctly requires `FormRecord<T>` and careful type design.",
+    "followUp": null
+  },
+  {
+    "question": "How do you reset a form to its initial state, and what is the difference between reset() and setValue(initialValues)?",
+    "answer": "`reset()` without arguments resets all controls to null (or empty string for string controls) and marks all controls as pristine and untouched — it clears both the value and the dirty/touched state. `reset(initialValues)` sets specific values while also resetting the dirty/touched state. `setValue(initialValues)` sets the values but does not reset the pristine/untouched state — controls remain dirty and touched if they were modified, which affects form.isDirty and validation error display. In an 'edit user' workflow: after a successful save, use `reset(originalValues)` to restore the form to the saved state and mark it as clean. If the user clicks 'cancel', use `reset(originalValues)` to discard unsaved changes. Using `setValue` instead of `reset` after save causes the form to still appear dirty, potentially triggering unsaved-changes warnings incorrectly.",
+    "followUp": null
+  }
+]

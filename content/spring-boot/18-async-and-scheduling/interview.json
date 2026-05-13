@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the @Async self-invocation problem and how does it differ from the @Transactional self-invocation problem?",
+    "answer": "Both `@Async` and `@Transactional` use Spring AOP proxies, so calling an annotated method from another method in the same class bypasses the proxy and the annotation has no effect. For `@Transactional`, the result is that no transaction is started — the method runs without transaction support. For `@Async`, the result is that the method runs synchronously on the calling thread rather than in a separate thread pool — there's no error, the code just blocks. This makes the `@Async` self-invocation problem more insidious: the code appears to work correctly in tests (the method completes, results are correct) but the expected non-blocking behavior and thread pool usage never materialize. Performance degradation only appears under load. The fixes are identical: inject the bean via `@Lazy` self-injection, or move the method to a separate bean.",
+    "followUp": null
+  },
+  {
+    "question": "How do you propagate SecurityContext and MDC (logging context) to @Async thread pools?",
+    "answer": "Spring Security's `SecurityContextHolder` uses thread-local storage by default, which does not propagate to new threads. For `@Async` security propagation, configure a `DelegatingSecurityContextAsyncTaskExecutor` that wraps the async task executor and copies the security context to each new thread, cleaning it up after task completion. For MDC (SLF4J's Mapped Diagnostic Context — thread-local key-value pairs like request ID, user ID, trace ID), implement a `TaskDecorator` that captures the current MDC at submission time and restores it in the new thread: `executor.setTaskDecorator(runnable -> { Map<String, String> mdc = MDC.getCopyOfContextMap(); return () -> { MDC.setContextMap(mdc); runnable.run(); MDC.clear(); }; })`. Without these, async tasks run with empty security context (breaking `@PreAuthorize`) and empty MDC (breaking correlated log tracing).",
+    "followUp": null
+  },
+  {
+    "question": "What happens if a @Scheduled task takes longer than its fixedRate interval?",
+    "answer": "By default, `@Scheduled` tasks run on a single-threaded scheduled executor — if a task takes longer than its `fixedRate` interval, the next execution is delayed until the current one completes. Executions do not overlap; they queue behind each other. If a task takes 10 seconds and fires every 5 seconds, it runs at 5-second intervals but each execution finishes 5 seconds late, creating compounding delay. `fixedDelay` schedules the next execution N milliseconds after the previous one completes, so the timing naturally adapts to task duration. To allow concurrent execution (multiple instances running simultaneously), configure the task executor with multiple threads: `@EnableScheduling` with a custom `TaskScheduler` bean that has a thread pool size greater than 1. Be aware that concurrent task instances accessing shared state without synchronization creates race conditions.",
+    "followUp": null
+  },
+  {
+    "question": "How do you prevent a @Scheduled task from running in multiple instances of a horizontally-scaled service?",
+    "answer": "Horizontally-scaled services all run `@Scheduled` tasks independently, causing the same job to execute concurrently across all instances — duplicate emails, duplicate batch processing, duplicate payments. Solutions: ShedLock is the most popular library — it uses a database or Redis lock table to ensure only one instance executes a task at a time. The lock record is written before execution and released after, with a `lockAtMostFor` timeout preventing a failed instance from holding the lock indefinitely. Spring Batch's job scheduler has built-in leader election. Kubernetes CronJobs run a task as a job (not in the service itself) scaled to one replica. Another approach is leader election (Zookeeper, etcd) where only the leader node runs scheduled tasks. ShedLock is the most practical choice for Spring Boot applications already using a database, requiring minimal configuration.",
+    "followUp": "What happens to a ShedLock-protected task if the application crashes mid-execution and never releases the lock? How does lockAtMostFor protect against this?"
+  },
+  {
+    "question": "What is the thread pool sizing strategy for @Async tasks in a CPU-bound vs. I/O-bound workload?",
+    "answer": "For CPU-bound tasks (image processing, encryption, data transformation), the optimal thread pool size is approximately the number of CPU cores — having more threads than cores causes context-switching overhead without increasing parallelism, since the CPU can only run as many threads as it has cores. For I/O-bound tasks (HTTP calls to external services, database queries, file reads), threads spend most of their time waiting — you can have many more threads than CPU cores, typically 10-50 per core, depending on the I/O latency and throughput. The heuristic: `threadCount = availableCores / (1 - blockingFactor)` where blocking factor is the percentage of time threads spend waiting. A thread that waits 90% of the time allows a blocking factor of 0.9, giving 10x as many threads as cores. In practice, load testing with realistic workloads is the only reliable way to find the optimal size.",
+    "followUp": null
+  }
+]

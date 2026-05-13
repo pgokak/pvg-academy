@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Why is making a service call in a constructor problematic in both Spring and Angular?",
+    "answer": "In Spring, the bean's constructor runs before the DI container has finished initializing all dependencies — if the constructor calls a method on a dependency that itself has not been fully constructed (e.g., through circular dependencies or ordering issues), you get a null pointer or partially initialized state. More practically, constructor-based service calls happen during application startup for every bean creation, slowing startup time. In Angular, the constructor runs before `@Input` values are bound — calling a service that depends on input values in the constructor will see undefined inputs. The constructor in Angular also runs before the view exists, so DOM-dependent operations fail. Both frameworks provide lifecycle hooks for post-construction initialization: `@PostConstruct` in Spring and `ngOnInit` in Angular, which run after full initialization is complete.",
+    "followUp": "What is a valid use case for code in a constructor vs. @PostConstruct in Spring?"
+  },
+  {
+    "question": "What is the difference between @PostConstruct and InitializingBean.afterPropertiesSet() in Spring?",
+    "answer": "`@PostConstruct` is a JSR-250 standard annotation processed by Spring as part of bean lifecycle management — it's framework-agnostic since it's from the Java EE standard library and runs after all dependencies are injected. `InitializingBean.afterPropertiesSet()` is a Spring-specific interface that requires your bean class to implement a Spring interface, creating a coupling to the framework. Both run at the same lifecycle point (after property injection, before the bean is made available to others), but `@PostConstruct` is preferred for new code because it keeps the class framework-agnostic and the intent is clear from the annotation. `InitializingBean` is found in older Spring code and in Spring's own infrastructure beans. If both exist on the same bean, `@PostConstruct` runs first.",
+    "followUp": null
+  },
+  {
+    "question": "Why does Angular's ngOnChanges fire before ngOnInit, and what does that mean for @Input processing?",
+    "answer": "`ngOnChanges` fires whenever an `@Input` value changes, including the initial binding when the component is first created — so it fires before `ngOnInit` on the first render. This means if you need to react to the initial input value and set up derived state, `ngOnChanges` is the correct hook (not `ngOnInit`). `ngOnInit` fires only once after the first `ngOnChanges`, giving you a stable state where all inputs have their initial values. The practical implication: initialization logic that depends on `@Input` values should either be in `ngOnChanges` (to also handle subsequent changes) or in `ngOnInit` (if you only need initial values and the inputs won't change after first binding). A common mistake is initializing data in `ngOnInit` that needs the initial `@Input` value but placing the reactive response to future input changes in `ngOnChanges`, duplicating logic.",
+    "followUp": null
+  },
+  {
+    "question": "How do you handle cleanup of resources (timers, subscriptions, connections) in both frameworks?",
+    "answer": "In Spring, `@PreDestroy` (or `DisposableBean.destroy()`) runs when the Spring context shuts down, allowing beans to close database connections, cancel scheduled tasks, and unregister listeners. `@Scheduled` tasks and `@Async` thread pools also have shutdown hooks through the `TaskScheduler` and `ThreadPoolTaskExecutor` beans. In Angular, `ngOnDestroy` is the cleanup hook — unsubscribing from Observables, clearing timers, and detaching event listeners. The modern Angular pattern is `takeUntilDestroyed()` (Angular 16+) which automatically completes an Observable when the hosting component or service is destroyed, eliminating the need for manual `Subject` + `takeUntil` boilerplate. Failing to clean up in Angular causes memory leaks — a destroyed component with an active subscription still receives updates and executes callbacks, preventing garbage collection.",
+    "followUp": "What is the pattern for using takeUntilDestroyed() outside of an injection context, such as inside a method called after initialization?"
+  },
+  {
+    "question": "What is DestroyRef in Angular 16+ and how does it improve lifecycle management?",
+    "answer": "`DestroyRef` is an injectable service that lets you register cleanup callbacks that run when the current injection context (component, directive, service) is destroyed — without implementing `ngOnDestroy`. You inject it and call `destroyRef.onDestroy(() => subscription.unsubscribe())`. The key improvement over `ngOnDestroy` is composability: utility functions and custom hooks can accept a `DestroyRef` parameter and register their own cleanup without requiring the host component to implement any interface. `takeUntilDestroyed()` is built on `DestroyRef` internally. This enables Angular composables (similar to React hooks or Vue composables) — functions that manage their own subscriptions and cleanup lifecycle, making complex reactive patterns reusable without inheritance or mixins.",
+    "followUp": null
+  }
+]

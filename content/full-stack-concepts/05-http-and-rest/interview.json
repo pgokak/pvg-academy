@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What are the Richardson Maturity Model levels and where do most enterprise APIs fall?",
+    "answer": "Level 0 is a single URI with everything as HTTP POST (XML-RPC, SOAP style). Level 1 introduces individual resource URIs but uses only POST. Level 2 uses HTTP verbs correctly — GET for reads, POST to create, PUT/PATCH to update, DELETE to remove — and uses HTTP status codes meaningfully. Level 3 (Hypermedia as the Engine of Application State, HATEOAS) includes links in responses so clients discover available actions rather than hard-coding URLs. Most enterprise APIs sit firmly at Level 2 — they get the verbs and URIs right but do not implement HATEOAS. Level 3 is rarely implemented in practice because it requires significant client sophistication and most API consumers prefer stable, documented endpoints over dynamic discovery. The RMM is a useful vocabulary for API maturity conversations but not a mandate to reach Level 3.",
+    "followUp": null
+  },
+  {
+    "question": "How do you design for backward compatibility in a REST API with existing Angular clients?",
+    "answer": "The core principle is to never make breaking changes to existing response shapes — only add, never remove or rename. Additive changes (new optional fields, new endpoints) are non-breaking. Removing fields, renaming keys, or changing types are breaking changes that require versioning. Versioning strategies: URL versioning (`/v1/users`) is most explicit and cacheable; Accept header versioning (`Accept: application/vnd.api.v2+json`) keeps URLs clean but complicates caching; custom headers require client coordination. Sunset headers (`Sunset: date`) warn consumers that a version is being deprecated. On the Angular client, use `Optional` chaining and explicit null handling when reading response fields, so adding new fields doesn't break existing code and the client degrades gracefully when communicating with older API versions.",
+    "followUp": "How do you run two API versions simultaneously during migration, and what are the infrastructure costs?"
+  },
+  {
+    "question": "What is HATEOAS and when is it worth implementing?",
+    "answer": "HATEOAS (Hypermedia as the Engine of Application State) means each API response includes links to related actions and resources, so the client doesn't need to construct URLs itself — it follows links the server provides. For example, a `GET /orders/123` response includes `\"links\": { \"pay\": \"/orders/123/payment\", \"cancel\": \"/orders/123/cancel\" }` — the client knows which actions are available based on the current state. It's worth implementing when you have a truly generic client that should work against multiple server implementations or server versions without code changes — think HAL browsers, generated SDK clients, or hypermedia-driven workflow engines. It's not worth the complexity for most enterprise Angular + Spring Boot applications where the client and server are developed together and the API is known — you'd be building a discovery mechanism for something you already know.",
+    "followUp": null
+  },
+  {
+    "question": "How do you handle long-running operations in a REST API without blocking the HTTP connection?",
+    "answer": "The standard pattern is async job submission: `POST /exports` returns `202 Accepted` with a job ID and a status URL (`Location: /exports/jobs/abc123`). The client polls `GET /exports/jobs/abc123` until the status transitions from `pending` to `complete`, at which point the response includes the result URL or the result itself. For progress reporting, Server-Sent Events (SSE) provide a more efficient alternative to polling — the server pushes progress updates over a single long-lived HTTP connection. WebSockets are heavier-weight and appropriate only when bidirectional communication is needed. In Spring Boot, `@Async` or reactive endpoints handle the background processing. The key design decisions are: how long to retain job results, how to handle job failure and retry, and whether to notify via webhook rather than requiring polling.",
+    "followUp": "How do you prevent clients from DoS-ing your job status polling endpoint, and what HTTP headers would you use to guide polling frequency?"
+  },
+  {
+    "question": "What are the tradeoffs between REST, GraphQL, and gRPC for a full-stack Spring Boot + Angular system?",
+    "answer": "REST is the path of least resistance: widely understood, excellent HTTP caching, simple debugging, and straightforward Spring Boot and Angular tooling. It struggles with over-fetching (fixed response shapes) and under-fetching (multiple requests for related data) in complex UIs. GraphQL solves over/under-fetching by letting clients specify exactly the data they need, but adds complexity: no HTTP caching out of the box, N+1 query problems on the server, complex authorization logic per field, and a learning curve for both teams. gRPC excels for internal service-to-service communication — strongly typed contracts, efficient binary serialization, and streaming support — but requires proxy solutions for browser clients (gRPC-web) and is harder to debug than HTTP/JSON. For a Spring Boot + Angular product with a single team, REST at Level 2 covers 90% of use cases; add GraphQL only if the UI has genuinely diverse data-fetching patterns across many pages.",
+    "followUp": null
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Why should email sending be async in a web application? What are the failure mode tradeoffs?",
+    "answer": "Email sending involves a network call to an SMTP server or email API — this takes 100ms to several seconds and can time out. Doing this synchronously during an HTTP request increases response latency, ties up a web server thread for the duration, and makes the HTTP response dependent on the email service's availability. If the email server is down, the HTTP request fails even though the core business operation (user registration, order placement) succeeded. Async email sending decouples the email delivery from the primary operation: the HTTP request completes immediately, and email delivery is retried independently. The failure mode tradeoff: with async sending, you must handle delivery failures out-of-band — dead letter queues, retry tables, or alerting — whereas synchronous sending would surface failures directly to the caller. The risk is that email failures become invisible without proper monitoring.",
+    "followUp": null
+  },
+  {
+    "question": "How do you implement a retry mechanism for failed email sends without sending duplicate emails?",
+    "answer": "Use an idempotency key to prevent duplicates: before sending, store a record in a database with a unique key (e.g., hash of recipient + template + correlation ID) and status `PENDING`. After successful sending, mark it `SENT`. A retry job queries for `PENDING` records older than a threshold and retries them. Since the record exists, a retry of an already-sent email is detected by attempting to insert with the same key (unique constraint violation or upsert check), and the duplicate send is skipped. For transactional emails triggered by domain events (Kafka), use exactly-once semantics or at-least-once with consumer-side idempotency. The combination of a delivery table with idempotency keys and a scheduled retry job (ShedLock-protected for multi-instance deployments) is the standard production pattern for reliable email delivery.",
+    "followUp": null
+  },
+  {
+    "question": "What is SPF, DKIM, and DMARC, and why do production emails go to spam without them?",
+    "answer": "SPF (Sender Policy Framework) is a DNS record that lists the IP addresses authorized to send email for a domain — mail servers check if the sending IP is on the list. DKIM (DomainKeys Identified Mail) adds a cryptographic signature to email headers that receiving servers verify against a public key in DNS, proving the email was sent by an authorized party and wasn't tampered with in transit. DMARC (Domain-based Message Authentication, Reporting, and Conformance) builds on SPF and DKIM by specifying what receiving servers should do with emails that fail authentication (reject, quarantine, or allow) and provides a reporting mechanism. Without these, emails from application servers (which typically use a different IP than your company's official mail servers) appear as potential spoofing attempts to Gmail, Outlook, and other major providers, and are automatically filtered to spam or rejected. Setting these up is mandatory for production transactional email delivery.",
+    "followUp": null
+  },
+  {
+    "question": "How do you test email sending in integration tests without hitting a real SMTP server?",
+    "answer": "GreenMail is the standard Java library for this: it starts an in-memory SMTP server on a test port, receives emails sent by the application, and exposes them for assertion — you can verify the recipient, subject, body, and attachments without any external service. Spring Boot tests configure `spring.mail.host=localhost` and `spring.mail.port=3025` (GreenMail's default) and add `@Autowired GreenMail greenMail` to interact with sent messages. For lighter-weight testing, mock `JavaMailSender` with Mockito and verify the `MimeMessage` or `SimpleMailMessage` constructed by the service. The mock approach tests the message construction logic but not the SMTP interaction. Testcontainers can run a real Mailhog or MailSlurp container if you need more realistic SMTP semantics. For production smoke testing, use a dedicated test email account with an email API (Mailgun, SendGrid) that provides a test mode or sandbox environment.",
+    "followUp": null
+  },
+  {
+    "question": "What are the security considerations for email templating — what injection vectors exist?",
+    "answer": "HTML email templates are vulnerable to XSS if user-supplied data is interpolated without escaping — an attacker who can influence template variables can inject HTML, JavaScript (though most email clients don't execute JS), or CSS that affects rendering. Thymeleaf and FreeMarker escape HTML by default in their text output expressions (`th:text`, `${variable}`), but unescaped raw HTML interpolation (`th:utext`, `${variable?html}`) with user data is dangerous. A more subtle vector: email headers (Subject, From, Reply-To) can be injected if user input is interpolated into them — CRLF injection in headers allows adding additional headers or body content. Validate and sanitize all user-supplied data before using it in email headers. For email subjects, strip or encode all control characters. For HTML bodies, use a templating engine with auto-escaping and avoid `utext` with user data entirely.",
+    "followUp": null
+  }
+]

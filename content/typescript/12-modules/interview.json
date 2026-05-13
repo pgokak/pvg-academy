@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between `import type` and regular `import` and why does it matter for build performance?",
+    "answer": "`import type` tells TypeScript (and bundlers like esbuild and Babel) that you're only importing type information, not a runtime value — the import is completely erased from the emitted JavaScript. A regular `import` may generate a runtime `require()` or `import()` call even if the only thing you use from the module is a type. This matters for build performance in two ways: first, type-only imports allow bundlers to skip loading and parsing the imported module when building for production; second, tools that operate file-by-file (like esbuild and SWC) must be able to determine which imports are type-only without running full type analysis, and `import type` makes that explicit. It also prevents circular runtime dependency chains when two modules need each other's types but not their runtime values.",
+    "followUp": "What happens if you accidentally use `import type` for a value that's needed at runtime? How does TypeScript catch this?"
+  },
+  {
+    "question": "How do you handle circular imports in TypeScript and what design problems do they signal?",
+    "answer": "Circular imports signal that two modules are too tightly coupled and should be refactored — typically by extracting shared types or utilities to a third module that both depend on without creating a cycle. At runtime, circular imports in CommonJS can cause initialization order problems where a module gets an empty object instead of its dependencies because the cycle hasn't resolved yet. In ES modules, live bindings mitigate some issues but the problem can still surface with class inheritance across circular modules. The TypeScript solution for types-only cycles is `import type` — since types are erased, a circular `import type` has no runtime consequence. For genuine value cycles, the design fix is almost always to invert the dependency or introduce an abstraction layer.",
+    "followUp": null
+  },
+  {
+    "question": "What is module augmentation vs. declaration merging and when do you use each?",
+    "answer": "Declaration merging occurs when you declare two interfaces with the same name in the same module — TypeScript merges them into one. Module augmentation uses `declare module 'name'` to add to or modify the types exported by an external module without touching its source. You use declaration merging when extending your own code's interfaces — it's the mechanism behind Angular's `EventEmitter` and TypeScript's lib extensions. You use module augmentation when extending third-party library types you don't own — adding `user` to Express's `Request`, adding custom matchers to Jest's `expect`, or adding component props to a UI library's types. Both operate at compile time only and don't affect the emitted JavaScript.",
+    "followUp": "What is the difference between augmenting a module and re-exporting a modified version of the module's types?"
+  },
+  {
+    "question": "What are path aliases and how do they interact with TypeScript, bundlers, and Jest differently?",
+    "answer": "Path aliases map short names like `@/components` to absolute paths, avoiding deep relative imports. TypeScript uses the `paths` option in `tsconfig.json` to understand aliases for type checking purposes only — it does not perform the actual module resolution at build time. Bundlers like Webpack, Vite, and esbuild need their own alias configuration that mirrors `tsconfig.json` because they perform the actual file resolution. Jest requires yet another separate configuration in `moduleNameMapper` because it has its own module resolver. This triple configuration requirement is a common source of 'module not found' errors that only manifest in tests — TypeScript compiles successfully, the app runs, but Jest fails because `moduleNameMapper` is missing or mismatched. Some setups use tools like `tsconfig-paths` to share the configuration.",
+    "followUp": null
+  },
+  {
+    "question": "What is the `isolatedModules` compiler option and why does Vite/esbuild require it?",
+    "answer": "`isolatedModules: true` restricts TypeScript usage to patterns that can be type-stripped file-by-file without needing cross-file type information. Vite and esbuild use transpile-only mode for TypeScript — they strip types from each file independently without running the full TypeScript type checker (which would be too slow for development). This means they cannot handle patterns that require cross-file analysis: re-exporting types without `type` keyword, using const enums from other files (which require seeing the enum definition to inline), and referencing ambient namespaces from other files. `isolatedModules` makes TypeScript emit compile-time errors for these patterns during type checking, so you catch incompatibilities before your build tool silently produces incorrect output.",
+    "followUp": null
+  }
+]

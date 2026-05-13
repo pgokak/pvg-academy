@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Where is the correct layer to validate input in a multi-tier Spring Boot application, and why not in the service?",
+    "answer": "The controller layer is the correct place for input validation — it's the boundary where untrusted external data enters the system. Bean Validation annotations (`@NotNull`, `@Size`, `@Email`) on request DTOs with `@Valid` on the controller parameter perform validation before the method body executes. Validating in the service layer is wrong for two reasons: services should receive valid data and focus on business logic, not transport-level concerns; and services may be called from multiple transports (REST, message queue, batch jobs), each of which should validate before calling the service, making per-call service validation redundant and polluting the service with infrastructure concerns. Business rule validation (a domain invariant, not an input format check) belongs in the domain model or domain service — these are fundamentally different from input validation.",
+    "followUp": "How do you design the validation architecture to avoid duplicating the same rules in the frontend and backend?"
+  },
+  {
+    "question": "How do you design custom validation that requires a database lookup (async validator) in both frameworks?",
+    "answer": "In Spring, you implement a `ConstraintValidator<T, V>` and inject a repository into it — Spring injects dependencies into constraint validators just like any other bean. The validator runs synchronously in Spring's validation pipeline. The risk is calling expensive database queries during bean validation; batching checks or using caching (for common reference data lookups) mitigates this. In Angular reactive forms, async validators return an `Observable<ValidationErrors | null>` — the form control waits for the observable to complete before displaying validation state. The most common implementation calls the backend via `HttpClient`. Critical: use `updateOn: 'blur'` or `debounceTime` to prevent a database call on every keystroke. Angular also shows a 'pending' state while async validation is in progress, which needs UI feedback.",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between Bean Validation groups in Spring and conditional validators in Angular?",
+    "answer": "Bean Validation groups let you selectively apply validation rules based on the operation context — a `Create` group requires all fields including ID-related ones, while an `Update` group might make some fields optional. You specify the group in `@Validated(Create.class)` on the controller method. This is useful for the same DTO class used for both create and update operations with different validation requirements. Angular's conditional validators are more dynamic: you add or remove validators at runtime using `formControl.setValidators()` and `formControl.updateValueAndValidity()` based on the current form state. Angular's approach is event-driven (triggered by value changes), while Spring's groups are context-declared at the call site. Angular doesn't have a direct equivalent of Bean Validation groups — the equivalent is separate form types for different operations.",
+    "followUp": null
+  },
+  {
+    "question": "How do you return structured validation errors from a Spring API that Angular reactive forms can map to form fields?",
+    "answer": "Spring's `@ExceptionHandler` for `MethodArgumentNotValidException` should serialize `BindingResult.getFieldErrors()` into a structured response: `{ \"errors\": { \"email\": \"must be a valid email\", \"username\": \"must be at least 3 characters\" } }`. The keys must match the form control names used in Angular's reactive form. On the Angular side, after receiving the error response, iterate the errors object and call `form.get(fieldName)?.setErrors({ serverError: message })` for each field. This maps server-side errors to the correct form controls, enabling inline display next to the relevant inputs. Spring Boot 3 and the Problem Details standard (RFC 9457) provide a structured format for this — `ProblemDetail` includes extension fields where you can embed field validation errors.",
+    "followUp": "How do you handle server-side errors for fields that don't map directly to form controls, such as cross-field constraint violations?"
+  },
+  {
+    "question": "What are the security implications of relying only on client-side validation?",
+    "answer": "Client-side validation is a UX feature, not a security mechanism — any user with browser dev tools or curl can bypass Angular form validators entirely by sending raw HTTP requests. Attackers specifically target APIs without server-side validation to inject malicious data, bypass business rules, or exploit buffer overflows. Without server-side validation, SQL injection, XSS payloads, oversized inputs that crash the server, and invalid state transitions all become possible. The rule is absolute: every input that reaches the server must be validated by the server regardless of client-side checks. Client-side validation improves the user experience (instant feedback) while server-side validation enforces the security contract. This applies equally to input length limits, format checks, business rule constraints, and authorization checks — none can be trusted from the client.",
+    "followUp": null
+  }
+]

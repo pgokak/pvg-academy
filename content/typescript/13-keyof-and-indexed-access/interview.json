@@ -1,0 +1,27 @@
+[
+  {
+    "question": "How do `keyof` and indexed access types enable type-safe object utilities? Write a type-safe `pick` function.",
+    "answer": "`keyof T` produces the union of property names of T, and indexed access `T[K]` produces the type of the property K on T. Together they enable utilities that are both generic and safe: `function pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K>` ensures you can only pass keys that actually exist on the object, and the return type precisely reflects which properties were picked. Without these features, you'd need to type the return as `Partial<T>` or `Record<string, unknown>`, losing the precise type information. The `Pick<T, K>` utility type is itself defined using `keyof` and mapped types, so understanding these building blocks lets you build your own type-safe utilities for `omit`, `rename`, `mapValues`, and similar patterns.",
+    "followUp": "How do you make the `pick` function work with a rest parameter instead of an array for a more ergonomic API?"
+  },
+  {
+    "question": "What is the difference between `keyof T` and `keyof typeof value`?",
+    "answer": "`keyof T` where T is a type name produces the union of keys of that type. `keyof typeof value` first uses `typeof` to get the type of a runtime value, then `keyof` to get its keys — this is the pattern for working with object literals as type sources. For example, `const COLORS = { red: '#f00', blue: '#00f' }; type ColorKey = keyof typeof COLORS` gives `'red' | 'blue'`. If COLORS were a type instead of a value, you'd use `keyof Colors` directly. The `typeof value` step is necessary because `keyof` operates on types, not values — you can't write `keyof COLORS` where COLORS is a variable. This pattern is common for generating union types from configuration objects and enum-like constants.",
+    "followUp": null
+  },
+  {
+    "question": "How do template literal types combine with `keyof` to create type-safe event maps?",
+    "answer": "You can use a mapped type with template literals to transform property names into event handler names: `type EventHandlers<T> = { [K in keyof T as `on${Capitalize<string & K>}`]?: (value: T[K]) => void }`. This creates an object type where every property in T gets a corresponding optional event handler with the correct value type. The same pattern powers type-safe CSS-in-JS systems that derive camelCase property names from CSS property strings, and type-safe state containers where every state property gets a corresponding action and selector. The `Capitalize<string & K>` intersection is needed because `K` is `string | number | symbol` from `keyof`, and `Capitalize` requires a `string`.",
+    "followUp": "How would you extend this pattern to create both getter and setter event handlers with different signatures?"
+  },
+  {
+    "question": "What is a recursive indexed access type and when do you need it?",
+    "answer": "A recursive indexed access type chains multiple indexing operations to drill into nested type structures: `type DeepValue = User['address']['street']['name']`. For dynamic paths you need a recursive conditional type: `type PathValue<T, P extends string> = P extends `${infer K}.${infer Rest}` ? K extends keyof T ? PathValue<T[K], Rest> : never : P extends keyof T ? T[P] : never`. This enables type-safe deep path access for configuration systems, form libraries, and state selectors where you want `get(state, 'user.address.city')` to return `string` instead of `unknown`. Libraries like React Hook Form and Zod use variations of this pattern to provide type-safe path-based access to deeply nested form fields and schema values.",
+    "followUp": null
+  },
+  {
+    "question": "How does `PropertyKey` differ from `keyof any`?",
+    "answer": "`keyof any` evaluates to `string | number | symbol` — the union of all valid JavaScript object key types. `PropertyKey` is a built-in TypeScript type alias defined as `string | number | symbol`, making it identical in value. The difference is semantic: `PropertyKey` is an explicit, readable type alias that communicates intent, while `keyof any` is the computed form that happens to evaluate to the same thing. In practice, `PropertyKey` is preferred in function signatures and type definitions because it's self-documenting. Both are used in utility type implementations — for example, `Record<K extends keyof any, V>` uses the computed form to communicate 'any valid key type'. When you need to constrain a generic to valid key types, either works, but `PropertyKey` reads more clearly.",
+    "followUp": null
+  }
+]

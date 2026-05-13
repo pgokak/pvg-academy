@@ -1,0 +1,27 @@
+[
+  {
+    "question": "When does TypeScript infer `never` and what does it mean for control flow?",
+    "answer": "`never` is inferred when TypeScript determines a code path is unreachable — after a `throw`, after calling a function with return type `never`, or after exhausting all cases in a union. It also results from intersecting incompatible types (`string & number` is `never`) and from conditional types where neither branch can match (`string extends number ? string : never` is `never`). For control flow, TypeScript narrows a variable to `never` in a branch where it has no remaining possible types — this is how the exhaustive check pattern works. A variable typed as `never` is assignable to anything (since it can never have a value), which is why `const _: never = x` is the compile-time assertion that x should be unreachable. If TypeScript accepts that assignment, the code is provably exhaustive.",
+    "followUp": "Why is `never` the identity element for union types (i.e., `T | never = T`) and what practical implication does this have for conditional types?"
+  },
+  {
+    "question": "How do you use `never` to enforce exhaustive handling that fails at compile time (not runtime)?",
+    "answer": "The exhaustive never pattern: `function assertNever(x: never): never { throw new Error('Unexpected value') }` called in the default branch of a switch or if-else chain over a discriminated union. If the union is fully handled, TypeScript narrows x to `never` in the default branch and accepts the call. If you add a new union member without handling it, TypeScript narrows to the new member type in the default branch and rejects the call to `assertNever` because the new type is not assignable to `never`. The compile-time failure happens during type checking — the code won't compile, not just warn. This is stronger than a runtime-only check because it prevents the incomplete code from being merged in the first place.",
+    "followUp": null
+  },
+  {
+    "question": "What are the risks of `as` type assertions in production code and how do you minimize them?",
+    "answer": "`as T` assertions tell TypeScript to trust you that a value is of type T, bypassing all type safety — if you're wrong, you get a runtime error with no compile-time warning. The most dangerous pattern is `as unknown as T`, which can assert any type to any other type and is often used to paper over genuine type incompatibilities. In production code, assertions are a red flag anywhere near external data boundaries (API responses, localStorage, third-party events) because the actual data structure might not match your assertion. The mitigation strategy is to use runtime type validators (Zod, io-ts, Valibot) at boundaries and derive TypeScript types from schemas rather than asserting — the runtime validator both validates and narrows the type correctly. Reserve `as` for situations where you have genuine knowledge the type checker doesn't (like DOM API usage patterns).",
+    "followUp": "What is a 'type narrowing escape hatch' and when is it acceptable to use one in a production codebase?"
+  },
+  {
+    "question": "How does `satisfies` preserve literal types while still validating against a wider type?",
+    "answer": "When you annotate `const config: Config = { color: 'red' }`, TypeScript widens `color` to the `string` type from `Config`, losing the `'red'` literal. `const config = { color: 'red' } satisfies Config` performs the same validation at assignment time (catches property name typos, wrong value types) but preserves the inferred literal type `'red'` for subsequent usage. This matters for cases where you need both the safety of type checking during construction and the precision of literal types for later logic — autocomplete works better, switch statements are more precise, and accidental mutations away from the original value can be caught. The `satisfies` operator is especially valuable for configuration objects, route definitions, and lookup tables where you want validation without type widening.",
+    "followUp": null
+  },
+  {
+    "question": "What is the `asserts` keyword and how does it differ from a regular type guard?",
+    "answer": "A regular type guard `(x: unknown): x is string` returns a boolean and narrows the type only inside the truthy branch of the calling `if` statement. An assertion function `(x: unknown): asserts x is string` has no return value — it either throws (indicating the assertion failed) or returns normally (indicating the assertion passed), and when it returns normally, TypeScript narrows the type for all subsequent code in the caller's scope, not just inside a branch. This gives assertion functions a different control flow profile: they're used for invariant checks at the top of a function body, after which you can assume the type is narrowed for the entire remainder of the function. The `asserts condition` form (without `is`) validates boolean conditions like `asserts condition: x !== null`.",
+    "followUp": null
+  }
+]

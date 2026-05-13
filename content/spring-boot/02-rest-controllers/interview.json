@@ -1,0 +1,27 @@
+[
+  {
+    "question": "When should you use ResponseEntity<T> vs just returning T from a controller method?",
+    "answer": "Return `T` directly when the operation always succeeds with the same status code and no special headers — Spring defaults to 200 OK and maps exceptions through `@ControllerAdvice`. Use `ResponseEntity<T>` when you need to control the status code (201 Created with a `Location` header for resource creation, 204 No Content for void responses), add custom response headers (pagination headers, rate limit headers), or return different status codes conditionally. Over-using `ResponseEntity` makes controller signatures verbose and harder to read — the goal is to push HTTP mechanics into `@ControllerAdvice` and exception handlers, keeping controller methods focused on the happy path. A common pattern is to return the created resource with `ResponseEntity.created(uri).body(resource)` for POST endpoints to be compliant with REST conventions.",
+    "followUp": null
+  },
+  {
+    "question": "How do you implement content negotiation (JSON vs XML) in Spring MVC?",
+    "answer": "Spring MVC's `ContentNegotiationManager` selects the response format based on the `Accept` header by default. Adding `jackson-dataformat-xml` to the classpath automatically registers an XML `HttpMessageConverter` alongside the JSON one. Spring then selects the converter based on the `Accept: application/json` or `Accept: application/xml` header. You can configure negotiation via path extensions (`.json`, `.xml` suffixes) or request parameters (`?format=json`), though path extension negotiation is deprecated in favor of header-based. The controller code itself remains unchanged — Spring handles format selection transparently. For custom types, you implement and register your own `HttpMessageConverter`. Content negotiation is most valuable for APIs consumed by diverse clients (browsers wanting HTML, mobile apps wanting JSON, legacy systems wanting XML).",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between @RequestParam, @PathVariable, and @RequestBody in terms of HTTP semantics?",
+    "answer": "`@PathVariable` binds to a URI template segment (`/users/{id}` → `@PathVariable Long id`) — it's part of the resource identifier and semantically identifies which resource the operation targets. `@RequestParam` binds to query string parameters (`/users?active=true`) — these are typically filters, pagination, or operation modifiers that don't identify a specific resource. `@RequestBody` binds to the request body, deserialized from JSON or XML — this is the operation payload for POST/PUT/PATCH requests. Misusing these has semantic implications: putting filter parameters in path variables suggests they're part of the resource identity; using request body for a GET is technically non-standard (GET should be safe and idempotent, bodies are ignored by some clients and intermediaries). The HTTP specification gives these different caching and idempotency semantics.",
+    "followUp": "How do you handle a GET request that requires a complex filter with many parameters — at what point do you consider switching to POST with a request body?"
+  },
+  {
+    "question": "How do you design versioned REST APIs in Spring Boot — URL versioning vs header versioning tradeoffs?",
+    "answer": "URL versioning (`/v1/users`, `/v2/users`) is the most practical choice: bookmarkable, cacheable at every layer (proxy, CDN, browser), easy to route in API gateways, and immediately visible in logs and error reports. The downside is that changing the URL breaks REST purity (the resource identity shouldn't change). Header versioning (`Accept: application/vnd.api.v2+json` or a custom `API-Version: 2` header) is technically more correct per REST principles but harder to cache, test, and debug. Query parameter versioning (`?version=2`) is simple but pollutes the resource identifier. In practice, companies like Stripe, Twilio, and GitHub use URL versioning or a combination. The implementation in Spring Boot uses separate controller classes per version, or a single controller with `produces` media type specifications for header-based versioning.",
+    "followUp": null
+  },
+  {
+    "question": "What happens if you return a @Entity directly from a controller and why is it a security/performance problem?",
+    "answer": "Returning an `@Entity` directly serializes the entire entity — including fields with `@JsonIgnore` that might not actually be ignored in all contexts, lazy-loaded collections that trigger additional queries when Jackson serializes them (N+1 during serialization), and internal fields like version numbers, audit timestamps, or foreign key IDs that should not be part of the API contract. Security-wise, a `User` entity with a `passwordHash` field that someone forgot to annotate with `@JsonIgnore` would serialize the hash to every API consumer. Performance-wise, a `Post` entity with a lazy `comments` collection will trigger a Hibernate query per post when the collection is serialized outside the original transaction. DTOs with explicitly declared fields are the fix — they decouple the API contract from the persistence model and give you explicit control over what's exposed.",
+    "followUp": null
+  }
+]

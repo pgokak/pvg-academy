@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Why don't checked exceptions trigger @Transactional rollback by default, and how do you fix it?",
+    "answer": "Spring's `@Transactional` follows the EJB convention: unchecked exceptions (subclasses of `RuntimeException`) trigger rollback, while checked exceptions do not — the assumption was that checked exceptions represent expected error conditions from which the caller might recover, so the transaction should not necessarily be aborted. This is often wrong in practice: a `IOException` thrown during a database operation should absolutely roll back. The fix: specify `rollbackFor` on the annotation: `@Transactional(rollbackFor = Exception.class)` to roll back on all exceptions, or `@Transactional(rollbackFor = { IOException.class, SomeCheckedException.class })` for specific ones. The inverse: `noRollbackFor` prevents rollback for specific unchecked exceptions. Teams often establish a convention of always using `@Transactional(rollbackFor = Exception.class)` to make rollback behavior explicit rather than relying on defaults.",
+    "followUp": null
+  },
+  {
+    "question": "What is RFC 9457 (Problem Details for HTTP APIs) and how does Spring Boot 3 implement it?",
+    "answer": "RFC 9457 (previously RFC 7807) defines a standard JSON problem format for HTTP error responses: `{ \"type\": \"https://...\", \"title\": \"Not Found\", \"status\": 404, \"detail\": \"User 42 not found\", \"instance\": \"/users/42\" }`. Spring Boot 3 introduces `ProblemDetail` as a first-class response type, and `@ControllerAdvice` exception handlers can return `ProblemDetail` with custom extension properties. `ErrorResponseException` is a base exception that carries a `ProblemDetail` which Spring's `ResponseEntityExceptionHandler` serializes automatically. The benefit of adopting this standard is client consistency across APIs — Angular clients can write a single error-handling interceptor that parses any RFC 9457 response, regardless of which service it came from. Spring Boot 3 also enables this format by default for many built-in Spring MVC exceptions when `spring.mvc.problemdetails.enabled=true`.",
+    "followUp": "How do you add custom extension fields to a ProblemDetail response for field-level validation errors?"
+  },
+  {
+    "question": "How do you design a consistent error response format across a microservices architecture?",
+    "answer": "Define an error response schema (ideally RFC 9457) as a company-wide standard and implement it in a shared library that all services import. The shared library provides a `@ControllerAdvice` with handlers for common exceptions (validation errors, not found, unauthorized) that serialize to the standard format, and a custom exception hierarchy that services throw. The API gateway can also normalize error formats — if a downstream service returns an inconsistent error, the gateway rewrites it to the standard format before returning to the client. Angular's `HttpInterceptor` benefits enormously from a consistent format: a single `ErrorInterceptor` can parse all errors uniformly, map status codes to UI messages, and dispatch to the appropriate error handler. Without standardization, each API call in the client requires custom error parsing logic.",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between @ExceptionHandler on a @Controller vs. @ControllerAdvice?",
+    "answer": "`@ExceptionHandler` methods inside a `@Controller` class handle exceptions only thrown by that controller's handler methods — they're scoped to a single controller. `@ControllerAdvice` is a cross-cutting component that applies to all controllers in the application (or a subset specified by `basePackages`, `assignableTypes`, or `annotations`). In practice, per-controller handlers are almost never used — the vast majority of exception handling belongs globally in a `@RestControllerAdvice` (which combines `@ControllerAdvice` with `@ResponseBody`) to ensure consistent error responses regardless of which controller throws. Per-controller handlers are occasionally used for controller-specific exceptions that have no global meaning, but even then, a global handler is usually preferable for consistency.",
+    "followUp": null
+  },
+  {
+    "question": "When should you throw a domain exception vs. a Spring framework exception?",
+    "answer": "Domain exceptions encode business rules and are thrown by domain objects or services when an invariant is violated — `InsufficientFundsException`, `OrderAlreadyShippedException`, `UserBlockedException`. They communicate domain conditions in the language of the business and have no dependency on Spring. Spring framework exceptions communicate infrastructure or transport concerns — `ResponseStatusException`, `HttpMessageNotReadableException`, `MethodArgumentNotValidException`. Domain exceptions are thrown in the service/domain layer and mapped to HTTP responses in a `@ControllerAdvice` handler (e.g., mapping `InsufficientFundsException` to 422). Throwing `ResponseStatusException` from a service is wrong — it leaks HTTP semantics into the domain and makes the service untestable without an HTTP context. Keep the layers cleanly separated: domain throws domain exceptions, the web layer handles the translation.",
+    "followUp": null
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the `ExpressionChangedAfterItHasBeenCheckedError` in Angular and how does it relate to TypeScript's purity expectations?",
+    "answer": "Angular throws this error in development mode when a binding's value changes after the change detection cycle has already read it — specifically in `ngAfterViewInit` or `ngAfterContentInit` hooks where a parent binding is modified after the parent has been checked. TypeScript's type system treats template expressions as if they were pure functions — reading the same expression twice should return the same type — and Angular enforces this at runtime. The fix is usually to defer the state change to the next tick with `setTimeout(0)` or to restructure so the change happens before the current cycle finishes. The error is Angular's runtime reflection of a design principle: component templates should be deterministic, not have side effects during rendering.",
+    "followUp": "What does enabling `ChangeDetectionStrategy.OnPush` change about when this error can occur?"
+  },
+  {
+    "question": "How do you write a type guard for a complex nested type, and what are its limitations?",
+    "answer": "A type guard for a nested type uses `is` return syntax and explicitly checks each required property with `typeof`, `in`, or `instanceof`: `function isUserProfile(val: unknown): val is UserProfile { return typeof val === 'object' && val !== null && 'id' in val && typeof val.id === 'number' }`. The critical limitation is that type guards are not automatically kept in sync with the type definition — if you add a required property to `UserProfile`, the type guard still compiles even though it no longer fully validates the new shape. Runtime validation libraries like Zod and io-ts solve this by deriving the TypeScript type from the validator schema, ensuring they always stay in sync. For production code, hand-written type guards at API boundaries are considered unsafe compared to schema-derived validation.",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between `in` narrowing and `instanceof` narrowing?",
+    "answer": "`in` narrowing checks for property existence on any object and works with plain objects, interfaces, and cross-realm objects (like those from iframes). `instanceof` checks the prototype chain and requires that the value was created from a specific constructor function in the same JavaScript realm. `instanceof` breaks with serialized/deserialized data (JSON objects have no class identity), across iframe boundaries (separate JavaScript environments have separate constructors), and with ES module copies where two separate imports of the same module create separate constructor references. For TypeScript type narrowing, `in` works with discriminated union patterns and plain objects, while `instanceof` is appropriate when you have genuine class instances and can guarantee same-realm construction. In modern TypeScript code, `in` and discriminant properties are generally preferred over `instanceof` for domain types.",
+    "followUp": "How does TypeScript narrow the type after `if ('bark' in animal)` when `animal` is `Dog | Cat` where only Dog has bark?"
+  },
+  {
+    "question": "How does TypeScript handle narrowing in callbacks vs. inline code differently?",
+    "answer": "TypeScript's control flow analysis is conservative about callbacks — inside a callback, the compiler assumes the callback might be invoked at any time, possibly after an intervening assignment that widens the type back. So a narrowing performed before `arr.forEach(item => { /* x is string here? not guaranteed */ })` may not be preserved inside the callback even though it was narrowed in the outer scope. Inline code (sequential statements) has deterministic narrowing because the compiler knows exactly when each statement executes. The practical implication: if you narrow `x` to `string` before a `forEach`, and inside the forEach you expect `x` to still be `string`, TypeScript may warn because a function call could theoretically reassign `x`. Capturing narrowed values in a `const` before the callback is the standard fix.",
+    "followUp": null
+  },
+  {
+    "question": "What is a discriminant property and why must it be a literal type (not just string)?",
+    "answer": "A discriminant property is the common property in a discriminated union whose value uniquely identifies which union member a value belongs to. It must be a literal type (like `'circle'` or `42`) rather than a broad type like `string` because TypeScript uses literal type equality to narrow — it compares the checked value against specific literal types in each union member. If the discriminant were typed as `string`, TypeScript could not determine which union member a particular string corresponds to, making narrowing impossible. This is why `{ kind: string }` doesn't work as a discriminant but `{ kind: 'circle' | 'square' }` (where each member has a specific literal) does. TypeScript checks that the discriminant is a union of unit types (literals, null, undefined) before using it for narrowing.",
+    "followUp": "Can booleans serve as discriminant properties, and what are the practical limitations of using a boolean discriminant?"
+  }
+]

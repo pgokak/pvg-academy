@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the numeric enum reordering problem and why has it caused production bugs?",
+    "answer": "Numeric enums assign values implicitly starting at 0, so `enum Status { Pending, Active, Inactive }` assigns 0, 1, 2. If someone inserts a new member — say `Blocked` between `Pending` and `Active` — all subsequent values shift. Any data persisted to a database or serialized as numbers (in localStorage, message queues, feature flags) now maps to the wrong enum member without any compile error. This is a classic migration hazard in long-lived applications. A database row with `status = 1` meant `Active` before the change and means `Blocked` after, producing silent data corruption. The fix is to always explicitly assign numeric values or, better, to not use numeric enums for anything that crosses a persistence or serialization boundary.",
+    "followUp": "How would you audit an existing codebase to find numeric enums that are being stored or serialized, and what would your migration plan look like?"
+  },
+  {
+    "question": "Why do many senior TypeScript developers prefer union literals over enums? What does the compiled output look like?",
+    "answer": "Union literals like `type Status = 'pending' | 'active' | 'inactive'` compile to nothing — they are erased entirely in the JavaScript output, producing zero runtime cost. Enums compile to an IIFE that creates a bidirectional object, adding real bytes to the bundle. Beyond bundle size, union literals serialize and deserialize naturally as the string values themselves, work transparently with JSON APIs, and require no imports — you can use them directly as literal values. Enums require importing the enum object to reference its members. The union literal approach also plays better with TypeScript's structural type system and exhaustive checking patterns, while numeric enums in particular create a false sense of type safety since any number is assignable to them without the `const` modifier.",
+    "followUp": null
+  },
+  {
+    "question": "When are const enums dangerous in a library that others consume?",
+    "answer": "Const enums are inlined by the TypeScript compiler — every usage is replaced with the literal value at compile time, and the enum object itself is erased. This is efficient, but it means the consumer's code is compiled with the enum values baked in at build time. If you update a const enum value in your library and publish a new version, consumers who don't recompile their code are silently running with the old inlined values — there's no runtime object to look up the updated value from. This is why the TypeScript documentation explicitly warns against using const enums in public APIs. Babel and esbuild also don't support const enums across file boundaries (they can't inline across modules), so they're incompatible with many modern build toolchains.",
+    "followUp": "What is the `preserveConstEnums` compiler option and how does it partially address this problem?"
+  },
+  {
+    "question": "What is an ambient enum and when do you need it?",
+    "answer": "An ambient enum is declared with the `declare` keyword and describes an enum that exists at runtime in a JavaScript environment but was not created by TypeScript — for example, a global variable injected by a browser API or a third-party script that pre-dates TypeScript. Unlike regular enums, ambient enums are not emitted by the compiler; they only provide type information. They behave differently from regular const enums in one important way: accessing a member of an ambient enum that doesn't exist is not a compile error if you use a non-const ambient enum, because TypeScript assumes the runtime value might be defined in the external environment. You need them primarily when writing type definitions for JavaScript libraries that expose enums as plain objects.",
+    "followUp": null
+  },
+  {
+    "question": "How would you migrate an existing enum to a union literal without breaking consumers?",
+    "answer": "Start by creating a string enum (if not already) so the values are human-readable strings rather than numbers — this aligns enum values with what union literals would produce. Then create the union literal type alongside the enum using the same string values, and introduce a utility to convert between them if needed. Update internal usages incrementally, using the union type in new code. For public API consumers, a type alias `type Status = 'pending' | 'active'` is backward compatible with how they use string enum values since the values are identical. Remove the enum declaration last, after all consumers have been migrated. The main risk is code that explicitly checks `x instanceof Status` or accesses `Status[value]` for reverse mapping — these patterns require special handling during migration.",
+    "followUp": null
+  }
+]

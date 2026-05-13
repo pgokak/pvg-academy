@@ -1,0 +1,27 @@
+[
+  {
+    "question": "How does stateless JWT authentication work in a microservices architecture with multiple downstream services?",
+    "answer": "The API gateway (or the first service a request hits) validates the JWT signature and expiry, then either passes the original JWT downstream or issues a new internal token. Downstream services verify the token's signature using the public key — they can do this independently without calling any central auth service, which is the key scalability advantage of JWT. This means a token issued for Service A automatically works for Services B and C, since they all trust the same issuer and verify against the same public key. The tradeoff is token revocation — since services validate locally without a central database check, a revoked token remains valid until expiry. Architecturally, short-lived access tokens (15 minutes) with refresh tokens mitigate this risk, while an emergency 'token blocklist' in a shared cache (Redis) provides hard revocation when needed.",
+    "followUp": "How do you distribute and rotate the public key used for JWT verification across dozens of microservices?"
+  },
+  {
+    "question": "Why is asymmetric signing (RS256/ES256) preferred over symmetric (HS256) in microservices?",
+    "answer": "With symmetric signing (HS256), every service that needs to verify a JWT must have the shared secret — this means distributing the secret to all services, and any service that can verify tokens can also forge them. In a microservices architecture with dozens of services, this dramatically expands the attack surface: compromising any one service exposes the ability to mint arbitrary tokens. With RS256 or ES256, only the auth service holds the private key for signing; all other services receive only the public key for verification. A compromised downstream service cannot forge tokens — it can only verify them. ES256 (ECDSA) is increasingly preferred over RS256 (RSA) for smaller token sizes and faster verification. Key rotation is also cleaner with asymmetric keys since the public key is not secret and can be distributed openly.",
+    "followUp": null
+  },
+  {
+    "question": "What is the JWT token revocation problem and what are the tradeoffs of different solutions?",
+    "answer": "JWTs are stateless and cannot be invalidated before expiry — once issued, they're valid until `exp`. The main solutions: short expiry (15 min) limits the revocation window but requires frequent refresh; a token blocklist in Redis stores revoked token JTIs and every service checks the list on each request (adds latency, reintroduces statefulness, blocklist must be replicated to all services); reference tokens (opaque tokens where the server looks up the actual claims per request) solve revocation completely but lose the stateless benefit entirely. Most production systems use short-lived access tokens with revocable refresh tokens stored server-side — the short access token window is acceptable for most revocation scenarios (logout, password change), and only the refresh token requires database-backed revocation. This is the OAuth 2.0 standard architecture.",
+    "followUp": null
+  },
+  {
+    "question": "How do you handle token refresh securely — what is refresh token rotation?",
+    "answer": "Refresh token rotation means that each time a refresh token is used, it's invalidated and a new refresh token is issued alongside the new access token. This provides single-use refresh tokens: if an attacker steals a refresh token and tries to use it after the legitimate client has already refreshed, the server detects that the token was already used. Best practice: when a refresh token is reused (second attempt with a token already used), the server revokes the entire refresh token family — all related refresh tokens — forcing the user to log in again. This detects token theft. The rotation logic requires storing refresh token families server-side, which adds state, but the refresh token store is much smaller than a session store since it's only touched every few minutes rather than every request.",
+    "followUp": "What is a refresh token family and how does it help detect token theft in a distributed mobile application?"
+  },
+  {
+    "question": "What sensitive data should never be put in a JWT payload and why?",
+    "answer": "JWT payloads are base64url encoded, not encrypted — anyone who obtains the token can decode and read the payload without knowing the secret key. Never include passwords, password hashes, credit card numbers, social security numbers, private API keys, or other credentials. Don't include unnecessary PII that creates compliance exposure — if the token is logged (common in reverse proxies and load balancers), that data ends up in log files. Keep the payload minimal: subject (user ID), roles/permissions needed for authorization, expiry, and issuer. If downstream services need user details, they should fetch them from a user service using the subject ID, not carry them in the token. If sensitive claims are truly necessary (rare), use JWE (JSON Web Encryption) to encrypt the payload, but this adds significant complexity and is usually better solved by reducing what's in the token.",
+    "followUp": null
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "When should you use a class instead of a plain object type in TypeScript?",
+    "answer": "Use a class when you need encapsulation (private state with controlled mutation), inheritance (shared behavior across instances), identity checking (`instanceof`), or constructor-based initialization logic that must run on every instance. Classes are also the right choice when you need to pass a type as an injection token (Angular DI uses class constructor references as tokens). For data-only objects with no behavior — DTOs, configuration shapes, API response types — plain interfaces or type aliases are better because they're lighter, cannot be accidentally instantiated, and tree-shake to nothing. A common mistake is using classes as data containers purely for the TypeScript type benefits, when an interface would achieve the same type safety with less cognitive overhead and no runtime cost.",
+    "followUp": "What is the 'anemic domain model' anti-pattern and how does it relate to overusing classes?"
+  },
+  {
+    "question": "How does the decision between class and interface affect tree-shaking in a library?",
+    "answer": "Interfaces and type aliases are completely erased at compile time — they produce zero JavaScript output and cannot prevent tree-shaking. Classes compile to JavaScript functions/objects that exist at runtime, and any reference to a class (even just in a type position in some configurations) may prevent it from being tree-shaken because bundlers must assume the constructor has side effects. If you export a class only for its type shape and never intend for it to be instantiated by consumers, exporting an interface instead lets bundlers eliminate the class from consumer builds. This matters significantly for library authors: a utility library that exports classes will always include those class definitions in consumer bundles, whereas interface exports cost nothing in bundle size.",
+    "followUp": null
+  },
+  {
+    "question": "What is the 'structural vs. nominal' tension in TypeScript class design?",
+    "answer": "TypeScript uses structural typing for classes — two classes with the same shape are mutually assignable even if they're completely unrelated. `class Dog { bark() {} }` and `class Robot { bark() {} }` are interchangeable in TypeScript despite being logically different. This is surprising to developers from Java or C# backgrounds where classes create nominal identities. The tension arises when you want class identity to matter for type safety — you want to ensure a function only accepts real `Dog` instances, not structurally equivalent imposters. Solutions include adding private fields (which break structural compatibility since privates are checked by identity), branded types, or symbol properties. The same structural rule applies to interfaces, which is why branded types exist.",
+    "followUp": "How does TypeScript handle private fields when comparing structural compatibility between two classes?"
+  },
+  {
+    "question": "When would you use an abstract class to enforce a pattern across a team?",
+    "answer": "Abstract classes are appropriate when you want to share implementation logic (the template method pattern) while leaving specific steps to subclasses, and when you want the compiler to prevent direct instantiation. Examples: an abstract `BaseRepository<T>` with concrete `findById`, `findAll` that require subclasses to implement `getTableName()` and `mapRow()`; an abstract `BaseAuthGuard` in Angular with shared redirect logic and an abstract `canActivate()` that each feature implements. The key advantage over interfaces is that abstract classes can contain real code — common validation, logging, error handling — that all subclasses get for free. The disadvantage is that subclasses inherit a runtime dependency on the abstract class and cannot extend anything else, which is why composition is often preferred in large codebases.",
+    "followUp": null
+  },
+  {
+    "question": "What are the DI implications of using classes vs. interfaces as injection tokens in Angular?",
+    "answer": "Angular's DI container resolves services by token, and tokens must be a value that exists at runtime — class constructor references work because classes are JavaScript functions. Interfaces are completely erased at runtime, so `{ provide: MyInterface, useClass: MyImpl }` fails because `MyInterface` doesn't exist as a value at runtime. The workaround is to use `InjectionToken<MyInterface>`: `const MY_TOKEN = new InjectionToken<MyInterface>('MyService')`, which creates a real runtime token that carries the interface type information at compile time. This pattern is preferred for interfaces and abstract contracts, while direct class references are used for concrete services. Using `InjectionToken` also makes it explicit that the token is an abstraction point, signaling to other developers that there may be multiple implementations.",
+    "followUp": "How do you provide a different implementation of an InjectionToken in tests vs. production code in Angular?"
+  }
+]

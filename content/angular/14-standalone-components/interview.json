@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What are the tree-shaking benefits of standalone components over NgModule-based components?",
+    "answer": "In the NgModule model, a component declares its membership in a module, and the module lists all its imports. Tree-shaking happens at the module level — if any component in the module uses `CommonModule`, all of `CommonModule` is included even if most of the module's components only use one directive. With standalone components, each component explicitly lists only the imports it uses: `imports: [NgIf, AsyncPipe, DatePipe]`. The Angular compiler sees exactly what each component uses and can eliminate unused directives, pipes, and sub-components at the component level. The difference is dramatic for large applications where NgModules tend to accumulate imports over time, and the shared `imports` list includes everything any component in the module ever needed — a tragedy of the commons for bundle size.",
+    "followUp": null
+  },
+  {
+    "question": "How do you migrate an existing NgModule-based application to standalone components incrementally?",
+    "answer": "Angular provides a schematic: `ng generate @angular/core:standalone` (and `@angular/core:standalone --mode convert-to-standalone`, `--mode prune-ng-modules`, `--mode standalone-bootstrap`) that handles much of the mechanical conversion. Manual approach: add `standalone: true` to components and move their needed imports from the module's `imports` array into the component's own `imports` array. Components used in module templates need to be exported or converted. Start with leaf components (components that have no dependencies on other application components) and work up the tree. Feature modules with lazy loading can be migrated to `loadComponent` or `loadChildren: () => routes` arrays. The `importProvidersFrom(SomeModule)` function bridges remaining NgModules into standalone bootstrap configuration. Incremental migration is safe because standalone and non-standalone components coexist.",
+    "followUp": null
+  },
+  {
+    "question": "What is bootstrapApplication vs platformBrowserDynamic and what are the configuration differences?",
+    "answer": "`platformBrowserDynamic().bootstrapModule(AppModule)` is the NgModule-based bootstrap — it starts the Angular platform, compiles the root module (in JIT mode), and launches the application. `bootstrapApplication(AppComponent, { providers: [...] })` is the standalone bootstrap — it takes the root standalone component and an optional configuration with providers. The configuration difference: in NgModule bootstrap, providers go in `AppModule`'s `providers` array; in standalone bootstrap, they go in the `providers` array of `bootstrapApplication`'s `ApplicationConfig`. Router configuration uses `provideRouter(routes)` instead of `RouterModule.forRoot(routes)`. HTTP uses `provideHttpClient()`. This functional provider pattern is more tree-shakable — you only pay for the features you use. Angular's `app.config.ts` pattern is the conventional location for the `ApplicationConfig`.",
+    "followUp": null
+  },
+  {
+    "question": "How does lazy loading work differently with standalone components vs feature modules?",
+    "answer": "With NgModules, lazy loading uses `loadChildren: () => import('./feature/feature.module').then(m => m.FeatureModule)` — the module defines its routes, providers, and component declarations. With standalone components, lazy loading uses either `loadComponent: () => import('./feature.component').then(c => c.FeatureComponent)` for a single lazy component, or `loadChildren: () => import('./feature.routes').then(r => r.routes)` for a lazy route configuration (an array of routes, no module needed). The provider implication: NgModule lazy routes automatically create a new injector scope; standalone lazy routes using `loadChildren` also create a child injector for providers in the routes' `providers` array. The standalone pattern is more explicit about what creates injector boundaries — you opt-in to provider scoping rather than inheriting module boundaries.",
+    "followUp": null
+  },
+  {
+    "question": "What is the importProvidersFrom() function and when do you need it in standalone apps?",
+    "answer": "`importProvidersFrom(SomeModule)` extracts the providers from an NgModule's `providers` array (and its imported modules' providers) and makes them available in a standalone context. It's needed during migration when third-party libraries or legacy code still uses NgModules to configure providers — you can't eliminate the module immediately, but you can import its providers into the standalone `bootstrapApplication` configuration. Examples: `importProvidersFrom(BrowserAnimationsModule)` for animations (until `provideAnimations()` is available), `importProvidersFrom(HttpClientModule)` before `provideHttpClient()` was introduced, or third-party libraries that still ship NgModule-based provider configuration. The function is a compatibility bridge — standalone apps should gradually eliminate `importProvidersFrom` calls as library authors ship standalone-compatible `provide*()` functions.",
+    "followUp": null
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between offset pagination and cursor-based pagination, and at what scale does cursor become necessary?",
+    "answer": "Offset pagination uses `LIMIT N OFFSET M` — 'skip M rows and return N'. It's simple to implement and allows random page access, but performance degrades with large offsets because the database must scan and discard M rows on every request. Cursor-based pagination encodes the position of the last seen item (typically its ID or a unique ordered field) and uses `WHERE id > cursor ORDER BY id LIMIT N` — the database uses the index directly without scanning discarded rows. Cursor pagination is necessary at scale: at offsets above 50,000-100,000 on unindexed sort columns, offset queries become painfully slow. Cursor pagination also provides stable results — inserting a new row doesn't shift subsequent pages and cause duplicates or skipped rows. The tradeoff: cursors cannot jump to arbitrary pages, making random-access pagination UX (like jumping to page 47 of 100) impossible.",
+    "followUp": "How do you encode the cursor in a way that's opaque to clients and prevents them from constructing arbitrary cursors?"
+  },
+  {
+    "question": "What is the COUNT query problem with Spring Data's Page<T> and how do you optimize it?",
+    "answer": "`Page<T>` executes two queries: the data query with `LIMIT`/`OFFSET` and a separate `SELECT COUNT(*)` to populate `totalElements` and `totalPages`. On large tables, the COUNT query can be as expensive as a full table scan, especially on complex queries with joins and WHERE clauses. Optimizations: if the total count is not needed by the client, use `Slice<T>` instead — it fetches one extra row to determine if there's a next page, no COUNT query. For APIs where clients do need the total, provide a separate `/count` endpoint that clients call independently and cache. For complex queries with joins, write an explicit `@Query(countQuery = 'SELECT count(u.id) FROM User u WHERE ...')` that is simpler than the data query. Approximate counts using `pg_class.reltuples` (PostgreSQL) or `EXPLAIN` output are acceptable for very large tables where exact counts are prohibitively expensive.",
+    "followUp": null
+  },
+  {
+    "question": "How do you expose a paginated endpoint in a way that's consistent with REST principles?",
+    "answer": "Use query parameters for pagination controls: `GET /users?page=0&size=20&sort=createdAt,desc`. The response body should include the data array plus pagination metadata: `totalElements`, `totalPages`, `currentPage`, `pageSize`, and ideally `hasNext` and `hasPrevious` as boolean convenience flags. For strict REST conformance, include Link header values (RFC 5988) with `rel=next`, `rel=prev`, `rel=first`, `rel=last` pointing to the adjacent page URLs. Spring Data's `Page<T>` serializes as a Spring HATEOAS response when wrapped in `PagedModel` from Spring HATEOAS, which includes those links automatically. The `Pageable` parameter in Spring Data controller methods can be resolved from `page`, `size`, and `sort` query parameters automatically via `PageableHandlerMethodArgumentResolver`.",
+    "followUp": null
+  },
+  {
+    "question": "What is the maximum page size problem and how do you defend against a client requesting page size=1000000?",
+    "answer": "Without a maximum size constraint, a client (or attacker) can request `?size=1000000`, causing the application to load millions of rows from the database, exhaust heap memory, and crash — an effective denial-of-service attack using legitimate API calls. Spring Data's `PageableHandlerMethodArgumentResolver` has `setMaxPageSize()` which caps the page size regardless of what the client requests. In Spring Boot, configure `spring.data.web.pageable.max-page-size=100`. Alternatively, validate the `Pageable` parameter explicitly: if `pageable.getPageSize() > MAX_SIZE`, reject with a 400 Bad Request. Document the maximum size in the API contract so legitimate clients know the limit. Choose the maximum based on the expected response size — for lightweight objects, 100-200 is reasonable; for heavy entities with many fields, 20-50 may be more appropriate to avoid large response bodies.",
+    "followUp": null
+  },
+  {
+    "question": "How does pagination interact with sorting on non-indexed columns at scale?",
+    "answer": "Sorting by a non-indexed column with `ORDER BY unindexed_column LIMIT N OFFSET M` requires a full table scan with a sort operation — the database cannot use any index shortcut and must sort all rows before applying the limit. At scale (millions of rows), this is catastrophic: sorting millions of rows to return 20 takes seconds, and the work is repeated for every page request. The fix is ensuring that any column used for sorting is indexed — composite indexes for multi-column sorts. When users are allowed to sort by arbitrary columns, limit the sortable columns to those with indexes and reject sorts on non-indexed columns with a 400 error. For truly dynamic sorting where any column might be requested, use Elasticsearch or a dedicated search service for the sorted queries and use the relational database only for data storage. This is a common performance cliff that only manifests under production load.",
+    "followUp": null
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What are the security risks of exposing all Actuator endpoints publicly, and how do you lock them down?",
+    "answer": "`/actuator/env` exposes all resolved configuration properties including database passwords, API keys, and OAuth secrets (partially masked but extractable with certain configurations). `/actuator/heapdump` dumps the JVM heap, which contains all in-memory data including decrypted secrets and user session data. `/actuator/loggers` can be used to enable `TRACE` logging, potentially logging sensitive data. `/actuator/shutdown` can kill the application. The correct lockdown: expose Actuator on a separate management port (`management.server.port=8081`) that is not publicly accessible (blocked by load balancer/firewall), or require authentication via Spring Security: `management.endpoints.web.exposure.include=health,info,metrics` (whitelist only safe endpoints), and require the `ACTUATOR_ADMIN` role for sensitive endpoints. `management.endpoint.health.show-details=when-authorized` hides internal dependency health from unauthenticated requests.",
+    "followUp": null
+  },
+  {
+    "question": "How do you implement a custom HealthIndicator that checks a downstream service dependency?",
+    "answer": "Implement the `HealthIndicator` interface and return a `Health` object based on the dependency's state. Spring Boot registers it and includes it in `/actuator/health`. For an HTTP dependency: `try { ResponseEntity<String> r = restTemplate.getForEntity(serviceUrl + \"/health\"); return r.getStatusCode().is2xxSuccessful() ? Health.up().build() : Health.down().withDetail(\"status\", r.getStatusCode()).build(); } catch (Exception e) { return Health.down(e).build(); }`. Key considerations: cache the last health check result with a TTL to avoid calling the dependency on every Kubernetes liveness probe (which could cause a cascade of health-check traffic); use timeouts to prevent a slow dependency from making your health check hang; use a circuit breaker around the health check call itself. Include enough detail in the `Health` object to diagnose issues without exposing sensitive data.",
+    "followUp": null
+  },
+  {
+    "question": "What is Micrometer and how does it abstract over different monitoring backends (Prometheus, Datadog, etc.)?",
+    "answer": "Micrometer is the application metrics facade for the JVM — analogous to SLF4J for logging. You write `meterRegistry.counter(\"orders.created\").increment()` or `meterRegistry.timer(\"http.server.requests\").record(...)` once, and Micrometer translates those measurements to the format expected by your monitoring backend. Adding `micrometer-registry-prometheus` to the classpath auto-configures a `PrometheusMeterRegistry`; `micrometer-registry-datadog` sends to Datadog. Spring Boot's Actuator auto-configures Micrometer and pre-instruments many common metrics: JVM memory, GC pauses, connection pool usage, HTTP request timing, and cache statistics. The abstraction means switching monitoring backends (from Prometheus to Datadog) requires only a dependency change, not code changes. Teams running multiple backends (Prometheus for alerting, Datadog for dashboards) add both registries and metrics are sent to all simultaneously.",
+    "followUp": null
+  },
+  {
+    "question": "How do you use /actuator/loggers to change log levels in production without restarting?",
+    "answer": "`GET /actuator/loggers/{loggerName}` returns the configured and effective log level for a logger. `POST /actuator/loggers/{loggerName}` with body `{\"configuredLevel\": \"DEBUG\"}` changes it at runtime. This is invaluable for diagnosing production issues: enable `DEBUG` logging for a specific package (`com.example.payment`) temporarily to capture detailed logs during an incident, then reset to `WARN`. The endpoint uses Logback's (or Log4j2's) runtime configuration API internally. The change is not persistent — it resets on application restart. For multi-instance deployments, you must change the level on each instance individually or use Spring Cloud's config refresh mechanism. Security is critical: this endpoint must require authentication because enabling `TRACE` on the root logger can fill disk and expose sensitive data. Include it in the secured management port setup.",
+    "followUp": null
+  },
+  {
+    "question": "What is /actuator/startup and how do you use it to identify slow bean initialization?",
+    "answer": "`/actuator/startup` (available in Spring Boot 2.4+) returns the sequence and duration of each step in the application startup, including individual bean creation times. It's populated when you configure `SpringApplication.setApplicationStartup(new BufferingApplicationStartup(2048))` — the buffer size controls how many steps are recorded. The output shows the timeline of bean instantiation, context refresh phases, and auto-configuration steps. To identify slow beans: look for `instantiate-bean` entries with high durations — these are beans whose constructors or `@PostConstruct` methods took significant time. Common culprits: beans that make network calls at startup, beans that load large files, or beans that compute expensive initial state. The startup actuator provides a programmatic alternative to the Spring Boot startup time logger (`--debug` flag), with structured data suitable for tooling and automation.",
+    "followUp": null
+  }
+]

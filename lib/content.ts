@@ -64,6 +64,12 @@ export function getLesson(
   const quizRaw = JSON.parse(quizFile);
   const quiz = Array.isArray(quizRaw) ? quizRaw : quizRaw.questions;
 
+  // Read interview.json if present — optional file
+  const interviewPath = path.join(lessonDir, "interview.json");
+  const interview = fs.existsSync(interviewPath)
+    ? JSON.parse(fs.readFileSync(interviewPath, "utf-8"))
+    : [];
+
   return {
     id: lessonId,
     title: data.title as string,
@@ -76,5 +82,6 @@ export function getLesson(
     starter,
     language,
     quiz,
+    interview,
   };
 }

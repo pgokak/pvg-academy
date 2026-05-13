@@ -1,0 +1,27 @@
+[
+  {
+    "question": "How do Spring profiles interact with externalized configuration in a CI/CD pipeline?",
+    "answer": "In a CI/CD pipeline, the active profile is typically set via the `SPRING_PROFILES_ACTIVE` environment variable or `--spring.profiles.active` command-line argument — never hardcoded in the application. `application-dev.yml` and `application-prod.yml` contain environment-specific overrides, but secrets are not in these files — they come from the deployment platform (Kubernetes Secrets, Vault, CI/CD secrets). The pipeline's job is to set the profile and inject secrets; the application's job is to read them. A common pattern: `application.yml` contains all defaults and non-sensitive config, `application-{env}.yml` overrides non-sensitive environment differences (log levels, feature flags, external service URLs), and secrets are injected purely through environment variables that override both. This ensures that profiles don't carry secrets and that config files can be safely committed to version control.",
+    "followUp": "How do you handle the case where a configuration value needs to be different for blue/green deployment A vs B within the same environment profile?"
+  },
+  {
+    "question": "What is the difference between @Profile on a @Bean vs. on a @Component?",
+    "answer": "`@Profile` on a `@Bean` method in a `@Configuration` class conditionally includes that single bean based on the active profile — other beans in the same `@Configuration` class are still registered. `@Profile` on a `@Component` class (or `@Service`, `@Repository`) conditionally includes the entire class and all its exported beans. The practical difference: a configuration class might register five beans, and `@Profile` on one `@Bean` method makes only that bean conditional while the others remain unconditional. `@Profile` on a `@Configuration` class makes all beans in that class conditional, which is useful for profile-specific auto-configuration. The most common use is replacing an implementation: the default `EmailService` component without a profile is always registered, while `@Profile('dev') MockEmailService` registers only in dev — but Spring would throw for duplicate beans; you need `@ConditionalOnMissingBean` or `@Primary` to handle precedence.",
+    "followUp": null
+  },
+  {
+    "question": "How do you handle profile-specific database migrations with Flyway?",
+    "answer": "Flyway's standard versioned migrations (`V1__init.sql`) run in all environments. For profile-specific data, use Flyway's `locations` property — in `application-dev.yml`: `spring.flyway.locations=classpath:db/migration,classpath:db/testdata` — to load seed data SQL files only in development. For schema differences across environments (less common and often a design smell), use Flyway's `schemas` and `placeholders` features or separate migration paths. A cleaner approach is to keep schema migrations environment-agnostic (the production schema runs in all environments) and use separate test data loading mechanisms (`@Sql` in tests, SQL seed scripts in dev) rather than mixing development data into production migrations. Flyway's `validateOnMigrate=true` prevents a mismatch between the recorded migration history and migration files, which is critical for detecting drift.",
+    "followUp": null
+  },
+  {
+    "question": "What is the anti-pattern of having too many profiles, and how do you know when you've crossed the line?",
+    "answer": "The anti-pattern is creating profiles for every environment and feature combination: `dev`, `staging`, `prod`, `docker`, `local-db`, `mock-email`, `feature-x-enabled`. Each profile adds a matrix of `application-{profile}.yml` files, and activating multiple profiles creates combinatorial complexity — the resolved configuration is the merge of all active profiles in a defined order, making it hard to reason about the actual active configuration. You've crossed the line when: you have more than 4-5 profiles, when local developer setup requires remembering to activate multiple profiles, or when a bug appears in one environment but not another because of a profile-specific configuration that nobody knew was active. The fix is to prefer explicit configuration properties (`features.email.mock=true`) over profiles for feature flags, and to limit profiles to true deployment tier differences: `dev`, `test`, `staging`, `prod`.",
+    "followUp": null
+  },
+  {
+    "question": "How do you test code that is only active under a specific profile?",
+    "answer": "Use `@ActiveProfiles(\"profilename\")` on the test class or method to activate the profile for that test. For testing a specific bean implementation that only registers under a profile, combine `@ActiveProfiles` with `@SpringBootTest` or `@DataJpaTest`. If the profile gates a `@Configuration` class or a specific `@Bean`, activating the profile in the test ensures that component is registered. A cleaner alternative for component-level conditionals is `@ConditionalOnProperty` instead of `@Profile` — then tests can use `@TestPropertySource(properties = \"feature.x.enabled=true\")` to activate the component without managing profile names. Integration tests that must cover both the presence and absence of a profile-specific bean should run in separate test classes with different `@ActiveProfiles` settings, as profile activation affects the Spring context cache.",
+    "followUp": null
+  }
+]

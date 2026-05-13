@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What problem do Angular Signals solve that Zone.js and RxJS Observables do not?",
+    "answer": "Zone.js triggers change detection on every async event — a `setInterval`, a button click, or an XHR response all cause Angular to check the entire component tree, even if nothing relevant changed. It's a blunt instrument. Observables with `OnPush` improve this but require careful subscription management and don't solve the glitch problem — multiple dependent observables can emit intermediate inconsistent states. Signals provide fine-grained reactivity: Angular tracks exactly which signals each component or computed value reads, and only marks those specific computations as dirty when those signals change. No Zone.js patching, no full tree traversal, no intermediate inconsistent states. This enables zoneless change detection with better performance at scale, and makes reactive state management without RxJS practical for components that don't need complex stream operations.",
+    "followUp": null
+  },
+  {
+    "question": "What is the glitch-free guarantee of signals and why does computed() only calculate once when multiple dependencies update?",
+    "answer": "When multiple signals that a `computed()` depends on update in the same synchronous batch, Angular marks the `computed()` as stale but does not recalculate it immediately. The recalculation happens lazily — the next time the computed value is read (during the next template rendering cycle). By that time, all the upstream signal updates have been applied, so the computed function runs exactly once with all-new values. This differs from RxJS where `combineLatest([a$, b$])` emits after each individual update, potentially showing `[newA, oldB]` before `[newA, newB]`. The glitch-free property means a component depending on two signals that update together never renders an intermediate inconsistent state — it only renders after both signals have their new values. This is particularly important for derived state like `fullName = computed(() => firstName() + ' ' + lastName())`.",
+    "followUp": null
+  },
+  {
+    "question": "What are the rules of the reactive context — where can you read signals and where can't you?",
+    "answer": "A reactive context is any code that tracks signal reads for automatic re-computation: `computed()` bodies, `effect()` bodies, and Angular template expressions. Reading a signal in these contexts registers it as a dependency. Outside a reactive context (event handlers, service methods, constructor code, `ngOnInit`, setTimeout callbacks), reading a signal returns its current value but does not register any dependency — no automatic re-computation happens. You cannot call `effect()` in a regular class method; it must be called in an injection context (class field initializer, constructor, or `runInInjectionContext()`). The `untracked(() => signal())` utility reads a signal without registering the dependency — useful inside `computed()` or `effect()` when you need the current value but don't want that signal to trigger re-execution.",
+    "followUp": null
+  },
+  {
+    "question": "What is toSignal() and toObservable() and when would you bridge between signals and observables?",
+    "answer": "`toSignal(observable$)` converts an Observable to a Signal — it subscribes immediately in the injection context and emits each Observable value as a signal update. The signal has a synchronous initial value (either an explicit `initialValue` or the Observable's first synchronous emission, or `undefined` before the first async emission). `toObservable(signal)` converts a Signal to an Observable that emits when the signal changes. Bridge from Signal to Observable (`toObservable`) when: you need RxJS operators (debounce, switchMap, distinctUntilChanged) on signal changes; when integrating with existing Observable-based APIs; or when you need shareReplay behavior for a signal. Bridge from Observable to Signal (`toSignal`) when: you're consuming an HTTP response or any async stream in a template, replacing `| async` with a simpler signal read; or when you want the glitch-free and zoneless benefits for derived state based on async data.",
+    "followUp": null
+  },
+  {
+    "question": "How do Signals enable zoneless Angular and what does that mean for existing applications?",
+    "answer": "Zone.js patches all async APIs to trigger Angular's change detection after every async completion — it's the mechanism by which Angular knows when to check for UI updates. With Signals, Angular can instead detect changes precisely: when a signal that a template depends on changes, Angular marks only that component's view as dirty, without Zone.js scheduling. The `provideExperimentalZonelessChangeDetection()` provider (Angular 18+) enables this mode. Existing applications using Zone.js and template bindings on plain properties (not signals) need migration: regular property mutations no longer trigger change detection without Zone.js, so you must migrate mutable state to signals. Applications that already use `OnPush` and signals exclusively can go zoneless without breaking changes. Zoneless mode improves memory usage (Zone.js is a substantial bundle size), startup time, and performance for signal-based reactive architectures.",
+    "followUp": "What are the migration steps from a Zone.js-dependent application to zoneless, and how do you detect places that rely on Zone.js-triggered change detection?"
+  }
+]

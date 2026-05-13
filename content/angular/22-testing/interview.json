@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between fixture.detectChanges() and fixture.autoDetectChanges(true)?",
+    "answer": "`fixture.detectChanges()` manually triggers a single change detection cycle on the component — you call it explicitly after setting up initial state, after updating inputs, or after service mock emissions. It gives you precise control over when the view is checked. `fixture.autoDetectChanges(true)` enables automatic change detection triggered by async events (timers, resolved promises, DOM events) — the component behaves more like in the real application. The practical difference: with manual `detectChanges()`, tests are more deterministic — you know exactly when the view is evaluated. Auto-detection can cause tests to update when you don't expect them to, making assertions on intermediate states difficult. Manual `detectChanges()` is the recommended default; auto-detection is useful for integration-style component tests where you want to simulate real user interactions without manually triggering detection after each step.",
+    "followUp": null
+  },
+  {
+    "question": "How do you test a component that has an Observable from a service without actually calling the API?",
+    "answer": "Create a spy/mock service that returns a controlled Observable: `const mockService = jasmine.createSpyObj('DataService', ['getUsers']); mockService.getUsers.and.returnValue(of([{ id: 1, name: 'Alice' }]))`. Provide the mock: `TestBed.configureTestingModule({ providers: [{ provide: DataService, useValue: mockService }] })`. Call `fixture.detectChanges()` to trigger `ngOnInit` where the subscription lives. For async observables, use `TestScheduler` from RxJS for marble testing, or `fakeAsync` + `tick()` for timer-based observables. For error paths, return `throwError(() => new Error('Network error'))`. The key insight: you test the component's reaction to the Observable's emissions, not the Observable's source — mock the service to emit whatever values represent the scenario you're testing.",
+    "followUp": null
+  },
+  {
+    "question": "What is the cost of @MockBean on TestContext caching in Spring Boot, and what is the Angular equivalent issue with TestBed?",
+    "answer": "In Spring Boot, each unique combination of `@MockBean` annotations creates a separate `ApplicationContext` — the context cache key includes which beans are mocked. A test suite with 20 test classes each with different `@MockBean` combinations creates 20 separate contexts, with the full startup cost for each. The fix: standardize mock configurations in a shared base test class or `@TestConfiguration`. In Angular, `TestBed.configureTestingModule` creates a fresh testing module for each `describe` block unless `TestBed.resetTestingModule` is called less frequently. Each different combination of providers, imports, and declarations in `configureTestingModule` prevents test module reuse. Angular 16 introduced `TestBed.configureTestingModule({ teardown: { destroyAfterEach: true } })` to control module teardown — shared configurations in `beforeAll` and module-level setup can reduce repeated compilation overhead for large component test suites.",
+    "followUp": null
+  },
+  {
+    "question": "How do you test an Angular HTTP interceptor using HttpClientTestingModule?",
+    "answer": "`HttpClientTestingModule` provides a mock HTTP backend — requests don't actually go to the network. Import it alongside your interceptor: `{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }`. Inject `HttpTestingController` and `HttpClient`. Make a request with `http.get('/api/data').subscribe(...)`, then use `httpTestingController.expectOne('/api/data')` to get the pending request and assert the interceptor's modifications (added headers, modified URL). Call `request.flush(responseData)` to complete the request and verify the response passes through correctly. For 401 handling: `request.flush({}, { status: 401, statusText: 'Unauthorized' })` and assert the interceptor's refresh behavior. Call `httpTestingController.verify()` in `afterEach` to ensure no unexpected requests were made.",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between testing a reactive form's validity vs. testing its UI rendering?",
+    "answer": "Testing form validity is a pure unit test — instantiate the `FormGroup` directly (no `TestBed` needed): `const form = new FormGroup({ email: new FormControl('', [Validators.email]) }); form.patchValue({ email: 'invalid' }); expect(form.valid).toBeFalse()`. This tests the validation logic in isolation, runs in milliseconds, and doesn't need a DOM. Testing UI rendering requires `TestBed` with the component: checking that error messages appear when controls are invalid, that the submit button is disabled when the form is invalid, and that form values update the DOM correctly. The senior insight: separate these concerns deliberately — test all validation logic as pure unit tests (fast, no DOM), and test UI rendering with a minimal set of component tests that verify the connection between form state and template. Avoid testing both in the same test — it slows down the validation tests unnecessarily.",
+    "followUp": null
+  }
+]

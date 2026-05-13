@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Why is making an HTTP call in the constructor a bug in Angular, even though the service is available there?",
+    "answer": "The constructor runs during Angular's DI phase — before inputs are bound, before the view is created, and before the component is attached to the change detection tree. An HTTP call in the constructor starts an async operation that may complete and try to update component state before change detection is set up, potentially causing `ExpressionChangedAfterItHasBeenCheckedError`. More concretely, if the HTTP response arrives and triggers a state change before Angular has had a chance to run the first change detection pass on this component, the update is lost or causes view update errors. `ngOnInit` runs after the component is fully initialized in the Angular framework — inputs are bound, the component is in the change detection tree, and it's safe to start async operations. Additionally, making calls in constructors makes unit testing harder because creating the component in a test immediately fires real or mocked HTTP requests.",
+    "followUp": null
+  },
+  {
+    "question": "What is the ExpressionChangedAfterItHasBeenCheckedError and what does it reveal about Angular's internals?",
+    "answer": "This error fires in development mode when a binding value changes after Angular has already read it during the current change detection pass. Angular runs two passes in development: the normal check pass and a verification pass that re-reads all bindings to ensure they're stable. If the second pass sees a different value than the first pass set, the error fires. It reveals that Angular's change detection expects template expressions to be pure — reading them shouldn't have side effects, and their values shouldn't change as a consequence of change detection running. The most common cause is a parent modifying a property in `ngAfterViewInit` that was read during the child's change detection, or a service call in `ngAfterViewChecked` that mutates bound state. The fix is usually to defer the state change to `setTimeout(0)` or to restructure so the change happens before the check rather than after.",
+    "followUp": "Why does this error only appear in development mode and not production? What are the risks of it being silenced in production?"
+  },
+  {
+    "question": "When does ngOnChanges fire relative to ngOnInit, and what does that mean for @Input processing?",
+    "answer": "`ngOnChanges` fires every time an `@Input` value changes, including the first time inputs are bound (before `ngOnInit`). The lifecycle order is: `ngOnChanges` (first, with initial values) → `ngOnInit` (once, after first ngOnChanges) → … → `ngOnChanges` (on subsequent input changes). This means if you need to compute derived state from input values on initialization, `ngOnChanges` is correct because it sees the initial values. If you use `ngOnInit` for initialization logic that depends on inputs, it works because `ngOnInit` runs after the first `ngOnChanges`, so inputs have their initial values. The implication: reactive responses to input changes belong in `ngOnChanges`, not in `ngOnInit`. A common mistake is initializing subscription logic in `ngOnInit` but forgetting to update it in `ngOnChanges` when inputs change — the subscription uses the initial input value forever.",
+    "followUp": null
+  },
+  {
+    "question": "What is DestroyRef and how does it improve over implementing ngOnDestroy?",
+    "answer": "`DestroyRef` is an injectable that lets any code (not just the component class itself) register cleanup callbacks that run when the injection context is destroyed. Inject it with `inject(DestroyRef)` or `new DestroyRef()` and call `destroyRef.onDestroy(cleanupFn)`. The improvement over `ngOnDestroy`: utility functions and composables can register their own cleanup without requiring the host class to implement `ngOnDestroy` and explicitly call the cleanup. This enables composable patterns where a function like `managedInterval(ms, fn)` internally calls `destroyRef.onDestroy(() => clearInterval(id))` — the caller doesn't need to know about or manage the cleanup. With `ngOnDestroy`, every component using a utility must explicitly implement the interface and delegate to all utilities, creating tight coupling between the component and its utility dependencies.",
+    "followUp": null
+  },
+  {
+    "question": "What is ngZone.runOutsideAngular() and when is it critical for performance?",
+    "answer": "`NgZone.runOutsideAngular()` runs code outside of Zone.js — events and async operations initiated inside this callback do not trigger Angular's change detection. This is critical for: high-frequency DOM events like `mousemove`, `scroll`, `resize`, and `requestAnimationFrame` loops, where triggering change detection on every event would cause significant frame-rate drops; third-party libraries that set up their own animation loops or WebSocket message handlers; and WebGL/Canvas rendering that updates the DOM directly without going through Angular's data binding. The pattern: `this.ngZone.runOutsideAngular(() => { element.addEventListener('mousemove', handler) })`. When you need to update Angular state from outside the zone, call `this.ngZone.run(() => { this.value = newValue; })` to re-enter the zone and trigger change detection for that specific update.",
+    "followUp": null
+  }
+]

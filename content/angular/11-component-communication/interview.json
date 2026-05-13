@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between @Input() and the new input() signal function in Angular 17+?",
+    "answer": "`@Input()` is a decorator that marks a class property as an input binding — it's set by the framework during change detection, and its value is not available in the constructor or field initializers. `input()` (Angular 17+) is a signal-based input that returns a `Signal<T>` — the value is reactive and changes trigger signal-aware re-computation without Zone.js. Key differences: `input()` is required or optional explicitly (`input.required<string>()`), it integrates with `computed()` and `effect()` naturally, and the value is a signal that can be read and combined with other signals. `@Input()` still works and is valid, but `input()` enables finer-grained reactivity, works better in zoneless mode, and avoids the `ngOnChanges` ceremony for reacting to input changes. The `input()` function must be called in an injection context (constructor or field initializer).",
+    "followUp": null
+  },
+  {
+    "question": "When should you use a shared service for component communication vs @Input/@Output?",
+    "answer": "Use `@Input/@Output` for parent-child communication that is direct and hierarchically close — it's explicit, easy to trace, and keeps components self-contained. Use a shared service when: components are siblings or distant in the component tree (passing data through many intermediary components via @Input creates 'prop drilling' — the intermediate components pass data they don't use); when the communication is many-to-many (multiple producers, multiple consumers); when the state needs to persist beyond a component's lifetime; or when the communication pattern is decoupled and you don't want components to know about each other. A `BehaviorSubject` in a service is the standard pattern for shared state. The decision rule: if the component relationship is clear, stable, and direct, @Input/@Output is better. If it's complex or the components are independent, a service is cleaner.",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between ViewChild and ContentChild — when does each throw undefined?",
+    "answer": "`@ViewChild` queries elements within the component's own template. `@ContentChild` queries elements projected into the component by its parent via `<ng-content>`. Both can throw (return) undefined in specific scenarios: `@ViewChild` returns undefined when the target element doesn't exist because it's inside a false `*ngIf`, before `ngAfterViewInit`, or with `static: false` if accessed before `ngAfterViewInit`. `@ContentChild` returns undefined before `ngAfterContentInit`, when no content is projected, or when the projected content is inside a false `*ngIf`. The `static: true` option makes the query resolve before change detection, which means it works in `ngOnInit` but only for elements that are always present (not conditionally rendered). Using `static: true` on a conditional element always returns undefined regardless of timing.",
+    "followUp": null
+  },
+  {
+    "question": "How do you communicate between sibling components without a common parent?",
+    "answer": "The cleanest approach is a shared service with a `BehaviorSubject` or signal: Service A calls `sharedService.updateValue(newValue)`, Service B subscribes to `sharedService.value$`. The service is the communication hub, and components have no direct coupling to each other. For one-shot events (not state), a `Subject` in the service works. Angular's `@ngrx/store` or Akita/NGXS provide structured state management built on the same principle for larger applications. Avoid using a common parent component as a relay relay just for communication — it creates artificial component hierarchy and makes components less reusable. Event buses using plain observables are appropriate for decoupled event notification, while shared state services are appropriate for shared data that multiple views need to display and modify.",
+    "followUp": null
+  },
+  {
+    "question": "What is the ng-content transclusion API and how do you use select to project specific content?",
+    "answer": "`<ng-content>` without attributes projects all content passed between the component's tags. `<ng-content select=\".header\">` projects only elements with the class `header`, `<ng-content select=\"[slot='footer']\">` uses attribute selectors, and `<ng-content select=\"h2\">` uses element type selectors — all following standard CSS selector syntax. This enables slot-based composition similar to Web Components. Example: a `CardComponent` with `<ng-content select=\"[card-title]\">`, `<ng-content select=\"[card-body]\">`, and `<ng-content>` (catch-all for everything else). Multiple `ng-content` slots let the consumer control where specific pieces of content appear in the component's template, enabling highly flexible layouts. From Angular 17+, `@if`/`@for` in the component template can conditionally include `ng-content` slots, enabling conditional transclusion.",
+    "followUp": null
+  }
+]

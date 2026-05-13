@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What are branded/opaque types? Give a real-world example of a bug they prevent.",
+    "answer": "Branded types add a phantom type property to a primitive to make TypeScript treat structurally identical types as incompatible. The classic example: `type UserId = string & { readonly __brand: 'UserId' }` and `type OrderId = string & { readonly __brand: 'OrderId' }`. Without branding, passing an `OrderId` to a function expecting `UserId` compiles silently because both are strings. With branding, the compiler rejects the assignment. A real production bug this prevents: a function that fetches a user by ID accidentally receiving a session token string (both are strings), leading to a database query that returns nothing and surfaces as a confusing 404. The phantom brand has no runtime cost — it exists only in the type system.",
+    "followUp": "How do you create values of a branded type safely — what pattern do you use to validate and construct them?"
+  },
+  {
+    "question": "When does using a type alias instead of inline types improve maintainability?",
+    "answer": "Type aliases improve maintainability when the same complex type appears in multiple places, when the type needs a domain-meaningful name that conveys intent, or when the type is likely to evolve and you want a single place to update. Inline types like `Map<string, { id: number; name: string; roles: string[] }>` scattered across ten files creates maintenance debt — changing the shape requires hunting all occurrences. A named alias `type UserRegistry = Map<UserId, UserProfile>` makes the intent clear and changes propagate automatically. The tradeoff is premature naming: a type that appears only once may be better inline to avoid the indirection cost for readers who must jump to the definition to understand the shape.",
+    "followUp": null
+  },
+  {
+    "question": "What is the `satisfies` operator and how does it differ from a type annotation?",
+    "answer": "A type annotation (`const config: Config = {...}`) widens the inferred type to `Config`, losing all literal type information — `config.color` would be typed as `string` even if you wrote `color: 'red'`. The `satisfies` operator (`const config = {...} satisfies Config`) validates that the value conforms to `Config` at the point of assignment but preserves the narrower inferred type, so `config.color` is still typed as `'red'`. This is critical when you want type safety during construction (catching typos) while retaining literal types for later use (autocomplete on specific values). It also lets TypeScript catch excess properties that a type annotation might miss in certain scenarios, and it's especially useful for configuration objects and lookup tables where you need both validation and literal preservation.",
+    "followUp": "Give an example where using a type annotation would cause a bug at runtime that `satisfies` would catch at compile time."
+  },
+  {
+    "question": "How do you model a state machine using type aliases in TypeScript?",
+    "answer": "You model each state as a distinct type with a literal discriminant and state-specific data, then union them together. For example, a request can be `{ status: 'idle' } | { status: 'loading' } | { status: 'success'; data: User } | { status: 'error'; error: Error }`. Switching on `status` narrows TypeScript to the exact state, making `data` only accessible in the success branch and `error` only in the error branch — accessing them in the wrong state is a compile error. Transitions are typed as functions that take a specific state and return another specific state, making illegal transitions unrepresentable. This pattern, often called the `RemoteData` type, is far safer than a flat object with optional fields where any combination of `loading/data/error` is technically valid but logically incoherent.",
+    "followUp": "How do you handle a state machine with 8+ states in a way that remains readable and maintainable?"
+  },
+  {
+    "question": "What is the difference between `type A = B & C` and `interface A extends B, C`?",
+    "answer": "Both express that A has all the properties of B and C, but they behave differently when B and C have conflicting property types. With `interface extends`, TypeScript will error at the interface declaration if the same property has incompatible types across base interfaces. With `type &` intersection, TypeScript defers the conflict — the resulting property type becomes `never` (the intersection of incompatible types), and you won't see the error until you try to assign to or read from that property, which can be much harder to debug. Interface extension also supports declaration merging, while type intersection does not. For documentation and error message quality, interface extends is generally better for multi-level inheritance hierarchies; type intersection is better for ad-hoc composition of existing types.",
+    "followUp": null
+  }
+]

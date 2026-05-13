@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What exactly does Zone.js do, and how does it trigger Angular's change detection cycle?",
+    "answer": "Zone.js patches all browser async APIs — `setTimeout`, `setInterval`, `Promise.then`, `addEventListener`, `XMLHttpRequest`, `fetch` — by wrapping them with its own implementations that notify a 'zone' when async operations complete. Angular creates a zone called `NgZone` and subscribes to its `onMicrotaskEmpty` and `onStable` notifications. When any async operation completes inside the Angular zone, Zone.js notifies `NgZone`, which triggers `ApplicationRef.tick()` — a full change detection pass traversing the entire component tree. This is why clicking a button, receiving an HTTP response, or a timer firing all cause Angular to check every component for changes, even if only one component is affected. The convenience is that Angular works automatically with almost any async code; the cost is that it's a blunt instrument that scales poorly in applications with high async event rates.",
+    "followUp": null
+  },
+  {
+    "question": "What are the four conditions that trigger change detection with OnPush strategy?",
+    "answer": "With `ChangeDetectionStrategy.OnPush`, Angular skips change detection for the component unless: (1) an `@Input` reference changes — a new object reference or primitive value different from the previous; (2) an event originates from the component or one of its children (click, input, custom output event); (3) the `async` pipe receives a new emission from its observable, which internally calls `markForCheck()`; (4) `ChangeDetectorRef.markForCheck()` is called explicitly on the component — typically from a service subscription or a manual state update. Without `OnPush`, all four conditions plus the default 'any async event anywhere in the app' trigger checking. The critical implication: OnPush components that need to update based on data from a service subscription must either use the async pipe or call `markForCheck()` in the subscription callback — plain property mutation is invisible to OnPush change detection.",
+    "followUp": "How does using Signals change the triggering conditions for change detection in an OnPush component?"
+  },
+  {
+    "question": "Why does mutating an array with push() not trigger OnPush change detection, and what does this require architecturally?",
+    "answer": "OnPush checks `@Input` changes by reference equality — `previousValue === currentValue`. When you call `push()` on an array, the array reference stays the same object, so Angular sees no change and skips the component. This is not a bug; it's the intended behavior of reference-based comparison. Architecturally, this requires immutable data patterns: to trigger an update, create a new array: `this.items = [...this.items, newItem]`. This applies to all mutable operations on objects and arrays used as OnPush inputs. In Redux-style state management, immutability is enforced by convention — reducers always return new objects. The requirement is actually a feature: it forces explicit, visible state updates that are easy to trace. Libraries like Immer make immutable updates ergonomic by allowing mutation-style code that produces new immutable objects under the hood.",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between markForCheck() and detectChanges()?",
+    "answer": "`markForCheck()` marks the component and all its ancestors up to the root as needing to be checked in the next change detection cycle — the actual checking happens asynchronously when Angular's next scheduled change detection pass runs. `detectChanges()` runs change detection on the component and its children synchronously, right now. Use `markForCheck()` when you've updated state that Angular doesn't know about (e.g., in a service subscription or from a non-Angular event) and you want Angular to check the component in its normal cycle — it's the standard way to notify an OnPush component. Use `detectChanges()` when you need the view updated immediately and synchronously — typically in third-party integrations, during testing where you control the change detection cycle, or in cases where a user interaction requires an immediate visual response before the Angular cycle would otherwise run.",
+    "followUp": null
+  },
+  {
+    "question": "What is zoneless Angular and what does adopting it require of an existing codebase?",
+    "answer": "Zoneless Angular removes Zone.js from the application entirely, relying on explicit change detection triggers from Signals, `markForCheck()` calls, and `ApplicationRef.tick()`. Adopting it requires: all components should use `OnPush` strategy (automatic with zoneless, since there's no Zone.js to trigger the default strategy); all asynchronous state updates that should trigger UI changes must either be signal writes, async pipe subscriptions, or explicit `markForCheck()` calls — plain property mutations in `setTimeout` callbacks or event handlers no longer trigger change detection automatically. Remove `ZoneModule` from the polyfills and add `provideExperimentalZonelessChangeDetection()`. The migration is gradual — audit all components for places that rely on Zone.js by temporarily running your existing app with `NgZone` disabled and watching for components that don't update. Applications that already use signals and OnPush extensively can go zoneless with minimal changes.",
+    "followUp": null
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between a synchronous and asynchronous validator in Angular reactive forms?",
+    "answer": "A synchronous validator is a function that receives an `AbstractControl` and returns `ValidationErrors | null` immediately — it runs inline during each value change and is appropriate for purely in-memory checks (required, min length, regex pattern, comparison with another form field). An asynchronous validator returns `Promise<ValidationErrors | null> | Observable<ValidationErrors | null>` — it can perform async operations like HTTP calls. Angular runs synchronous validators first; async validators only run if all synchronous validators pass, which is an optimization to avoid unnecessary API calls when the input format is already invalid. The form control shows a `PENDING` status while async validators are running. Mixing async validators with `updateOn: 'change'` and no debouncing fires an API call on every keystroke — always use `debounceTime` inside the validator or configure `updateOn: 'blur'`.",
+    "followUp": null
+  },
+  {
+    "question": "How do you write a cross-field validator that checks password === confirmPassword at the FormGroup level?",
+    "answer": "Add the validator to the `FormGroup`, not to individual controls — group-level validators receive the entire group: `new FormGroup({ password: new FormControl(''), confirmPassword: new FormControl('') }, { validators: passwordMatchValidator })`. The validator function: `function passwordMatchValidator(group: AbstractControl): ValidationErrors | null { const pw = group.get('password')?.value; const confirm = group.get('confirmPassword')?.value; return pw === confirm ? null : { passwordMismatch: true }; }`. The error is on the group, not on `confirmPassword` — to display it next to the confirm field, either check `form.errors?.['passwordMismatch']` in the template and position it manually, or set the error on the `confirmPassword` control inside the validator: `group.get('confirmPassword')?.setErrors({ passwordMismatch: true })`. The latter associates the error with the field for form control state tracking but requires manual clearing.",
+    "followUp": null
+  },
+  {
+    "question": "What is updateOn: 'blur' on an async validator and why is it critical for performance?",
+    "answer": "`updateOn: 'blur'` configures the form control to only recompute its value and run validation when the user leaves the field, rather than on every keystroke. For async validators that make API calls (checking username availability, email uniqueness, zip code validation), `updateOn: 'change'` without debouncing fires an HTTP request on every character typed — 15 keystrokes for a username = 15 API calls. `updateOn: 'blur'` fires exactly once when the user finishes typing and tabs out. This is critical for both performance (fewer server requests) and UX (the server validation feels intentional — it checks after input is complete, not while still typing). The alternative is `updateOn: 'change'` with `debounceTime(300)` inside the validator using `Observable` — this is more responsive (validates 300ms after typing stops) but requires the async validator to handle cancellation correctly.",
+    "followUp": null
+  },
+  {
+    "question": "How do you disable a FormControl conditionally without triggering validation?",
+    "answer": "`formControl.disable()` disables the control and by design removes it from form validation — disabled controls are excluded from `form.valid` checks and their values are excluded from `form.value` (but included in `form.getRawValue()`). Calling `disable()` does not trigger `valueChanges` by default (use `{ emitEvent: false }` to be explicit). The common mistake is trying to conditionally add/remove validators to simulate disabling — this leaves the control in a confusing partially-invalid state. Using `disable()`/`enable()` is semantically cleaner and matches the expected behavior: a disabled control cannot be edited, doesn't contribute to form validity, and its value is treated as intentionally absent. Re-enabling with `enable()` restores the original validators and validation state. The UI should reflect disabled state with `[disabled]` binding or via the `[formControl]` binding, which Angular handles automatically.",
+    "followUp": null
+  },
+  {
+    "question": "How do you implement a typed FormArray in Angular 14+ and what does the type parameter affect?",
+    "answer": "`FormArray<FormControl<string>>` creates a typed FormArray where each element is a `FormControl<string>`. The type parameter affects: `array.at(i)` returns `FormControl<string>` instead of `AbstractControl`; `array.value` returns `(string | null)[]` instead of `any[]`; `array.push()` enforces that you push a `FormControl<string>`, not a different control type. For complex items: `FormArray<FormGroup<{ name: FormControl<string>; age: FormControl<number> }>>` gives fully typed access to each group's controls. The practical benefit: IDE completion on `.at(0).get('name')?.value` returns `string | null` instead of `any`, catching field name typos and type mismatches at compile time. Migration: existing `FormArray` without a type parameter is treated as `FormArray<AbstractControl<any>>`, which is equivalent to the old untyped behavior — update progressively by adding type parameters to new FormArrays.",
+    "followUp": null
+  }
+]

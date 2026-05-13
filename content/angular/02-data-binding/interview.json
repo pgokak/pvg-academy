@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between one-way property binding [prop] and attribute binding [attr.prop]? When does the distinction matter?",
+    "answer": "Property binding (`[prop]`) sets a DOM element's JavaScript property — it works with the element's object model. Attribute binding (`[attr.prop]`) sets the element's HTML attribute. They matter differently: `<input [value]=\"name\">` sets the `value` property (what the user sees and what JavaScript reads), while `<input [attr.value]=\"name\">` sets the HTML attribute (what's in the markup, relevant for form reset behavior). Some attributes have no corresponding property (`aria-*`, `colspan`, `data-*`, SVG attributes) and require attribute binding. Some properties have no corresponding attribute (or the attribute name differs). For most common cases like `[disabled]`, `[id]`, `[class]` you use property binding. For accessibility attributes like `[attr.aria-label]` or SVG attributes like `[attr.cx]`, attribute binding is required because no equivalent DOM property exists.",
+    "followUp": null
+  },
+  {
+    "question": "Why does two-way binding [(ngModel)] require FormsModule, and what does it desugar to?",
+    "answer": "`[(ngModel)]` desugars to `[ngModel]=\"value\" (ngModelChange)=\"value = $event\"` — a property binding that sets the value and an event binding that updates the model on change. `ngModel` is a directive defined in `FormsModule` that implements `ControlValueAccessor` and provides the value accessor abstraction for DOM inputs. Without importing `FormsModule`, the `ngModel` directive doesn't exist in the template's scope and Angular cannot recognize the binding. In standalone components, you import `FormsModule` in the `imports` array of `@Component`. The desugar pattern is the foundation of the 'banana in a box' syntax — any component can support two-way binding by declaring an `@Input() value` and an `@Output() valueChange = new EventEmitter()`, and Angular will automatically bind both when the consumer uses `[(value)]`.",
+    "followUp": null
+  },
+  {
+    "question": "What is the banana-in-a-box syntax [()] and how would you implement it on a custom component?",
+    "answer": "The banana-in-a-box syntax `[(x)]` is shorthand for `[x]=\"value\" (xChange)=\"value = $event\"` — a property binding and a complementary event binding. To support it on a custom component, declare `@Input() x: T` and `@Output() xChange = new EventEmitter<T>()` — the output must be named exactly as the input name plus `'Change'`. When the component needs to update the value, call `this.xChange.emit(newValue)` and the parent's bound variable is updated automatically. This pattern is used in Angular Material components (date pickers, sliders, paginator), Angular CDK, and any reusable input component that needs to maintain synchronization with a parent model. The naming convention is enforced: Angular looks specifically for `${inputName}Change` when desugaring `[()]`.",
+    "followUp": null
+  },
+  {
+    "question": "How does Angular handle null safety in template bindings — what happens with undefined values?",
+    "answer": "Angular renders `null` and `undefined` as empty string in text interpolation (`{{ value }}` → empty string, not 'null'). Property bindings with `null` or `undefined` values set the property to null/undefined on the DOM element, which may cause issues depending on the property. The safe navigation operator `?.` in templates (`{{ user?.address?.city }}`) prevents null reference errors by short-circuiting — if `user` is null, the entire expression evaluates to null (rendered as empty). The async pipe (`user$ | async`) emits null when the observable hasn't emitted yet, and the safe navigation operator is commonly paired with it: `{{ (user$ | async)?.name }}`. The `ngIf` directive with `as` syntax is the idiomatic way to handle null: `*ngIf=\"(user$ | async) as user\"` renders the template only when user is non-null and binds it to `user`.",
+    "followUp": null
+  },
+  {
+    "question": "What is the async pipe and how does it differ from subscribing in the component class?",
+    "answer": "The async pipe subscribes to an Observable (or Promise) and returns its latest value for display, automatically unsubscribing when the component is destroyed. Subscribing in the component class requires manually managing subscription cleanup in `ngOnDestroy` and storing the value in a component property. The async pipe is preferred for several reasons: it handles subscription lifecycle automatically (no memory leaks), it marks the component for check-detection when OnPush is used (the pipe calls `markForCheck()` internally on each emission), and it keeps the template as the declarative owner of the data stream. Manual subscription in the class is appropriate when you need to combine multiple observables with complex logic before assigning to a property, or when you need to perform side effects on emissions. Teams that use async pipes consistently also tend to have cleaner separation between data streams and derived state.",
+    "followUp": null
+  }
+]

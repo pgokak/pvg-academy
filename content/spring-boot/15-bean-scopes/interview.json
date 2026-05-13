@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the concurrency problem with storing mutable state in a singleton bean?",
+    "answer": "Singleton beans are shared across all threads — every concurrent request uses the same bean instance. Instance fields on a singleton are therefore shared mutable state, which creates race conditions. A classic bug: a `ReportService` bean that has an instance field `List<ReportItem> currentItems` to accumulate results — under concurrent requests, multiple threads write to the same list simultaneously, causing corrupted results, missed items, and unpredictable behavior. The fix is to never store request-specific or call-specific state in singleton instance fields. State that varies per call must live in local variables (stack-allocated, thread-safe by definition) or in request-scoped beans. Thread-safe shared state (caches, counters) requires explicit synchronization or concurrent data structures (`ConcurrentHashMap`, `AtomicLong`). This is one of the most common bugs in Spring Boot applications written by developers coming from non-concurrent environments.",
+    "followUp": "How do you detect mutable state in singleton beans during code review? What static analysis tools help?"
+  },
+  {
+    "question": "When would you use @Scope(\"request\") and how does it interact with async processing?",
+    "answer": "Request scope creates a new bean instance per HTTP request and destroys it when the request completes — it's appropriate for per-request state like current user context, request-specific caches, or request-scoped audit information that should not leak between requests. The problem with async processing: when a `@Async` method is called from within a request-scoped context, it runs in a different thread where the HTTP request's `RequestAttributes` are not automatically available. `RequestContextHolder.getRequestAttributes()` returns null in async threads, causing `@Scope('request')` beans to fail with scope not active exceptions. Solutions: pass the needed data as method parameters rather than relying on request scope in async threads, or use `RequestContextHolder.setRequestAttributes(attrs, true)` to propagate the context to the async thread, which requires careful cleanup to prevent context leaking.",
+    "followUp": null
+  },
+  {
+    "question": "What is the scoped proxy pattern and how does it solve the singleton-prototype injection problem?",
+    "answer": "When a singleton bean needs a prototype-scoped (or request-scoped) collaborator, injecting it via constructor injection captures a single instance at creation time — defeating the scope. A scoped proxy is a proxy object that stands in for the actual bean; when any method is called on the proxy, it delegates to the appropriate scoped instance (a new prototype instance, the current request's instance). Configure it with `@Scope(value = \"prototype\", proxyMode = ScopedProxyMode.TARGET_CLASS)` on the dependency. The singleton holds the proxy reference (one instance, stable reference), and each method call on the proxy reaches the correct scoped instance. `TARGET_CLASS` uses CGLIB (works for classes), `INTERFACES` uses JDK proxy (only works for interface types). This pattern is also how Spring makes request-scoped and session-scoped beans work when injected into singletons.",
+    "followUp": null
+  },
+  {
+    "question": "How does bean scope affect Spring Security's SecurityContextHolder?",
+    "answer": "`SecurityContextHolder` uses a thread-local strategy by default — the authenticated `SecurityContext` is stored per thread. This works for synchronous request processing where one thread handles one request. For `@Async` methods, the new thread has no security context from the calling thread, so `SecurityContextHolder.getContext().getAuthentication()` returns null. Solutions: configure `DelegatingSecurityContextAsyncTaskExecutor` to propagate the security context to async threads, or use `SecurityContextCallable` to wrap tasks with the calling context. For reactive applications (WebFlux), the thread-local strategy doesn't work at all — Spring Security uses a `ReactiveSecurityContextHolder` backed by Reactor's `Context` instead. This is one of the most common authentication bugs in Spring Boot apps that mix synchronous and asynchronous processing.",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between Spring singleton scope and the Singleton design pattern?",
+    "answer": "The Singleton design pattern enforces one instance per JVM classloader through a private constructor and static accessor — it's implemented in the class itself and cannot be subclassed or replaced. Spring's singleton scope means one instance per Spring application context — you can have multiple application contexts in the same JVM (common in tests), each with its own 'singleton' instance. Spring singletons are created by the container through normal instantiation (constructors are not private), can be subclassed, can be replaced in tests with `@MockBean`, and are managed by the container's lifecycle. The practical implication: Spring singletons are testable and replaceable; traditional Singleton pattern instances are global state that cannot be mocked. Spring's approach is a managed, injected singleton rather than a static global, which preserves testability while maintaining single-instance semantics within a context.",
+    "followUp": null
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the N+1 select problem? Give three different solutions with their tradeoffs.",
+    "answer": "The N+1 problem occurs when loading a collection of N entities (1 query), then accessing a lazy-loaded association on each entity triggers N additional queries — totaling N+1 database round trips. Solution 1: `JOIN FETCH` in JPQL (`SELECT u FROM User u JOIN FETCH u.orders`) fetches both in a single query. The tradeoff is Cartesian product risk — fetching multiple collections simultaneously multiplies rows. Solution 2: `@EntityGraph` declaratively specifies which associations to eagerly load for a specific repository method without modifying the entity. Solution 3: `@BatchSize(size = 25)` on the association tells Hibernate to load lazy associations in batches using `IN` clauses rather than individual queries — this reduces N+1 to N/25 +1 queries. Each approach fits different contexts: JOIN FETCH for known, always-needed associations; EntityGraph for per-query control; BatchSize for reducing without eliminating the extra queries.",
+    "followUp": "What is the Cartesian product problem with JOIN FETCH and how do you avoid it when fetching two collections?"
+  },
+  {
+    "question": "What is the difference between JPQL, Criteria API, and native queries? When do you choose each?",
+    "answer": "JPQL is an object-oriented query language over the entity model — it references entity names and fields, not table and column names, and is database-independent. Choose JPQL for most queries: it's readable, portable, and benefits from Hibernate's SQL generation and caching. The Criteria API is a type-safe programmatic query builder that constructs queries as Java objects — choose it for dynamic queries where the structure changes at runtime (optional filters, dynamic sorting) because string concatenation in JPQL for dynamic queries is error-prone and hard to test. Native queries use raw SQL and allow database-specific features, window functions, CTEs, and full-text search. Choose native queries when you need database-specific optimizations, when JPQL cannot express the query (recursive CTEs, LATERAL joins), or when performance profiling shows Hibernate's generated SQL is suboptimal for a specific case.",
+    "followUp": null
+  },
+  {
+    "question": "How does Spring Data's derived query method (findByEmailAndActiveTrue) translate to JPQL under the hood?",
+    "answer": "Spring Data JPA parses the method name according to a naming convention: `findBy` is the subject, then each segment separated by `And`/`Or` is a predicate. `findByEmailAndActiveTrue` translates to `SELECT e FROM Entity e WHERE e.email = :email AND e.active = true`. Spring Data generates this at application startup by parsing the method name using a subject predicate parser. Complex derived queries (`findByAddressCityAndAgeGreaterThan`) translate to `WHERE e.address.city = :city AND e.age > :age`. The generated JPQL is logged when `spring.jpa.show-sql=true`. Derived methods become unreadable beyond a few predicates — for complex queries, `@Query` with explicit JPQL or native SQL is far clearer. The derived method approach is best for simple, one-off lookups where the method name is self-documenting.",
+    "followUp": null
+  },
+  {
+    "question": "What is the first-level cache in Hibernate and how does it interact with @Transactional boundaries?",
+    "answer": "Hibernate's first-level cache (the Session cache) is a per-session identity map that ensures each entity is loaded only once per Session — if you call `findById(1)` twice in the same Session, the second call returns the cached instance without a database round trip. The Session lifecycle is tied to the `@Transactional` boundary in Spring: a new Session opens when a transaction begins and closes (flushing changes) when it commits. This means within a single `@Transactional` method, repeated loads of the same entity are cached. Across transactions (or when there is no active transaction and Spring opens a new Session per `SimpleJpaRepository` method call), the cache is fresh. The first-level cache also buffers mutations — Hibernate accumulates changes and flushes them to the database at the optimal point (before a query that might need the changes, or at commit), which is the 'dirty checking' mechanism.",
+    "followUp": "What is the difference between flush() and clear() on a Hibernate Session, and when would you call them explicitly?"
+  },
+  {
+    "question": "What are the risks of FetchType.EAGER and when would you ever use it?",
+    "answer": "`FetchType.EAGER` loads the associated entity/collection every time the owning entity is loaded, regardless of whether you need it. The risks: every query that loads the entity incurs the join cost; associations that are needed in 10% of use cases but EAGER make every use case pay the cost; EAGER collections on a collection of results cause N+1 (Hibernate runs a separate query per parent entity to load the EAGER collection — EAGER doesn't mean JOIN, it means 'always load'). EAGER is legitimate in narrow cases: a `User` always shown with their `Role` (a single entity, not a collection, that is always needed), or a configuration entity with a tiny, stable, almost always accessed collection. The general rule from Hibernate's own documentation is to default to LAZY everywhere and use JOIN FETCH or EntityGraph explicitly where needed — EAGER is a premature optimization that usually pessimizes.",
+    "followUp": null
+  }
+]

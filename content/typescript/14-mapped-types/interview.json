@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the `-?` modifier in mapped types and when do you need it?",
+    "answer": "In mapped types, `-?` removes optionality from every property, making them all required. By default, `{ [K in keyof T]: T[K] }` preserves optionality from the original type. `{ [K in keyof T]-?: T[K] }` strips the `?` from all properties. You need this when implementing `Required<T>` (which is exactly `{ [K in keyof T]-?: T[K] }`), and when building utilities that must ensure all properties are present — for example, a function that fills in defaults and returns a fully-defined object. Similarly, `-readonly` removes the `readonly` modifier. These prefix modifiers are distinct from adding `+?` (which is the explicit way to add optionality) and exist because the default behavior of mapped types preserves modifiers from the source type, and sometimes you need to explicitly remove rather than add.",
+    "followUp": null
+  },
+  {
+    "question": "How do you create a mapped type that renames keys (using `as` clause)?",
+    "answer": "The `as` clause in a mapped type allows you to transform the key name: `type Getters<T> = { [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K] }`. This maps each property `name` to a getter `getName: () => string`. The `as` clause can also be used to filter keys by mapping unwanted ones to `never` — `[K in keyof T as T[K] extends Function ? never : K]` keeps only non-function properties. This feature (introduced in TypeScript 4.1) enables patterns that previously required two separate mapped types and an intersection. Real-world uses include creating React selector types, API response transformers, and event handler name generators.",
+    "followUp": "How do you use `as` with a conditional type to exclude certain properties from a mapped type?"
+  },
+  {
+    "question": "Write a `Mutable<T>` type that removes `readonly` from all properties.",
+    "answer": "`type Mutable<T> = { -readonly [K in keyof T]: T[K] }` — the `-readonly` prefix removes the `readonly` modifier from every property. For a deep version: `type DeepMutable<T> = { -readonly [K in keyof T]: T[K] extends object ? DeepMutable<T[K]> : T[K] }`. This is the counterpart to `Readonly<T>` from the standard library. You need `Mutable<T>` when working with APIs that return `readonly` objects (like those typed with `as const` or from immutable libraries) and you need to pass them to functions that expect mutable types. The circular type limitation applies to the deep version just as it does for `DeepPartial`.",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between a homomorphic and non-homomorphic mapped type?",
+    "answer": "A homomorphic mapped type iterates directly over `keyof T` — it preserves modifiers (optional, readonly) from the original type unless explicitly changed: `{ [K in keyof T]: ... }`. TypeScript recognizes this pattern and carries over `?` and `readonly` flags from source properties. A non-homomorphic mapped type introduces its own key source that doesn't come from `keyof T` — `{ [K in string]: T }` or `Record<string, T>` — and does not inherit any modifiers. This distinction matters when you want to build a utility that preserves optionality: a homomorphic type that keeps `readonly` by default will behave differently from a type that creates fresh properties. The TypeScript standard library utility types like `Partial`, `Required`, and `Readonly` are homomorphic.",
+    "followUp": null
+  },
+  {
+    "question": "How do you combine mapped types with conditional types for a real-world use case?",
+    "answer": "A classic combination: extract only the properties of T whose values are of a specific type. `type PickByValue<T, V> = { [K in keyof T as T[K] extends V ? K : never]: T[K] }`. The conditional type in the `as` clause filters keys where the value type doesn't match V. Real use cases: `PickByValue<User, string>` to get only string properties for display, or `PickByValue<FormValues, boolean>` to get toggle fields for a dynamic form renderer. Another example is creating a type-safe event emitter where the event name must be a key of a given map type and the listener receives the correct payload type. The combination of mapping (iterate over keys) with filtering (conditional `as never`) is the foundation for most advanced type transformations.",
+    "followUp": "How would you implement `OmitByValue<T, V>` as the inverse of `PickByValue`?"
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "When would you choose `unknown` over `any` and what does that choice signal about code quality?",
+    "answer": "`unknown` is the type-safe counterpart to `any` — it forces you to perform a type check before you can do anything meaningful with the value, whereas `any` silently opts out of all type checking. Choosing `unknown` signals that you acknowledge the value exists but refuse to pretend you know its shape until you've verified it. In practice you see this in catch blocks, external API response parsing, and plugin boundaries. A codebase full of `any` is a codebase where TypeScript is essentially disabled at those points; `unknown` preserves the safety contract. At a code review level, seeing `unknown` tells you the author thought carefully about the boundary, whereas `any` is usually a shortcut that accumulates technical debt.",
+    "followUp": "How would you audit an existing codebase to find `any` usages that should be `unknown`, and what tooling would you use?"
+  },
+  {
+    "question": "What is structural typing and what bugs does it allow that nominal typing prevents?",
+    "answer": "Structural typing means TypeScript checks shape compatibility, not identity — if two types have the same properties, they're assignable to each other even if they were declared separately. This is usually convenient, but it allows a classic category of bug: `type UserId = string` and `type OrderId = string` are fully interchangeable, so passing an `OrderId` where a `UserId` is expected compiles without error. In a nominal type system those would be distinct types and the compiler would reject the swap. In large codebases this causes subtle logic bugs where IDs or units (meters vs feet) get silently mixed. The fix in TypeScript is branded types — adding a unique phantom property to create artificial nominal distinction.",
+    "followUp": "Show me how you would implement a branded type for `UserId` and `OrderId` and how you'd create values of those types safely."
+  },
+  {
+    "question": "How does TypeScript's `never` type enable exhaustive switch statements, and what happens at runtime if you add a new union member without updating the switch?",
+    "answer": "The pattern works by assigning the default case to a variable typed `never` — if your union is truly exhausted, TypeScript will accept the assignment because no value can reach it. If you add a new union member and forget to handle it in the switch, the new member flows into the default case, and TypeScript errors because the new type is not assignable to `never`. At runtime, if you somehow reach that branch (e.g., data comes from an untyped API), the code will execute the default path silently — there is no runtime enforcement, only compile-time. This is why the pattern is often paired with a function like `assertNever(x: never): never { throw new Error('Unhandled case') }` to create a runtime safety net alongside the compile-time one.",
+    "followUp": "What happens to the exhaustive check if the union member is added in an external library that you don't control?"
+  },
+  {
+    "question": "Why does `const obj = {}` give a different type than `const obj: Record<string, unknown> = {}`?",
+    "answer": "With `const obj = {}`, TypeScript infers the type as `{}` (an empty object literal), and any property access is a type error because the inferred type has no known properties. With `const obj: Record<string, unknown>`, you're explicitly saying this is a dictionary that can hold any string key, so property access compiles but returns `unknown`, requiring a narrowing check before use. The annotation version is intentionally wider — it's designed for dynamic property access patterns. The literal inference version is intentionally narrow — TypeScript tries to give you the most precise type it can from the evidence. This difference matters most when you're building objects dynamically or working with JSON payloads where the shape isn't fully known at authoring time.",
+    "followUp": null
+  },
+  {
+    "question": "What is the `noUncheckedIndexedAccess` compiler option and what class of runtime bugs does it prevent?",
+    "answer": "`noUncheckedIndexedAccess` makes array index access and string-keyed object access return `T | undefined` instead of just `T`, forcing you to handle the case where the index is out of bounds or the key doesn't exist. Without it, `arr[0].name` compiles even if the array might be empty, silently producing a runtime `Cannot read properties of undefined` error. This is one of the most common JavaScript runtime crashes and TypeScript's default settings miss it entirely. Enabling this option requires touching a lot of code because many patterns assume indices are always valid, but it catches a whole class of off-by-one and empty-array bugs at compile time. It's not included in `strict: true`, which is why senior engineers often add it manually.",
+    "followUp": null
+  }
+]

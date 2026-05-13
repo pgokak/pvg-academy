@@ -1,0 +1,27 @@
+[
+  {
+    "question": "How do Spring annotations and Angular decorators differ at runtime? One uses reflection, the other uses a compiler transform.",
+    "answer": "Spring annotations are Java annotations processed at runtime by the Spring container using reflection APIs — the container reads class bytecode, inspects annotation metadata via `AnnotationUtils`, and uses that metadata to configure beans, proxy behavior, and AOP advice. This happens at application startup and requires loading all classes. Angular decorators in the Ivy compilation model are processed at compile time by the Angular compiler, which reads the decorator metadata and generates static definition fields (`ɵcmp`, `ɵfac`, `ɵinj`) directly on the class — by the time the browser runs the code, the decorator information has been compiled into efficient static properties. This is why Angular's tree-shaking is far more aggressive than Spring's — unused components and services can be eliminated because the compiler knows statically what's used.",
+    "followUp": "What was the View Engine approach to decorator processing in Angular, and why was switching to Ivy an important architectural improvement?"
+  },
+  {
+    "question": "What happens to decorators after TypeScript compilation? What does the emitted JavaScript look like?",
+    "answer": "With TypeScript's legacy `experimentalDecorators`, decorators compile to `__decorate()` calls that apply the decorator functions to the class or its prototype at module load time. A class decorator `@Injectable()` on `class UserService` becomes `UserService = __decorate([Injectable()], UserService)` in the emitted JavaScript. With TC39 Stage 3 decorators (TypeScript 5.0+), the output is different — it uses the native decorator syntax if the target supports it, or polyfill calls that mirror the new specification semantics. The key point for both: decorators execute at module load time when the class definition is evaluated, not at instantiation time. This means decorator side effects (like registering metadata) happen once when the module is first imported, not once per instance.",
+    "followUp": null
+  },
+  {
+    "question": "How do you create a custom annotation in Spring that composes multiple existing annotations?",
+    "answer": "Spring supports meta-annotations — you create a new annotation and annotate it with the annotations you want to compose. For example, a `@RestEndpoint` annotation that combines `@RestController`, `@RequestMapping`, and a custom `@Audited` annotation: `@Target(ElementType.TYPE) @Retention(RetentionPolicy.RUNTIME) @RestController @RequestMapping @Audited public @interface RestEndpoint {}`. Spring's `AnnotationUtils.findAnnotation` traverses the meta-annotation chain, so any Spring infrastructure that looks for `@RestController` will find it even if the class only has `@RestEndpoint`. This pattern is valuable for enforcing architectural conventions — a `@DomainService` annotation that combines `@Service` with specific transaction and scope settings lets you update the convention in one place.",
+    "followUp": "What is the `@AliasFor` annotation in Spring and when do you need it inside a composed annotation?"
+  },
+  {
+    "question": "What is the relationship between Angular decorators and Angular's Ivy compiler?",
+    "answer": "Angular's Ivy compiler treats decorators as instructions to generate static code. When you write `@Component({ selector: 'app-root', template: '...' })`, the Ivy compiler reads the decorator metadata and generates a static `ɵcmp` property on the class containing a compiled component definition — this includes template instructions, change detection strategy, and dependency information. The decorator itself (as a JavaScript function) still runs at module load time, but its primary purpose shifted from runtime metadata storage (as in View Engine) to being a compile-time signal. This separation means Angular components now have all the information needed for instantiation baked into their class definition, enabling better tree-shaking, faster change detection, and better debugging since the generated code is closer to what the developer wrote.",
+    "followUp": null
+  },
+  {
+    "question": "What are the TC39 Stage 3 decorator semantics vs TypeScript's legacy experimental decorators?",
+    "answer": "TypeScript's legacy decorators (behind `experimentalDecorators`) execute after the class is defined and receive the class constructor as an argument, allowing mutation or replacement of the class. TC39 Stage 3 decorators (now the standard, supported from TypeScript 5.0) run differently: they receive a context object with metadata about the decorated element and a function to register initializers, and they cannot replace the class itself. The semantics are strictly defined — class decorators cannot return a different class, method decorators receive a bound function, and field decorators handle the value differently than legacy decorators. Angular still uses legacy decorators because the Ivy compiler relies on the legacy semantics for its static analysis. Migrating Angular to Stage 3 decorators is a major ongoing effort. For new non-Angular TypeScript code, Stage 3 decorators are now the standard.",
+    "followUp": null
+  }
+]

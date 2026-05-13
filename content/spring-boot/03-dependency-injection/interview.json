@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Why does @Transactional fail on self-invocation, and how do you fix it without restructuring the code?",
+    "answer": "Spring implements `@Transactional` using CGLIB or JDK dynamic proxies — the Spring bean in the application context is a proxy that wraps the real object. When you call a `@Transactional` method from outside the bean, the call goes through the proxy which starts a transaction. When you call a `@Transactional` method from another method within the same class (`this.someTransactionalMethod()`), the call bypasses the proxy entirely and goes directly to the real object — no transaction is started. Fixes: inject the bean into itself (with `@Lazy` to avoid circular dependency), use `ApplicationContext.getBean()` to get the proxied instance, refactor the invoked method into a separate `@Service` bean, or switch to AspectJ weaving which operates at the bytecode level and does not have the proxy limitation.",
+    "followUp": "How does AspectJ load-time weaving differ from Spring's CGLIB proxy approach, and what are the deployment implications?"
+  },
+  {
+    "question": "What is the difference between @Bean and @Component? When must you use @Bean?",
+    "answer": "`@Component` (and its specializations `@Service`, `@Repository`, `@Controller`) marks a class for classpath scanning — the class must be in a scanned package and Spring creates an instance automatically using the default constructor. `@Bean` is a method-level annotation on a `@Configuration` class and gives you complete control over construction — you call the constructor yourself, configure the object, and return it. You must use `@Bean` when: the class is from a third-party library and you cannot add Spring annotations to it (a `DataSource`, `RestTemplate`, or external client), when you need to pass constructor arguments from other beans, when you need multiple instances with different configurations (two `DataSource` beans), or when the creation logic is complex. `@Bean` methods are proxied in `@Configuration` classes so calling another `@Bean` method returns the cached singleton, not a new instance.",
+    "followUp": null
+  },
+  {
+    "question": "How does a prototype-scoped bean interact with a singleton bean, and what is the scoped proxy solution?",
+    "answer": "When a singleton bean has a prototype-scoped dependency injected via constructor injection, Spring injects the prototype instance once at singleton construction time — subsequent calls to the dependency method use the same instance forever, defeating the prototype scope. The scoped proxy solution wraps the prototype bean in a proxy that is injected into the singleton: `@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)`. The singleton holds the proxy, and each method call on the proxy retrieves a fresh prototype instance from the application context. This is also the mechanism for request-scoped and session-scoped beans injected into singletons in web applications — the singleton holds a proxy that delegates to the contextual instance per request.",
+    "followUp": null
+  },
+  {
+    "question": "What is @Lazy injection and when does it break circular dependency resolution?",
+    "answer": "`@Lazy` on a constructor parameter or `@Autowired` field tells Spring to inject a proxy instead of eagerly creating the dependency — the real bean is created on first method call. This breaks circular dependency errors in constructor injection by ensuring one participant is a proxy initially. However, `@Lazy` is not a real solution to circular dependencies — it resolves the startup ordering problem but the logical cycle still exists in the design. If the lazy proxy method is called during the context initialization phase (e.g., in a `@PostConstruct`), you can still get a circular dependency exception because the lazy instantiation triggers before the cycle is fully resolved. The real fix is always to redesign to eliminate the cycle; `@Lazy` is a temporary bypass that can mask the underlying architectural issue.",
+    "followUp": null
+  },
+  {
+    "question": "How do you inject different implementations based on runtime conditions (Strategy pattern with DI)?",
+    "answer": "Several approaches: inject all implementations as a `List<Strategy>` (Spring auto-populates it with all beans implementing the interface) and select at runtime based on a condition; inject a `Map<String, Strategy>` where Spring uses bean names as keys, then look up by key. For truly runtime-conditional injection, inject a factory (`StrategyFactory`) that selects the implementation based on runtime parameters. Another pattern uses `@Qualifier` or custom qualifier annotations to select specific implementations at injection time, but this is resolved at startup, not runtime. The `ApplicationContext.getBean(qualifier, Strategy.class)` approach gives full runtime flexibility but pulls the Service Locator pattern into the code — acceptable in the factory itself but not in business logic. The list injection pattern is the most idiomatic Spring approach for the Strategy pattern.",
+    "followUp": "How do you implement runtime strategy selection using Spring's ApplicationContext without polluting business logic with ApplicationContext references?"
+  }
+]

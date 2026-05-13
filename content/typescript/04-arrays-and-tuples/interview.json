@@ -1,0 +1,27 @@
+[
+  {
+    "question": "When would you use a tuple over an interface for a two-value return?",
+    "answer": "Tuples are preferable when the two values are positionally related and the caller will immediately destructure them — the canonical example is React's `useState`, which returns `[value, setter]` and lets the caller name both freely. An interface forces a fixed property name, which creates friction when callers want to disambiguate multiple uses of the same hook. However, when the function returns more than two values, or when the relationship between values needs documentation, an interface or named object is clearer because property names serve as documentation. A practical rule: use tuples for pairs that are always destructured together, use objects/interfaces for anything where the caller might pick individual properties or pass the return value around.",
+    "followUp": "How do you label tuple elements in TypeScript 4.0+ to get better IDE tooltips while preserving destructuring flexibility?"
+  },
+  {
+    "question": "What is the `readonly` modifier on arrays and why is it important for OnPush change detection in Angular?",
+    "answer": "`readonly` arrays (typed as `ReadonlyArray<T>` or `readonly T[]`) prevent mutation operations like `push`, `splice`, and direct index assignment from compiling. In Angular with OnPush change detection, a component only re-renders when its `@Input` reference changes — if you mutate an array in place with `push()`, the reference stays the same and the component never re-renders, causing a stale UI bug. Typing inputs as `ReadonlyArray<T>` communicates this contract at the type level and lets TypeScript catch accidental mutations at compile time. Beyond Angular, immutable arrays are also important for Redux-style state management and for memoization correctness where reference equality is used as a change signal.",
+    "followUp": "Does `readonly` on a TypeScript array prevent mutation at runtime, or is it only a compile-time check?"
+  },
+  {
+    "question": "How do you type a function that accepts a rest parameter of a specific tuple type?",
+    "answer": "You spread the tuple type into a rest parameter using `...args: TupleType` syntax — for example, `function log(...args: [string, number, boolean])` requires exactly a string, a number, and a boolean in that order. This is more precise than a generic rest parameter `(...args: unknown[])` because it enforces both the count and the types at each position. This pattern becomes powerful when combined with generics: `function wrap<T extends unknown[]>(fn: (...args: T) => void, ...args: T)` lets TypeScript infer the argument types from the function you're wrapping. This is the foundation for type-safe function composition utilities and decorator patterns.",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between `Array<string>` and `string[]`? Which is preferred in a team context?",
+    "answer": "They are semantically identical — TypeScript treats them as the same type. The difference is stylistic and readability-focused. `string[]` is more compact and reads naturally for simple types, while `Array<string>` is more explicit and scales better to complex nested types like `Array<Map<string, Set<number>>>` where the bracket form becomes hard to parse. Most style guides (including Google's TypeScript style guide) prefer the bracket form for simple types and the generic form for complex ones. In a team context, consistency matters more than the choice itself — codebases that mix both styles arbitrarily make code review harder, so lint rules (like `@typescript-eslint/array-type`) are used to enforce one convention.",
+    "followUp": null
+  },
+  {
+    "question": "How do TypeScript const assertions (`as const`) affect tuple inference?",
+    "answer": "Without `as const`, TypeScript infers an array literal as a mutable array of the widened element types — `[1, 'hello']` becomes `(number | string)[]`. With `as const`, TypeScript infers the narrowest possible literal types and marks the result as `readonly` — `[1, 'hello'] as const` becomes `readonly [1, 'hello']`. This is critical for functions that return tuple-typed values without explicitly annotating the return type, because without `as const` the caller gets a generic array and loses positional type information. It also matters for discriminated unions derived from object literals — `{ type: 'ADD' } as const` ensures `type` is the literal `'ADD'`, not widened to `string`.",
+    "followUp": "What is the tradeoff of using `as const` on a large configuration object — what do you gain and what do you lose in terms of type flexibility?"
+  }
+]

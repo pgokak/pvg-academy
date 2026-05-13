@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between canActivate and canMatch guards in terms of when they run?",
+    "answer": "`canMatch` runs during the URL matching phase — before a route is selected. If it returns false, that route configuration is skipped and the router continues evaluating remaining routes. Multiple routes can have the same path, and `canMatch` determines which one is served. `canActivate` runs after route matching is complete — the URL has been matched to a specific route and now the guard decides if navigation to that matched route is allowed. If `canActivate` returns false, navigation is blocked and no other route is tried. The timing difference: `canMatch` is evaluated per route configuration during matching; `canActivate` is evaluated once the winning route is determined. This makes `canMatch` appropriate for route selection logic (serve a different route based on user state) and `canActivate` appropriate for access control (allow or deny navigation to the matched route).",
+    "followUp": null
+  },
+  {
+    "question": "How does a route resolver differ from loading data in ngOnInit — what are the UX tradeoffs?",
+    "answer": "A route resolver blocks navigation until data is fetched — the user stays on the current page during loading and the new page renders with complete data. Loading in `ngOnInit` navigates immediately and the destination component handles its own loading state, typically showing a spinner or skeleton. The UX tradeoff: resolvers prevent the flash of empty/loading UI but make navigation feel slow (the page appears unresponsive). ngOnInit loading feels faster (immediate visual feedback) but requires careful empty state UI design. Modern UX conventions favor ngOnInit loading with skeleton screens — users prefer seeing progress over waiting with no feedback. Resolvers are best when: the component genuinely cannot render anything meaningful without data (unusual), when you need to redirect on data absence (resolver returns `null` to cancel navigation), or when implementing a breadcrumb or title that requires data before the route renders.",
+    "followUp": null
+  },
+  {
+    "question": "What is preloading strategy and how do PreloadAllModules vs. custom strategies affect performance?",
+    "answer": "`NoPreloading` (default) loads modules only when navigated to — first visit to a lazy route pays a download cost. `PreloadAllModules` downloads all lazy modules after the initial page load using idle time — subsequent navigations are instant but the initial load triggers background downloads that compete for bandwidth and may slow down visible page interactions. Custom strategies implement `PreloadingStrategy.preload()` returning an Observable — return `load()` to preload or `EMPTY` to skip. Custom strategies enable: preloading only routes marked `data: { preload: true }`, hover-based preloading (start preloading when mouse hovers over a navigation link, a few hundred milliseconds before click), or network-aware preloading (skip preloading on slow connections via the Network Information API). For most applications, a custom strategy that preloads the most likely next routes is the best balance.",
+    "followUp": null
+  },
+  {
+    "question": "How do you handle deep linking in an Angular SPA deployed on a web server (404 on refresh)?",
+    "answer": "When a user refreshes `/users/42`, the web server tries to serve a file at the path `/users/42` — which doesn't exist (only `index.html` exists). The server returns 404. The fix: configure the web server to redirect all unmatched paths to `index.html`, where Angular's router takes over and renders the correct route. In Nginx: `try_files $uri $uri/ /index.html`. In Apache: `FallbackResource /index.html`. In Express: serve `index.html` as the catch-all route. In AWS S3/CloudFront: configure custom error pages to redirect 404 to `/index.html` with a 200 status code. Angular Universal (SSR) handles this natively — the Node.js server routes all requests through the Angular router and renders server-side. Deployment to Vercel, Netlify, or Firebase Hosting handles this automatically with SPA rewrites.",
+    "followUp": null
+  },
+  {
+    "question": "What is the router's scroll position restoration feature and what are its edge cases?",
+    "answer": "Angular's `withRouterConfig({ scrollPositionRestoration: 'enabled' })` (or `RouterModule.forRoot(routes, { scrollPositionRestoration: 'enabled' })`) automatically scrolls to the top on new navigation and restores the previous position when navigating back. Edge cases: it restores `window.scrollY` (the document scroll position), so it breaks with custom scroll containers inside the page — a routed component inside a scrollable div requires manual implementation using `ViewportScroller` or a custom scroll service. Route animations where both old and new routes are visible simultaneously break the expected scroll position because two routes occupy the DOM at once. `anchorScrolling: 'enabled'` enables fragment navigation (`/page#section`), which conflicts with custom scroll restoration logic if not handled carefully. Virtual scroll in a route's content has its own scroll position independent of the window, requiring separate preservation.",
+    "followUp": null
+  }
+]

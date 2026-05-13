@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between canActivate and canMatch guards? When does canMatch win?",
+    "answer": "`canActivate` runs after the router has already matched the route URL — it decides whether the matched route can be activated (navigated to). If it returns false, navigation is blocked and the user sees an empty route or is redirected. `canMatch` runs during route matching itself — if it returns false, the router skips that route configuration entirely and continues looking for another matching route. `canMatch` wins when you have two routes for the same URL path but different audiences: an authenticated route and an unauthenticated fallback for the same path. `canActivate` cannot differentiate between routes — both would match and then the first one's `canActivate` would run. `canMatch` lets the router find the correct route based on the current state, enabling A/B testing, feature flags, and role-based route resolution without separate URL paths.",
+    "followUp": null
+  },
+  {
+    "question": "How does Angular's router handle scroll restoration and when does it break?",
+    "answer": "Angular's router provides `scrollPositionRestoration` in `RouterModule.forRoot({ scrollPositionRestoration: 'enabled' })` — when navigating back, the router restores the scroll position to where it was before leaving. When navigating forward to a new route, it scrolls to the top. It breaks in several scenarios: with virtual scroll or custom scroll containers (the router restores the document scroll position, not an inner container's scroll position); with lazy-loaded content that renders after the scroll restoration fires; with route animations where the previous page content is still visible during the transition; and with infinite scroll where the content length changes. For complex cases, disable automatic restoration and implement it manually using `NavigationEnd` events and `ViewportScroller`.",
+    "followUp": null
+  },
+  {
+    "question": "What is the difference between activated route snapshot.params vs params observable?",
+    "answer": "`snapshot.params` captures the route parameters at the moment the route is first activated — it's a point-in-time value that does not update. If the same component instance stays alive while the route parameters change (navigation between `/users/1` and `/users/2` where Angular reuses the component), `snapshot.params` still shows the original values. The `params` Observable emits each time the parameters change, keeping the component in sync. This bug is especially common in detail/master navigation patterns where Angular reuses the component instance for performance. The rule: use `snapshot.params` only when you know the component is always created fresh for each parameter value, or when you only need the initial value. Use the Observable when the component must react to parameter changes during its lifetime.",
+    "followUp": "When does Angular decide to reuse a component instance vs. destroy and recreate it on navigation?"
+  },
+  {
+    "question": "How does preloading strategy affect initial load and subsequent navigation performance?",
+    "answer": "Without preloading, lazy-loaded modules are fetched only when the user navigates to them — there's a network delay visible on first navigation to any lazy route. `PreloadAllModules` fetches all lazy modules in the background after the initial page load, so subsequent navigations are instant. The tradeoff: `PreloadAllModules` downloads all module bundles even if the user never visits those routes — wasted bandwidth on mobile. Custom preloading strategies (implementing `PreloadingStrategy`) let you preload selectively: preload routes likely to be visited next based on user context, preload on hover over navigation links, or preload only routes marked with a `data: { preload: true }` flag. The `@angular/router` `withPreloading()` API in the standalone router configuration accepts any `PreloadingStrategy` implementation.",
+    "followUp": null
+  },
+  {
+    "question": "What is the router's resolve guard and what problems does it solve vs. loading in ngOnInit?",
+    "answer": "A resolve guard fetches data before the route is activated — the router waits for the resolved data before rendering the component, passing it through `ActivatedRoute.snapshot.data`. The UX tradeoff: the previous page stays visible while data is loading (no loading spinner on the destination), which feels slower but avoids a flash of empty content on the destination. Loading in `ngOnInit` shows the destination component immediately (fast perceived navigation) with a loading state, which most modern UX patterns prefer. Resolve guards are valuable when the destination component genuinely cannot render without the data (no meaningful loading state is possible), when you need to redirect if data is not found (resolve can cancel navigation by returning `null` or redirecting), or when the route resolver is shared across multiple routes and caches the result.",
+    "followUp": null
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between CascadeType.ALL and CascadeType.PERSIST? When is ALL dangerous?",
+    "answer": "`CascadeType.PERSIST` propagates save operations — when you persist a parent, its children are automatically persisted too. `CascadeType.ALL` propagates all operations: PERSIST, MERGE, REMOVE, REFRESH, and DETACH. `CascadeType.ALL` is dangerous when it includes `REMOVE` — deleting a parent cascades to all children, including through deep association chains. A `User` with `CascadeType.ALL` on `orders`, and `Order` with `CascadeType.ALL` on `orderItems` means deleting a user deletes all their orders and every order item. In many applications, this is catastrophic (you want to keep order history for auditing). The safer approach is to explicitly list only the cascade types you intend, and to add `CascadeType.REMOVE` only when orphan lifecycle management is a deliberate design decision. `orphanRemoval=true` is even more aggressive — it deletes any child that loses its parent reference, not just children of a deleted parent.",
+    "followUp": null
+  },
+  {
+    "question": "How do you handle the Cartesian product problem when using JOIN FETCH on multiple @OneToMany collections simultaneously?",
+    "answer": "Fetching two `@OneToMany` collections with `JOIN FETCH` in a single query produces a Cartesian product — a user with 3 orders and 3 roles returns 9 rows (3 × 3), causing Hibernate to deduplicate them into the correct object graph but waste database I/O and result set parsing time. Hibernate also warns about 'HHH90003004: firstResult/maxResults specified with collection fetch' — pagination with multiple collection fetches is effectively undefined behavior. Solutions: use `@BatchSize` to load each collection separately in batched queries; use multiple queries (one per collection), which Hibernate does automatically with batch loading; or use `@EntityGraph` and accept the Cartesian product for small collections. The Hibernate 6+ `@FetchProfile` and `SUBSELECT` fetch modes provide additional control. For large collections, multiple queries are always better than a Cartesian product join.",
+    "followUp": null
+  },
+  {
+    "question": "What is orphanRemoval and how does it differ from CascadeType.REMOVE?",
+    "answer": "`CascadeType.REMOVE` propagates deletion — when you delete the parent entity, all cascade-linked children are also deleted. `orphanRemoval=true` additionally deletes children when they are removed from the parent's collection: `parent.getChildren().remove(child)` causes Hibernate to issue a DELETE for `child` at flush time. The key distinction: `CascadeType.REMOVE` fires on explicit parent deletion; `orphanRemoval` fires on collection manipulation. `orphanRemoval=true` also implies `CascadeType.PERSIST` — adding an entity to the collection persists it. Use `orphanRemoval=true` when the child has no meaningful existence outside the parent (a line item in an order — an order line without an order makes no sense). Avoid it when children might be shared between parents or have independent lifecycle meaning.",
+    "followUp": null
+  },
+  {
+    "question": "How do you model a @ManyToMany relationship with extra columns on the join table?",
+    "answer": "A standard `@ManyToMany` generates a simple join table with just two foreign keys. When you need extra columns (enrollment date, permission level, status), you cannot use `@ManyToMany` — you model the join table as its own entity. Create a `UserRole` entity with `@ManyToOne User user`, `@ManyToOne Role role`, and your additional fields. `User` has `@OneToMany List<UserRole> userRoles` and `Role` has `@OneToMany List<UserRole> userRoles`. The composite primary key of `UserRole` is typically a `@Embeddable` `UserRoleId` containing both foreign keys, or you use a surrogate auto-generated ID. This approach is more verbose but handles the real-world requirement of join-table attributes and is far more common in enterprise applications than pure `@ManyToMany`.",
+    "followUp": "How do you design the composite key for this join entity, and what are the tradeoffs between @EmbeddedId and a surrogate key?"
+  },
+  {
+    "question": "What is the open session in view anti-pattern and why should it be disabled in production?",
+    "answer": "Open Session in View keeps the Hibernate Session open for the entire HTTP request, including the view rendering phase — lazy associations can be loaded during template rendering. The problems: database connections are held for the full request duration including all template rendering time, which under load exhausts the connection pool; lazy loading during view rendering is invisible — you don't know from the controller code how many queries will execute; it hides N+1 problems because they only manifest during view rendering, making them hard to detect in service-layer tests. Spring Boot enables it by default, which has been criticized extensively. Disable it with `spring.jpa.open-in-view=false`. With it disabled, lazy associations accessed outside of a `@Transactional` boundary throw `LazyInitializationException`, forcing developers to explicitly fetch what they need — which is the correct behavior.",
+    "followUp": null
+  }
+]

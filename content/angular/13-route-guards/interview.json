@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between canActivate and canDeactivate? Give a real-world example for each.",
+    "answer": "`canActivate` runs before entering a route — it decides whether the user is allowed to navigate to the destination. Real-world example: an `AuthGuard` that checks if the user has a valid session and redirects to `/login` if not, or a `FeatureFlagGuard` that redirects to a fallback page if a feature is disabled. `canDeactivate` runs before leaving a route — it asks the current component whether leaving is allowed. Real-world example: a `UnsavedChangesGuard` on a form page that checks if the form is dirty and prompts 'You have unsaved changes, are you sure you want to leave?' — it calls a method on the current component (`canDeactivate` receives the component instance). `canDeactivate` is the correct pattern for preventing accidental navigation away from unsaved work, a common requirement in admin forms and wizards.",
+    "followUp": null
+  },
+  {
+    "question": "How do you implement role-based access control across routes without duplicating logic?",
+    "answer": "Create a generic `RoleGuard` that accepts the required role(s) as route `data`: the guard reads `route.data['roles']` and checks if the authenticated user has any of the required roles. Configure routes with `data: { roles: ['ADMIN', 'MANAGER'] }` and `canActivate: [RoleGuard]`. This single guard implementation works for all role combinations — each route declares its requirements in the route definition, and the guard enforces them. For more complex authorization (permissions beyond roles, ownership checks), pass a permission expression in `data` that the guard evaluates against the current user context. The guard should redirect to an appropriate page (403 Forbidden view, not the login page) when the user is authenticated but lacks the required role — the `canActivate` return of `false` can include a `RedirectCommand` (Angular 17.1+) specifying exactly where to navigate.",
+    "followUp": null
+  },
+  {
+    "question": "What is the canMatch guard (Angular 15+) and how is it different from canActivate?",
+    "answer": "`canMatch` determines whether a route configuration is even considered during URL matching — if it returns false, the router skips that route and continues looking for other matching configurations. `canActivate` runs after a route is matched — the route matched the URL, and now the guard decides if navigation is allowed. The critical distinction: with `canActivate`, there's only one matching route, and denying access shows an empty page or requires redirection. With `canMatch`, you can have multiple routes with the same path but different guards — the router finds the first route whose URL matches and whose `canMatch` returns true. Real use: a `/dashboard` route for authenticated users (with a `canMatch` that checks authentication) and a second `/dashboard` route for anonymous users that renders a preview — the router serves the right version without URL changes or redirects.",
+    "followUp": null
+  },
+  {
+    "question": "How do you pass data to a route guard without putting it in the route definition?",
+    "answer": "For configuration that is static and declarative, `route.data` in the route definition is the correct approach. For dynamic data (current user, feature flags, runtime state), the guard directly injects the services that hold that state: `inject(AuthService)`, `inject(FeatureFlagService)`, `inject(UserStore)`. Guards are instantiated with DI — they have full access to the Angular DI tree and can read from any service. The guard should not receive transient runtime data through parameters — if you need request-specific data (like query parameters), read them from `ActivatedRouteSnapshot` which is passed as a parameter to the guard function. Guards in functional form (`export const authGuard: CanActivateFn = (route, state) => inject(AuthService).isLoggedIn()`) are the modern pattern, avoiding class boilerplate while retaining full DI access.",
+    "followUp": null
+  },
+  {
+    "question": "What are the security risks of relying solely on frontend route guards?",
+    "answer": "Frontend route guards are a UX feature, not a security boundary. Any user with the browser developer tools, Angular DevTools, or direct API access can bypass frontend guards entirely — navigate directly to a protected route by modifying the URL, call protected API endpoints directly with curl or Postman, or use Angular's debug tools to disable guards. Route guards prevent accidental navigation by legitimate users, not malicious access. Every API endpoint must enforce authorization server-side, every piece of sensitive data must be protected on the server, and every privileged operation must verify permissions before execution — regardless of what the frontend claims about the user's role. A common security mistake is implementing role-based UI (showing/hiding routes and buttons) without corresponding server-side enforcement, assuming the frontend controls are sufficient protection.",
+    "followUp": null
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Why does returning an @Entity directly from a controller cause security vulnerabilities?",
+    "answer": "JPA entities may contain fields that were never intended for API consumers — password hashes, internal audit data, foreign key IDs, soft-delete flags, or version fields. Even with `@JsonIgnore`, the risk remains: developers can forget to add the annotation on new sensitive fields, library upgrades might reset serialization configuration, and the entity can accidentally expose associations through lazy loading during serialization. Beyond security, entities coupled to the API contract prevent schema evolution — changing a database column name forces an API change. The principle is that the API contract and the persistence model are separate concerns with separate lifetimes. DTOs make the API surface explicit and minimal — only the fields you intentionally declare are serialized, turning accidental exposure from an opt-out (easy to forget `@JsonIgnore`) into an opt-in.",
+    "followUp": null
+  },
+  {
+    "question": "What are the tradeoffs between MapStruct and manual mapping for DTOs?",
+    "answer": "MapStruct generates compile-time bytecode for mapping, producing zero-reflection, type-safe, IDE-debuggable conversion code that is as fast as hand-written mapping. The tradeoff is build complexity: it requires annotation processing in your build tool, the generated code is verbose, and complex mappings with custom logic require `@Mapping` annotations or `@AfterMapping` methods that can become hard to read. Manual mapping is simple, obvious, and trivially debuggable but is repetitive code that developers copy-paste and that drifts when entities change — adding a field to the entity doesn't automatically update manually written mappers. ModelMapper (runtime reflection) is simpler to configure than MapStruct but slower, error-prone (convention-based silent field matching can map the wrong fields), and hard to debug when mappings fail. For teams with many DTOs, MapStruct's compile-time safety justifies the build overhead.",
+    "followUp": "How does MapStruct handle mapping between types where the source and target have different field names?"
+  },
+  {
+    "question": "How do you handle bidirectional relationships in DTOs without infinite recursion?",
+    "answer": "Infinite recursion occurs when a `User` has a list of `Orders` and each `Order` has a reference back to `User` — Jackson recursively serializes them until stack overflow. Solutions: design DTOs to break the cycle by not including the back-reference (`OrderDto` includes the order data but not the full user, just a `userId`); use `@JsonManagedReference` and `@JsonBackReference` (Jackson annotations where the 'back' side is not serialized); or use `@JsonIdentityInfo` which serializes the first occurrence fully and subsequent occurrences as an ID reference. The cleanest architectural solution is to design DTOs specifically for each use case — a `UserWithOrdersDto` includes orders without back-references, while an `OrderDto` standalone includes user metadata without nested user orders. Response-specific DTOs (not one DTO for all operations) eliminate the recursion problem by design.",
+    "followUp": null
+  },
+  {
+    "question": "What is a projection in Spring Data and when is it more efficient than a DTO?",
+    "answer": "Spring Data projections are interfaces or classes that declare only the fields you want from a query — `interface UserSummary { String getName(); String getEmail(); }`. Spring Data generates a query selecting only those fields instead of loading the entire entity. They're more efficient than full entity loading when you need a subset of fields from a large entity (fewer columns transferred from the database), and they avoid the overhead of a full Hibernate entity materialization (first-level cache, dirty tracking, proxy wrapping). The tradeoff: interface projections use JDK proxies at runtime (small overhead per call), they cannot contain logic, and they don't work well for deeply nested hierarchies. Class-based projections (often called DTOs in Spring Data) are more flexible and can contain computed properties. For read-heavy list endpoints that don't need full entities, projections significantly reduce database I/O and memory usage.",
+    "followUp": null
+  },
+  {
+    "question": "How do Java 16+ records improve the DTO pattern?",
+    "answer": "Records are immutable data carriers that automatically generate a canonical constructor, `equals()`, `hashCode()`, and `toString()` based on their components — eliminating the boilerplate that makes traditional DTOs verbose. `record UserDto(String name, String email, LocalDate birthDate) {}` is complete and immutable. For DTOs, immutability is a feature — they're data transfer objects, not mutable domain objects, and accidental mutation is a bug. Records also integrate cleanly with Jackson (since Jackson 2.12 with `jackson-module-parameter-names` or `@JsonCreator`), with Spring's `@RequestBody`, and with JPA projections. The limitation is that records cannot extend other classes (only implement interfaces), cannot be used as JPA entities (Hibernate requires mutable state and a no-arg constructor), and custom validation with `@Valid` requires care to ensure constraints are on the compact constructor parameters.",
+    "followUp": "How do you add Bean Validation annotations to a Java record and ensure they're validated when the record is used as @RequestBody?"
+  }
+]

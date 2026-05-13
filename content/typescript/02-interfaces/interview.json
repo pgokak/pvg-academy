@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Interfaces vs types for public API shapes — which is preferred and why (declaration merging)?",
+    "answer": "Interfaces are preferred for public API shapes precisely because of declaration merging — consumers of your library can augment the interface by re-declaring it in their own code to add properties, which is a first-class extensibility mechanism. Type aliases cannot be merged; once declared, they're closed. If you ship a library with a `type` for your config object, consumers cannot extend it without forking or intersection gymnastics. Another consideration is that interfaces produce cleaner error messages in many versions of TypeScript because the compiler shows the interface name rather than expanding the full structure. The general rule practiced at companies like Microsoft and Google is: use `interface` for object shapes that represent contracts, use `type` for computed types, unions, intersections, and aliases.",
+    "followUp": "How does the TypeScript compiler handle a situation where two separately-declared interfaces with the same name have conflicting property types?"
+  },
+  {
+    "question": "When does declaration merging become a liability in a large codebase?",
+    "answer": "Declaration merging becomes a liability when it's implicit and surprising — a developer defines an interface in one file, and a completely unrelated file merges new properties into it, making the effective shape non-obvious from any single location. This is especially problematic when merging happens across package boundaries, such as augmenting Express's `Request` type to add a `user` property — if the augmentation file isn't loaded, the property doesn't exist at runtime despite compiling. Large codebases with many augmentations also slow down the language server because it must collect all declarations across the project to resolve the final shape. Some teams ban merging entirely for internal interfaces, reserving it only for third-party type augmentation in a dedicated `types/` directory.",
+    "followUp": null
+  },
+  {
+    "question": "How do you extend a third-party library's types using module augmentation?",
+    "answer": "Module augmentation uses a `declare module 'library-name'` block inside a `.d.ts` file (or any TypeScript file) to re-open the module's type namespace and add or modify exports. For example, to add a `user` property to Express's `Request`, you'd write `declare module 'express' { interface Request { user?: AuthUser } }` inside a file that's included in your `tsconfig.json`. The key requirement is that the file must be a module (has at least one import or export), otherwise TypeScript treats it as a global script and the augmentation fails. This pattern is the standard way to type framework extensions — you see it for Jest matchers, Express middleware, and Passport.js user types. The augmentation is purely a type-level operation; you still need to actually set the value at runtime.",
+    "followUp": "What can go wrong if the augmentation file is not included in tsconfig `include` paths?"
+  },
+  {
+    "question": "What is the difference between `interface Foo { bar?: string }` and `interface Foo { bar: string | undefined }`? When does `exactOptionalPropertyTypes` matter?",
+    "answer": "With `bar?: string`, the property can be absent entirely, set to `string`, or explicitly set to `undefined` — TypeScript treats absent and undefined as equivalent by default. With `bar: string | undefined`, the property must be present in any object literal conforming to the interface, even if its value is `undefined`. `exactOptionalPropertyTypes` (added in TypeScript 4.4) tightens this: when enabled, `bar?: string` means the property may be absent but if present must be `string`, not `undefined`. This matters in practice when spreading objects or using `Object.assign` — you can accidentally introduce explicit `undefined` values that corrupt downstream consumers expecting the key to simply be absent. APIs that treat absent keys and `undefined` values differently (like some JSON serializers and REST conventions) are the primary motivation for this compiler flag.",
+    "followUp": null
+  },
+  {
+    "question": "Why do some TypeScript gurus say 'use interface for objects, type for everything else'?",
+    "answer": "The heuristic exists because interfaces are designed specifically for describing object shapes and carry features suited to that use case: declaration merging, `implements` in classes, and cleaner display in error messages. Type aliases are more general-purpose — they can alias primitives, create unions and intersections, use conditional types, and mapped types, none of which interfaces support. When you see `type Status = 'open' | 'closed'` or `type Unwrap<T> = T extends Promise<infer U> ? U : T`, those are things only `type` can express. Using `interface` for these would be impossible or awkward. The rule isn't a hard law, but it helps teams avoid reaching for `interface` when they need computation-style types and vice versa.",
+    "followUp": null
+  }
+]

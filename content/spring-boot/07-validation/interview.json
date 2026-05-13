@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between @Valid and @Validated in Spring, and when does the difference matter?",
+    "answer": "`@Valid` is a JSR-303/380 standard annotation that triggers bean validation recursively on an object and its nested objects. `@Validated` is Spring's annotation that additionally supports validation groups — `@Validated(Create.class)` activates only constraints belonging to the `Create` group. The difference matters in two cases: when you need to apply different validation rules for create vs. update operations (using groups), and when validating method parameters on Spring-managed beans outside of controllers — `@Validated` on the class enables method-level validation through Spring AOP, while `@Valid` on method parameters only works in Spring MVC controller methods. For simple controller validation without groups, both work identically. The `@Validated` annotation cannot be used in place of `@Valid` on `@RequestBody` parameters when you need nested validation with groups — you must use `@Validated` at the controller class level for group-based validation.",
+    "followUp": null
+  },
+  {
+    "question": "How do you create a cross-field constraint (e.g., endDate must be after startDate)?",
+    "answer": "Class-level constraints validate multiple fields together. Create a custom annotation: `@Target(ElementType.TYPE) @Retention(RetentionPolicy.RUNTIME) @Constraint(validatedBy = DateRangeValidator.class) public @interface ValidDateRange {}`. The validator implements `ConstraintValidator<ValidDateRange, DateRangeRequest>` and checks `request.getEndDate().isAfter(request.getStartDate())`. Apply the annotation to the DTO class. The violation produced by a class-level constraint has no field path by default — it attaches to the object root, which means Angular won't map it to a specific form control. To associate it with a field, set the node path in `context.buildConstraintViolationWithTemplate(message).addPropertyNode('endDate').addConstraintViolation()`, which creates a field-level violation pointing to `endDate`.",
+    "followUp": "How do you test a cross-field constraint validator in isolation without spinning up a Spring context?"
+  },
+  {
+    "question": "How do you handle validation in a service layer vs. the controller layer?",
+    "answer": "Controller-layer validation uses Bean Validation on request DTOs (`@Valid @RequestBody`) for format and completeness checks — it validates that the input is well-formed before the service even sees it. Service-layer validation handles business rule violations that require application state — 'can this user perform this action given their current status?' or 'is the order in a state that allows cancellation?' These are not format checks but domain invariants, and they should throw domain exceptions when violated. The anti-pattern is duplicating format checks in the service 'just to be safe' — this couples the service to HTTP contract details and clutters service logic. For method-level validation in service beans (not called via HTTP), `@Validated` on the bean class and JSR-303 annotations on method parameters provide validation through Spring AOP.",
+    "followUp": null
+  },
+  {
+    "question": "What are constraint groups and when would you use them in a real application?",
+    "answer": "Constraint groups are marker interfaces attached to `@Constraint` annotations to select which constraints apply in a given context. The canonical real-world example: a `UserRequest` DTO used for both user creation and profile update. For creation, `email` is mandatory (`@NotBlank(groups = Create.class)`); for update, it's optional but if provided must be valid. Without groups, you'd need two separate DTO classes. A CRUD wizard with multiple steps uses groups to validate each step independently — step 1 validates personal info, step 2 validates address, and you can run only the relevant group's constraints at each step. Groups are used less frequently than alternatives (separate DTOs per operation, conditional validators) because they add complexity, but they're valuable when the DTO structure is genuinely identical across operations and only the required-vs-optional state differs.",
+    "followUp": null
+  },
+  {
+    "question": "How do you write a custom constraint that validates against the database?",
+    "answer": "Implement `ConstraintValidator<T, String>` and inject a repository via `@Autowired` (Spring creates validators as managed beans when the class is component-scanned or explicitly declared). The validator's `isValid()` method calls the repository to check uniqueness or existence: checking that a username is not already taken, that a referenced entity ID exists, or that a combination of values satisfies a business uniqueness constraint. Performance considerations: this validator runs on every validation pass — add a cache (`@Cacheable`) to the repository method for stable reference data, and use `@Async` carefully since validators are synchronous. In tests, mock the repository dependency. A common mistake is not making the validator a Spring bean — if it's instantiated by the validation framework directly, `@Autowired` fields will be null. Register it as a Spring bean and ensure the validation framework finds it through `ConstraintValidatorFactory`.",
+    "followUp": null
+  }
+]

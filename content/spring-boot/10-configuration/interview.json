@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between @Value and @ConfigurationProperties, and which is preferred for complex config?",
+    "answer": "`@Value(\"${some.property}\")` injects a single property value into a field or constructor parameter — it's simple but scattered across the codebase, making it hard to see the full configuration surface. If a property name changes, you must find every `@Value` reference. `@ConfigurationProperties` maps a prefix of properties to a typed Java class, enabling grouped configuration, validation with Bean Validation annotations on the class, IDE auto-completion from generated metadata, and refactoring safety. `@ConfigurationProperties` is preferred for complex configuration — a connection pool config with 8 properties is a natural fit for a `PoolConfig` record, while a single feature flag is fine as `@Value`. The `@ConfigurationPropertiesScan` annotation (Spring Boot 2.2+) removes the need to explicitly reference each `@ConfigurationProperties` class, and `@Validated` on the class enables startup-time validation.",
+    "followUp": "How do you generate IDE auto-completion metadata for custom @ConfigurationProperties classes?"
+  },
+  {
+    "question": "How does Spring's property source precedence work — what overrides what?",
+    "answer": "Spring's property source precedence (highest to lowest): command-line arguments (`--server.port=8080`), `SPRING_APPLICATION_JSON` environment variable, OS environment variables, `application-{profile}.properties` in external config locations, `application.properties` in external config locations, `@PropertySource` annotations on `@Configuration` classes, `application-{profile}.properties` in classpath (`src/main/resources`), `application.properties` in classpath, `SpringApplication.setDefaultProperties()`. This ordering means environment variables override everything in classpath config, which is intentional for containerized deployment — you never need to rebuild the image to change a setting. Command-line arguments override environment variables, which is useful for developer overrides during testing. The `@TestPropertySource` annotation in tests sits above all other sources, making test configuration reliable.",
+    "followUp": null
+  },
+  {
+    "question": "How do you manage secrets (DB passwords, API keys) in a Spring Boot app deployed to Kubernetes?",
+    "answer": "Never store secrets in `application.properties` committed to version control. The Kubernetes-native approach: store secrets in Kubernetes Secrets (base64-encoded, not encrypted by default — enable etcd encryption at rest) and expose them as environment variables or mounted files in the pod. Spring Boot reads environment variables with no extra configuration. For production-grade secret management, use HashiCorp Vault with Spring Cloud Vault (dynamic secrets, automatic rotation, audit trail) or cloud provider secret managers (AWS Secrets Manager, GCP Secret Manager, Azure Key Vault) via Spring Cloud AWS/GCP/Azure integrations. These solutions provide encryption at rest, access control via IAM, automatic rotation, and audit logging — capabilities Kubernetes Secrets lack out of the box. Never log the full environment at startup; use `management.endpoint.env.show-values=never` for the Actuator env endpoint.",
+    "followUp": null
+  },
+  {
+    "question": "What is @RefreshScope and how does it work with Spring Cloud Config for runtime config updates?",
+    "answer": "`@RefreshScope` marks a bean as eligible for refresh — when the `/actuator/refresh` endpoint is triggered, Spring destroys and recreates all `@RefreshScope` beans, re-injecting their `@Value` and `@ConfigurationProperties` with the latest values from the Config Server. Without `@RefreshScope`, beans are singletons created once at startup with their configuration values baked in. With Spring Cloud Config Bus, a single config push can propagate to all service instances via a message broker, triggering refresh across the fleet without hitting each instance's endpoint individually. The limitation: `@RefreshScope` beans are destroyed and recreated on refresh, which can briefly serve a mix of old and new configuration if multiple instances refresh at different times. Stateful beans (those with important in-memory state) should not be `@RefreshScope` as the state is lost on refresh.",
+    "followUp": null
+  },
+  {
+    "question": "What is the risk of logging application properties at startup and how do you prevent secrets from appearing in logs?",
+    "answer": "Spring Boot's `ConfigurationPropertiesReportEndpoint` and some auto-configurations log resolved configuration at startup or expose it through `/actuator/env`. If a database password, API key, or OAuth client secret is in application properties, it appears in logs or actuator output in plaintext. Mitigations: use `spring.output.ansi.enabled` and `logging.level.root=WARN` to reduce startup log noise, configure `management.endpoint.env.show-values=NEVER` (Spring Boot 2.7+) to mask property values in the actuator env endpoint, use `@SensitiveData` or custom sanitizers to mark specific properties as sensitive. The Actuator `env` endpoint is particularly dangerous — it exposes the full resolved property source hierarchy including system environment variables. Secure it with Spring Security to require authentication, or disable it entirely in production: `management.endpoint.env.enabled=false`.",
+    "followUp": null
+  }
+]

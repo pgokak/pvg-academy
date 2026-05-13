@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is the difference between Spring AOP (proxy-based) and AspectJ (bytecode weaving)? When does the difference matter?",
+    "answer": "Spring AOP uses JDK dynamic proxies or CGLIB to wrap Spring beans — it only intercepts calls that go through the Spring container's proxy, meaning method calls from outside the bean go through the proxy, but internal `this.method()` calls do not. AspectJ operates at the bytecode level, either at compile time (compile-time weaving) or class loading time (load-time weaving), and intercepts every method call regardless of how it's made, including self-calls. The difference matters for: self-invocation (Spring AOP misses it, AspectJ doesn't), non-Spring-managed classes (Spring AOP can't intercept them, AspectJ can), and final classes/methods (Spring AOP cannot proxy them, AspectJ can weave into them). AspectJ is more powerful but adds build complexity and debugging difficulty since the code in memory differs from what you wrote. For most enterprise Spring applications, Spring AOP covers 95% of AOP use cases.",
+    "followUp": null
+  },
+  {
+    "question": "What is a JoinPoint vs. a Pointcut vs. an Advice? How do they compose?",
+    "answer": "A JoinPoint is a specific moment during program execution where an aspect can be applied — in Spring AOP, this is a method execution. A Pointcut is an expression that selects which JoinPoints the advice should apply to: `execution(* com.example.service.*.*(..))` selects all method executions in the service package. An Advice is the code that runs at the selected JoinPoints — `@Before`, `@After`, `@Around`, `@AfterReturning`, `@AfterThrowing`. They compose as: the Pointcut identifies which JoinPoints to target, and the Advice specifies what to do at those JoinPoints. An Aspect is a class that groups related Pointcuts and Advices. The `@Around` advice is the most powerful because it controls whether the target method executes at all — it must call `joinPoint.proceed()` to invoke the actual method.",
+    "followUp": null
+  },
+  {
+    "question": "Why must @Around advice call joinPoint.proceed(), and what happens if you forget?",
+    "answer": "In `@Around` advice, the entire method execution is replaced by the advice — the advice is responsible for calling `joinPoint.proceed()` to invoke the actual method. If you forget, the target method never executes: the around advice runs, returns (returning null or the wrong value), and the caller receives null as the 'result'. There is no exception or warning — the code silently swallows the method call. This is a particularly dangerous bug in cross-cutting concerns like performance monitoring, logging, or feature flags: you add the aspect, all monitored methods appear to respond with null, and debugging is confusing because the code 'looks correct'. The fix is always ensuring `proceed()` is called and its return value is returned from the advice (for non-void methods). Some aspects intentionally skip `proceed()` for authorization (deny access) or mocking (return test data), but this must be deliberate.",
+    "followUp": null
+  },
+  {
+    "question": "How do you measure method execution time with AOP without affecting the method's return value?",
+    "answer": "Use `@Around` advice, capture the start time, call `joinPoint.proceed()`, capture the end time, compute duration, log it, and return the original result: `Object result = joinPoint.proceed(); long duration = System.currentTimeMillis() - start; log(duration); return result`. The key is storing and returning the result of `proceed()` unchanged. If the method throws an exception, `proceed()` rethrows it — wrap the entire body in `try/finally` to ensure timing is logged even on failure. For Micrometer integration, record to a `Timer` (which automatically tracks count, sum, and max): `Timer.Sample sample = Timer.start(meterRegistry); Object result = joinPoint.proceed(); sample.stop(meterRegistry.timer(\"method.execution\", \"method\", signature))`. The method signature provides the metric tag for breakdown by method. This pattern provides observability without modifying any business code.",
+    "followUp": "How do you add the class name and method name as Micrometer tags without string concatenation that generates garbage?"
+  },
+  {
+    "question": "What are the security risks of AOP-based authentication bypass? What could an attacker exploit?",
+    "answer": "AOP-based security (like `@PreAuthorize`) relies on the Spring proxy being invoked — any call that bypasses the proxy also bypasses the security check. The risks: internal calls within the same bean bypass `@PreAuthorize` (self-invocation problem); if a class is not Spring-managed (instantiated with `new`), no security proxy exists; integration tests or programmatic Spring context access can obtain the target object and bypass the proxy via reflection. An attacker within the codebase who can cause a self-invocation (inject code that calls the bean's method on `this`) effectively bypasses authorization. For production security, AOP-based authorization must be paired with layer-level authorization checks that don't rely on proxy interception — Spring Security's method-level security is generally reliable when beans are always accessed through the container, but security-critical code should also validate authorization explicitly in the method body rather than relying solely on AOP.",
+    "followUp": null
+  }
+]
